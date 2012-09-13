@@ -17,17 +17,30 @@ function run() {
   var windowHalfX = SCREEN_WIDTH / 2;
   var windowHalfY = SCREEN_HEIGHT / 2;
 
+  var car_one = null;
+  var car_two = null;
+  var then = Date.now();
+
   init();
   animate();
 
   (function foo() {
-    var timer = -0.0002 * Date.now();
 
-    camera.position.x = Math.cos( timer * 10.0) * 10;
-    camera.position.y = 2;
-    camera.position.z = Math.sin( timer * 10.0) * 10;
+    var now = Date.now();
+    var dt = (now - then) * 0.0001;
 
-    camera.lookAt(scene.position);
+    var foward = new THREE.Vector3(0, 0, -1);
+
+    if (car_one != null) {
+      camera.lookAt(car_one.position);
+      moveCar(dt, car_one, foward, 0.01);
+    } else {
+      camera.lookAt(scene.position);
+    }
+
+    camera.position.x = Math.cos(dt) * 10;
+    camera.position.z = Math.sin(dt) * 10;
+
 
     setTimeout(foo, 1);
   })();
@@ -50,7 +63,7 @@ function init() {
 
   camera = new THREE.PerspectiveCamera(70, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000);
   camera.position.x = 5;
-  camera.position.y = 5;
+  camera.position.y = 10;
   camera.position.z = 5;
 
   scene = new THREE.Scene();
@@ -182,8 +195,8 @@ function createScene( geometry, materials ) {
   //mesh.scale.set( s, s, s );
   //scene.add( mesh );
 
-  var car_one = THREE.SceneUtils.cloneObject(geometry.scene);
-  var car_two = THREE.SceneUtils.cloneObject(geometry.scene);
+  car_one = THREE.SceneUtils.cloneObject(geometry.scene);
+  car_two = THREE.SceneUtils.cloneObject(geometry.scene);
 
   //dae.scale.x = dae.scale.y = dae.scale.z = 0.1;
   car_one.updateMatrix();
