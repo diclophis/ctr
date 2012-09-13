@@ -4,8 +4,8 @@ var windowSizeAndAspect = function() {
     windowHalfX: window.innerWidth / 2,
     windowHalfY: window.innerHeight / 2,
     aspect: window.innerWidth / window.innerHeight,
-    x: window.innerWidth,
-    y: window.innerHeight
+    x: (window.innerWidth / 3),
+    y: (window.innerHeight / 3)
   };
 };
 
@@ -23,6 +23,28 @@ var run = function() {
   var car_two = null;
 
   var then = Date.now();
+
+  var createCamera = function(wsa) {
+    camera = new THREE.PerspectiveCamera(70, wsa.x / wsa.y, 1, 10000);
+    camera.position.x = 5;
+    camera.position.y = 10;
+    camera.position.z = 5;
+  };
+
+  var createScene = function() {
+    scene = new THREE.Scene();
+  };
+
+  var createContainer = function() {
+    container = document.createElement('div');
+    container.id = "canvas-container";
+
+    if (container.mozRequestFullScreen) {
+      //container.mozRequestFullScreen();
+    }
+
+    document.body.appendChild(container);
+  };
 
   init();
   animate();
@@ -45,59 +67,47 @@ var run = function() {
     camera.position.x = Math.cos(dt) * 10;
     camera.position.z = Math.sin(dt) * 10;
 
-    setTimeout(foo, 1);
+    setTimeout(foo, 17);
   })();
+
 
 function init() {
 
-  container = document.createElement('div');
-  container.id = "canvas-container";
-
-  if (container.mozRequestFullScreen) {
-    //container.mozRequestFullScreen();
-  }
-
-  document.body.appendChild(container);
-
-  // CAMERA
+  createContainer();
   
   var wsa = windowSizeAndAspect();
-
-  camera = new THREE.PerspectiveCamera(70, wsa.x / wsa.y, 1, 10000);
-  camera.position.x = 5;
-  camera.position.y = 10;
-  camera.position.z = 5;
-
-  scene = new THREE.Scene();
+  createCamera(wsa);
+  createScene();
 
   // LIGHTS
-
   var ambient = new THREE.AmbientLight( 0x020202 );
   scene.add(ambient);
 
+  /*
   directionalLight = new THREE.DirectionalLight( 0xffffff );
   directionalLight.position.set(5.0, 5.0, 5.0).normalize();
   scene.add(directionalLight);
-
   pointLight = new THREE.PointLight( 0xffaa00 );
   pointLight.position.set(0, 0, 5);
   scene.add(pointLight);
+  */
 
   renderer = new THREE.WebGLRenderer();
-  renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+  renderer.setSize(wsa.x, wsa.y);
   renderer.setFaceCulling(0);
 
-  container.appendChild( renderer.domElement );
+  container.appendChild(renderer.domElement);
 
   stats = new Stats();
   stats.domElement.style.position = 'absolute';
   stats.domElement.style.top = '0px';
   stats.domElement.style.zIndex = 100;
 
-  container.appendChild( stats.domElement );
+  container.appendChild(stats.domElement);
 
-  document.addEventListener('mousemove', onDocumentMouseMove, false);
+  //document.addEventListener('mousemove', onDocumentMouseMove, false);
 
+  /*
   var r = "SwedishRoyalCastle/";
   var urls = [ r + "px.jpg", r + "nx.jpg",
          r + "py.jpg", r + "ny.jpg",
@@ -127,13 +137,15 @@ function init() {
   camaroMaterials.body.push( [ "Gold", new THREE.MeshPhongMaterial( { color: 0xaa9944, specular:0xbbaa99, shininess:50, envMap: textureCube, combine: THREE.MultiplyOperation } ) ] );
   camaroMaterials.body.push( [ "Bronze", new THREE.MeshPhongMaterial( { color: 0x150505, specular:0xee6600, shininess:10, envMap: textureCube, combine: THREE.MixOperation, reflectivity: 0.5 } ) ] );
   camaroMaterials.body.push( [ "Chrome", new THREE.MeshPhongMaterial( { color: 0xffffff, specular:0xffffff, envMap: textureCube, combine: THREE.MultiplyOperation } ) ] );
+  */
 
   //var loader = new THREE.BinaryLoader();
   //loader.load("CamaroNoUv_bin.js", function( geometry ) { createScene( geometry, camaroMaterials ) } );
+  //
   var loader = new THREE.ColladaLoader();
-  loader.load("ferrari_f50.dae", function( geometry ) { createScene( geometry, camaroMaterials ) } );
+  loader.load("ferrari_f50.dae", function( geometry ) { createScene2( geometry, null ) } );
 
-  window.addEventListener('resize', onWindowResize, false );
+  //window.addEventListener('resize', onWindowResize, false );
 
 }
 
@@ -152,7 +164,7 @@ function onWindowResize() {
 
 function $( id ) { return document.getElementById( id ) }
 
-
+/*
 function createButtons( materials, geometry ) {
 
   var i, src = "", parent = $( "buttons" );
@@ -173,8 +185,9 @@ function createButtons( materials, geometry ) {
   }
 
 }
+*/
 
-function createScene( geometry, materials ) {
+function createScene2( geometry, materials ) {
 
   var s = 75, m = new THREE.MeshFaceMaterial();
 
@@ -206,7 +219,7 @@ function createScene( geometry, materials ) {
   car_two.updateMatrix();
 
   //scene.add(dae);
-  car_one.children[0].children[0].material = materials.chrome; // wheels chrome
+  //car_one.children[0].children[0].material = materials.chrome; // wheels chrome
 
 
     //var mesh1 = new THREE.Mesh(geometry.scene.children[0].children[0].geometry[0], new THREE.MeshFaceMaterial() );
