@@ -1,18 +1,28 @@
 // logic of racing game
-//
+// http://www.youtube.com/watch?v=NUU_F9TvXco
 
 var moveObjectInDirectionAtSpeed = function(st, dt, obj, dir, spd) {
 
+  // clean up the input
   dir.normalize();
+
+  // calculate the distance traveled over time in that direction
   dir.multiplyScalar(spd * dt);
-  object.position.addSelf(dir);
+
+  // move object that much distance
+  obj.position.addSelf(dir);
 
 };
 
 var followObjectWithObjectAtSpeed = function(st, dt, car, camera, speed) {
   // there is a distance between the two objects
-  // in the direction of the distance
+  var distance = new THREE.Vector3(0, 0, 0);
+  distance.sub(car.position, camera.position);
+
   // move the camera towards the car at speed
+  // in the direction of the distance
+  moveObjectInDirectionAtSpeed(st, dt, camera, distance, speed); 
+
 };
 
 var flyBannerOverStartPoint = function(st, dt) {
@@ -47,6 +57,7 @@ var replaceCarOnRaceTrack = function() {
   // sometime the car needs to be place near the track
   // if the car is replaced, it should be replaced near where it crashed
   // the speed should be set to zero as well
+  // if car not off track, replace where it exploded
 };
 
 var playSoundWhenCarIsNearOtherCar = function() {
@@ -116,6 +127,9 @@ var createRaceTrack = function() {
   // that is extruded over the spline
   // this road as two edges
   // this road as lines painted on it
+  // inside line is dashed white
+  // inner ring is white/yellow 70%
+  // outer ring is red white 50/50
 };
 
 var createTerrain = function() {
@@ -123,10 +137,137 @@ var createTerrain = function() {
   // the flat terrain object is textured green
   // there is a ring wrapped around the terrain
   // the ring is textured with trees and mountains
+
+  /*
+  // http://frontier.lincoln.ac.uk/3d/development/Stage2/tQuery/plugins/checkerboard/tquery.checkerboard.js
+  opts  = tQuery.extend(opts, {
+    width   : 1,    
+    height    : 1,
+    segmentsW : 8,
+    segmentsH : 8,
+    materialEven  : new THREE.MeshBasicMaterial({ color: 0xcccccc }),
+    materialOdd : new THREE.MeshBasicMaterial({ color: 0x444444 })
+  });
+  // create the geometry  
+  var geometry    = new THREE.PlaneGeometry( opts.width, opts.height, opts.segmentsW, opts.segmentsH );
+  // set materials per faces
+  geometry.materials  = [opts.materialEven, opts.materialOdd];
+  geometry.faces.forEach(function(face, idx){
+    var y = Math.floor(idx / opts.segmentsW);
+    var x = idx - (y*opts.segmentsW);
+    face.materialIndex  = (y % 2 + x%2 ) %2;
+  });
+  // create the mesh
+  var material  = new THREE.MeshFaceMaterial();
+  var mesh  = new THREE.Mesh(geometry, material);
+  // return the tQuery
+  return tQuery(mesh);
+  */
 };
 
 var createWorld = function() {
   // there is a world with blue sky
+
+/*
+  // http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/
+  var urlPrefix = "textures/cube/skybox/";
+  var urls = [ urlPrefix + "px.jpg", urlPrefix + "nx.jpg",
+               urlPrefix + "py.jpg", urlPrefix + "ny.jpg",
+               urlPrefix + "pz.jpg", urlPrefix + "nz.jpg" ];
+  var textureCube = THREE.ImageUtils.loadTextureCube(urls);
+
+  var shader  = THREE.ShaderUtils.lib["cube"];
+  shader.uniforms["tCube"].texture = textureCube;
+  var material = new THREE.MeshShaderMaterial({
+    fragmentShader  : shader.fragmentShader,
+    vertexShader  : shader.vertexShader,
+    uniforms  : shader.uniforms
+  });
+
+  skyboxMesh  = new THREE.Mesh( new THREE.CubeGeometry( 100000, 100000, 100000, 1, 1, 1, null, true ), material );
+
+  scene.add(skyboxMesh);
+*/
+
+};
+
+var raceForPolePosition = function() {
+  // reset car to the Start Point
+  // reset race timer
+  // present banner
+  // countdown
+  // start race
+};
+
+var raceForReal = function() {
+};
+
+var placeCarsOnRaceTrackAccordingToPolePosition = function() {
+  // there are 10 pole positions
+  // pole position alternates left and right side of the road
+  // what would be left or right for row back
+};
+
+var directionRequiredToFollowSpine = function() {
+  // do the maths to calculate what direction
+  // an object would need to follow that spline
+  // perfectly
+};
+
+var avoidHittingSideOfTrackTooHard = function() {
+  // if went off track too fast
+  // explode
+  // bounce back in
+};
+
+var avoidHittingWaterOnRoad = function() {
+  // if your car is near water on the road
+  // then the car should slip in whatever direction it was going
+};
+
+var avoidRunningOutOfTime = function() {
+  // if the total time of the race has run out, stop the race
+};
+
+var incrementScoreWhileRacing = function() {
+  // score increments more if your car is moving faster
+};
+
+var presentGameOver = function() {
+  // each letter of the words game over spin in place
+};
+
+var presentDistanceFromStartPoint = function() {
+};
+
+var presentSpeed = function() {
+};
+
+var presentRaceTime = function() {
+};
+
+var progressRaceTime = function() {
+};
+
+var calculatePassingBonus = function() {
+};
+
+var showOverHeadViewOfRaceTrack = function() {
+};
+
+var panCameraFromOverHeadToStartPoint = function() {
+};
+
+var playPrepareToQualify = function() {
+};
+
+var playRaceCountdownMusic = function() {
+};
+
+var presentGearRate = function() {
+};
+
+var simulatePlayerPuttingPetalToTheMetal = function() {
 };
 
 // behaviour

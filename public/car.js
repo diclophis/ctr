@@ -1,24 +1,27 @@
 
-function run() {
+var windowSizeAndAspect = function() {
+  return {
+    windowHalfX: window.innerWidth / 2,
+    windowHalfY: window.innerHeight / 2,
+    aspect: window.innerWidth / window.innerHeight,
+    x: window.innerWidth,
+    y: window.innerHeight
+  };
+};
 
-  var SCREEN_WIDTH = window.innerWidth;
-  var SCREEN_HEIGHT = window.innerHeight;
+var run = function() {
 
   var container, stats;
 
   var camera, scene, renderer;
 
-  var lightMesh;
+  //var directionalLight, pointLight;
 
-  var directionalLight, pointLight;
-
-  var mouseX = 0, mouseY = 0;
-
-  var windowHalfX = SCREEN_WIDTH / 2;
-  var windowHalfY = SCREEN_HEIGHT / 2;
+  //var mouseX = 0, mouseY = 0;
 
   var car_one = null;
   var car_two = null;
+
   var then = Date.now();
 
   init();
@@ -33,14 +36,14 @@ function run() {
 
     if (car_one != null) {
       camera.lookAt(car_one.position);
-      moveCar(dt, car_one, foward, 0.01);
+      //moveCar(dt, car_one, foward, 0.01);
+      followObjectWithObjectAtSpeed(0, dt, car_one, camera, 0.01); 
     } else {
       camera.lookAt(scene.position);
     }
 
     camera.position.x = Math.cos(dt) * 10;
     camera.position.z = Math.sin(dt) * 10;
-
 
     setTimeout(foo, 1);
   })();
@@ -56,12 +59,11 @@ function init() {
 
   document.body.appendChild(container);
 
-  SCREEN_WIDTH = container.offsetWidth / 3.0;
-  SCREEN_HEIGHT = container.offsetHeight / 3.0;
-
   // CAMERA
+  
+  var wsa = windowSizeAndAspect();
 
-  camera = new THREE.PerspectiveCamera(70, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000);
+  camera = new THREE.PerspectiveCamera(70, wsa.x / wsa.y, 1, 10000);
   camera.position.x = 5;
   camera.position.y = 10;
   camera.position.z = 5;
@@ -134,6 +136,7 @@ function init() {
   window.addEventListener('resize', onWindowResize, false );
 
 }
+
 
 function onWindowResize() {
 
