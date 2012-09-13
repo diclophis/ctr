@@ -1,8 +1,8 @@
 
 function run() {
 
-  var SCREEN_WIDTH = 320; //window.innerWidth;
-  var SCREEN_HEIGHT = 480; //window.innerHeight;
+  var SCREEN_WIDTH = window.innerWidth;
+  var SCREEN_HEIGHT = window.innerHeight;
 
   var container, stats;
 
@@ -20,45 +20,57 @@ function run() {
   init();
   animate();
 
+  (function foo() {
+    var timer = -0.0002 * Date.now();
+
+    camera.position.x = Math.cos( timer * 10.0) * 10;
+    camera.position.y = 2;
+    camera.position.z = Math.sin( timer * 10.0) * 10;
+
+    camera.lookAt(scene.position);
+
+    setTimeout(foo, 1);
+  })();
+
 function init() {
 
-  container = document.createElement( 'div' );
+  container = document.createElement('div');
+  container.id = "canvas-container";
 
-          if (container.mozRequestFullScreen) {
-//            container.mozRequestFullScreen();
-          }
+  if (container.mozRequestFullScreen) {
+    //container.mozRequestFullScreen();
+  }
 
-  document.body.appendChild( container );
+  document.body.appendChild(container);
+
+  SCREEN_WIDTH = container.offsetWidth / 3.0;
+  SCREEN_HEIGHT = container.offsetHeight / 3.0;
 
   // CAMERA
 
-  camera = new THREE.PerspectiveCamera( 70, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
-  camera.position.z = 1000;
+  camera = new THREE.PerspectiveCamera(70, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000);
+  camera.position.x = 5;
+  camera.position.y = 5;
+  camera.position.z = 5;
 
   scene = new THREE.Scene();
 
   // LIGHTS
 
   var ambient = new THREE.AmbientLight( 0x020202 );
-  scene.add( ambient );
+  scene.add(ambient);
 
   directionalLight = new THREE.DirectionalLight( 0xffffff );
-  directionalLight.position.set( 1, 1, 0.5 ).normalize();
-  scene.add( directionalLight );
+  directionalLight.position.set(5.0, 5.0, 5.0).normalize();
+  scene.add(directionalLight);
 
   pointLight = new THREE.PointLight( 0xffaa00 );
-  pointLight.position.set( 0, 0, 0 );
-  scene.add( pointLight );
-
-  sphere = new THREE.SphereGeometry( 100, 16, 8 );
-  lightMesh = new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xffaa00 } ) );
-  lightMesh.scale.set( 0.05, 0.05, 0.05 );
-  lightMesh.position = pointLight.position;
-  scene.add( lightMesh );
+  pointLight.position.set(0, 0, 5);
+  scene.add(pointLight);
 
   renderer = new THREE.WebGLRenderer();
-  renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
-  renderer.setFaceCulling( 0 );
+  renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+  renderer.setFaceCulling(0);
 
   container.appendChild( renderer.domElement );
 
@@ -71,12 +83,12 @@ function init() {
 
   document.addEventListener('mousemove', onDocumentMouseMove, false);
 
-  var r = "textures/cube/SwedishRoyalCastle/";
+  var r = "SwedishRoyalCastle/";
   var urls = [ r + "px.jpg", r + "nx.jpg",
          r + "py.jpg", r + "ny.jpg",
          r + "pz.jpg", r + "nz.jpg" ];
 
-  var textureCube = THREE.ImageUtils.loadTextureCube( urls );
+  var textureCube = THREE.ImageUtils.loadTextureCube(urls);
 
   var camaroMaterials = {
 
@@ -101,10 +113,10 @@ function init() {
   camaroMaterials.body.push( [ "Bronze", new THREE.MeshPhongMaterial( { color: 0x150505, specular:0xee6600, shininess:10, envMap: textureCube, combine: THREE.MixOperation, reflectivity: 0.5 } ) ] );
   camaroMaterials.body.push( [ "Chrome", new THREE.MeshPhongMaterial( { color: 0xffffff, specular:0xffffff, envMap: textureCube, combine: THREE.MultiplyOperation } ) ] );
 
-  var loader = new THREE.BinaryLoader();
-  loader.load("CamaroNoUv_bin.js", function( geometry ) { createScene( geometry, camaroMaterials ) } );
-
-  //
+  //var loader = new THREE.BinaryLoader();
+  //loader.load("CamaroNoUv_bin.js", function( geometry ) { createScene( geometry, camaroMaterials ) } );
+  var loader = new THREE.ColladaLoader();
+  loader.load("ferrari_f50.dae", function( geometry ) { createScene( geometry, camaroMaterials ) } );
 
   window.addEventListener('resize', onWindowResize, false );
 
@@ -118,7 +130,7 @@ function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize(window.innerWidth / 3, window.innerHeight / 3);
 
 }
 
@@ -150,6 +162,10 @@ function createScene( geometry, materials ) {
 
   var s = 75, m = new THREE.MeshFaceMaterial();
 
+  //console.log(geometry);
+  //console.log(materials);
+
+  /*
   geometry.materials[ 0 ] = materials.body[ 0 ][ 1 ]; // car body
   geometry.materials[ 1 ] = materials.chrome; // wheels chrome
   geometry.materials[ 2 ] = materials.chrome; // grille chrome
@@ -159,13 +175,59 @@ function createScene( geometry, materials ) {
   geometry.materials[ 6 ] = materials.tire; // tire
   geometry.materials[ 7 ] = materials.black; // tireling
   geometry.materials[ 8 ] = materials.black; // behind grille
+  */
 
-  var mesh = new THREE.Mesh( geometry, m );
-  mesh.rotation.y = 1;
-  mesh.scale.set( s, s, s );
-  scene.add( mesh );
+  //var mesh = new THREE.Mesh( geometry, m );
+  //mesh.rotation.y = 1;
+  //mesh.scale.set( s, s, s );
+  //scene.add( mesh );
 
-  createButtons( materials.body, geometry );
+  var car_one = THREE.SceneUtils.cloneObject(geometry.scene);
+  var car_two = THREE.SceneUtils.cloneObject(geometry.scene);
+
+  //dae.scale.x = dae.scale.y = dae.scale.z = 0.1;
+  car_one.updateMatrix();
+  car_two.updateMatrix();
+
+  //scene.add(dae);
+  car_one.children[0].children[0].material = materials.chrome; // wheels chrome
+
+
+    //var mesh1 = new THREE.Mesh(geometry.scene.children[0].children[0].geometry[0], new THREE.MeshFaceMaterial() );
+    //var mesh2 = new THREE.Mesh(geometry.scene.children[0].children[0].geometry[0], new THREE.MeshLambertMaterial( { color: 0xffaa00 } ) );
+
+    // ...
+
+    car_one.position.set(0, 0, 0);
+    car_two.position.set(5, 0, 0);
+
+    // ...
+
+    scene.add(car_one);
+    scene.add(car_two);
+
+/*
+
+            var hlMaterial = new THREE.MeshPhongMaterial( { color: 0x750004 } );
+
+            function hl (o3d) {
+
+                var children = o3d.children,
+                    geometry = o3d.geometry;
+
+                for ( var i = 0, il = children.length; i < il; i++ ) {
+                    hl( children[ i ] );
+                }
+
+                if ( geometry ) o3d.material = hlMaterial;
+
+            }
+*/
+
+            //hl(dae);
+
+
+  //createButtons( materials.body, geometry );
 
 }
 
@@ -185,19 +247,11 @@ function animate() {
 
 }
 
-function render() {
+  function render() {
 
-  var timer = -0.0002 * Date.now();
+    if (true) {
 
-  camera.position.x += ( mouseX - camera.position.x ) * .05;
-  camera.position.y += ( - mouseY - camera.position.y ) * .05;
-
-  camera.lookAt( scene.position );
-
-  lightMesh.position.x = 1500 * Math.cos( timer );
-  lightMesh.position.z = 1500 * Math.sin( timer );
-
-  renderer.render( scene, camera );
-
-}
+      renderer.render(scene, camera);
+    }
+  }
 }

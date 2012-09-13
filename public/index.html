@@ -1,33 +1,53 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <style>
       * { padding: 0; margin: 0; }
       body, html {
-        width: 320px;
-        height: 480px;
-      }
-      #start-button {
-        position: absolute:
         width: 100%;
         height: 100%;
+      }
+      #start-button, #canvas-container, canvas {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+      #start-button {
         background-color: green;
       }
       #start-button.hidden {
         display: none;
       }
+      #stats {
+        width: 10%;
+        height: 10%;
+      }
+      canvas {
+        image-rendering: optimizeSpeed;             // Older versions of FF
+        image-rendering: -moz-crisp-edges;          // FF 6.0+
+        image-rendering: -webkit-optimize-contrast; // Webkit
+                                                    //  (Safari now, Chrome soon)
+        image-rendering: optimize-contrast;         // Possible future browsers.
+        -ms-interpolation-mode: nearest-neighbor;   // IE
+      }
     </style>
+    <script src="visibility.min.js"></script>
     <script src="three.min.js"></script>
+    <script src="ColladaLoader.js"></script>
     <script src="stats.js"></script>
     <script src="car.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        var visible = false;
         var startButton = document.getElementById("start-button");
         startButton.onclick = function(e) {
-
           startButton.className = "hidden";
           run();
         };
+        Visibility.onVisible(function () {
+          visible = true;
+        });
       });
     </script>
   </head>
