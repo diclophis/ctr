@@ -24,6 +24,15 @@ var run = function() {
 
   var then = Date.now();
 
+  var createStats = function() {
+    stats = new Stats();
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.top = '0px';
+    stats.domElement.style.zIndex = 100;
+
+    container.appendChild(stats.domElement);
+  };
+
   var createCamera = function(wsa) {
     camera = new THREE.PerspectiveCamera(70, wsa.x / wsa.y, 1, 10000);
     camera.position.x = 5;
@@ -100,50 +109,8 @@ function init() {
 
   container.appendChild(renderer.domElement);
 
-  stats = new Stats();
-  stats.domElement.style.position = 'absolute';
-  stats.domElement.style.top = '0px';
-  stats.domElement.style.zIndex = 100;
+  createStats();
 
-  container.appendChild(stats.domElement);
-
-  //document.addEventListener('mousemove', onDocumentMouseMove, false);
-
-  /*
-  var r = "SwedishRoyalCastle/";
-  var urls = [ r + "px.jpg", r + "nx.jpg",
-         r + "py.jpg", r + "ny.jpg",
-         r + "pz.jpg", r + "nz.jpg" ];
-
-  var textureCube = THREE.ImageUtils.loadTextureCube(urls);
-
-  var camaroMaterials = {
-
-    body: [],
-    chrome: new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: textureCube } ),
-    darkchrome: new THREE.MeshLambertMaterial( { color: 0x444444, envMap: textureCube } ),
-    glass: new THREE.MeshBasicMaterial( { color: 0x223344, envMap: textureCube, opacity: 0.25, combine: THREE.MixOperation, reflectivity: 0.25, transparent: true } ),
-    tire: new THREE.MeshLambertMaterial( { color: 0x050505 } ),
-    interior: new THREE.MeshPhongMaterial( { color: 0x050505, shininess: 20 } ),
-    black: new THREE.MeshLambertMaterial( { color: 0x000000 } )
-
-  }
-
-  camaroMaterials.body.push( [ "Orange", new THREE.MeshLambertMaterial( { color: 0xff6600, envMap: textureCube, combine: THREE.MixOperation, reflectivity: 0.3 } ) ] );
-  camaroMaterials.body.push( [ "Blue", new THREE.MeshLambertMaterial( { color: 0x226699, envMap: textureCube, combine: THREE.MixOperation, reflectivity: 0.3 } ) ] );
-  camaroMaterials.body.push( [ "Red", new THREE.MeshLambertMaterial( { color: 0x660000, envMap: textureCube, combine: THREE.MixOperation, reflectivity: 0.5 } ) ] );
-  camaroMaterials.body.push( [ "Black", new THREE.MeshLambertMaterial( { color: 0x000000, envMap: textureCube, combine: THREE.MixOperation, reflectivity: 0.5 } ) ] );
-  camaroMaterials.body.push( [ "White", new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: textureCube, combine: THREE.MixOperation, reflectivity: 0.5 } ) ] );
-
-  camaroMaterials.body.push( [ "Carmine", new THREE.MeshPhongMaterial( { color: 0x770000, specular:0xffaaaa, envMap: textureCube, combine: THREE.MultiplyOperation } ) ] );
-  camaroMaterials.body.push( [ "Gold", new THREE.MeshPhongMaterial( { color: 0xaa9944, specular:0xbbaa99, shininess:50, envMap: textureCube, combine: THREE.MultiplyOperation } ) ] );
-  camaroMaterials.body.push( [ "Bronze", new THREE.MeshPhongMaterial( { color: 0x150505, specular:0xee6600, shininess:10, envMap: textureCube, combine: THREE.MixOperation, reflectivity: 0.5 } ) ] );
-  camaroMaterials.body.push( [ "Chrome", new THREE.MeshPhongMaterial( { color: 0xffffff, specular:0xffffff, envMap: textureCube, combine: THREE.MultiplyOperation } ) ] );
-  */
-
-  //var loader = new THREE.BinaryLoader();
-  //loader.load("CamaroNoUv_bin.js", function( geometry ) { createScene( geometry, camaroMaterials ) } );
-  //
   var loader = new THREE.ColladaLoader();
   loader.load("ferrari_f50.dae", function( geometry ) { createScene2( geometry, null ) } );
 
@@ -152,7 +119,7 @@ function init() {
 }
 
 
-function onWindowResize() {
+var onWindowResize = function() {
 
   windowHalfX = window.innerWidth / 2;
   windowHalfY = window.innerHeight / 2;
@@ -164,49 +131,9 @@ function onWindowResize() {
 
 }
 
-function $( id ) { return document.getElementById( id ) }
-
-/*
-function createButtons( materials, geometry ) {
-
-  var i, src = "", parent = $( "buttons" );
-
-  for( i = 0; i < materials.length; i ++ ) {
-
-    src += '<button id="m' + i + '">' + materials[ i ][ 0 ] + '</button>';
-
-  }
-
-  parent.innerHTML = src;
-
-  for( i = 0; i < materials.length; i ++ ) {
-
-    $( "m" + i ).counter = i;
-    $( "m" + i ).addEventListener( 'click', function() { geometry.materials[ 0 ] = materials[ this.counter ][ 1 ] }, false );
-
-  }
-
-}
-*/
-
-function createScene2( geometry, materials ) {
+var createScene2 = function (geometry, materials) {
 
   var s = 75, m = new THREE.MeshFaceMaterial();
-
-  //console.log(geometry);
-  //console.log(materials);
-
-  /*
-  geometry.materials[ 0 ] = materials.body[ 0 ][ 1 ]; // car body
-  geometry.materials[ 1 ] = materials.chrome; // wheels chrome
-  geometry.materials[ 2 ] = materials.chrome; // grille chrome
-  geometry.materials[ 3 ] = materials.darkchrome; // door lines
-  geometry.materials[ 4 ] = materials.glass; // windshield
-  geometry.materials[ 5 ] = materials.interior; // interior
-  geometry.materials[ 6 ] = materials.tire; // tire
-  geometry.materials[ 7 ] = materials.black; // tireling
-  geometry.materials[ 8 ] = materials.black; // behind grille
-  */
 
   //var mesh = new THREE.Mesh( geometry, m );
   //mesh.rotation.y = 1;
@@ -236,30 +163,6 @@ function createScene2( geometry, materials ) {
 
     scene.add(car_one);
     scene.add(car_two);
-
-/*
-
-            var hlMaterial = new THREE.MeshPhongMaterial( { color: 0x750004 } );
-
-            function hl (o3d) {
-
-                var children = o3d.children,
-                    geometry = o3d.geometry;
-
-                for ( var i = 0, il = children.length; i < il; i++ ) {
-                    hl( children[ i ] );
-                }
-
-                if ( geometry ) o3d.material = hlMaterial;
-
-            }
-*/
-
-            //hl(dae);
-
-
-  //createButtons( materials.body, geometry );
-
 }
 
 function onDocumentMouseMove(event) {
