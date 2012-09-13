@@ -51,6 +51,8 @@ var run = function() {
 
   (function foo() {
 
+    directionRequiredToFollowSpine();
+
     var now = Date.now();
     var dt = (now - then) * 0.0001;
 
