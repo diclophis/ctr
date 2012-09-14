@@ -48,9 +48,9 @@ var run = function() {
 
   var createCamera = function(wsa) {
     camera = new THREE.PerspectiveCamera(70, wsa.x / wsa.y, 1, 10000);
-    camera.position.x = 5;
+    camera.position.x = 20;
     camera.position.y = 10;
-    camera.position.z = 5;
+    camera.position.z = 20;
   };
 
   var createScene = function() {

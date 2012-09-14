@@ -205,7 +205,7 @@ var createRaceTrack = function(scene) {
   circleShape.quadraticCurveTo( -circleRadius, -circleRadius, -circleRadius, 0 );
   circleShape.quadraticCurveTo( -circleRadius, circleRadius, 0, circleRadius);
 
-  var rectLength = 12, rectWidth = 4;
+  var rectLength = 1, rectWidth = 30;
 
   var rectShape = new THREE.Shape();
 
@@ -215,7 +215,7 @@ var createRaceTrack = function(scene) {
   rectShape.lineTo( rectLength/2, -rectLength/2 );
   rectShape.lineTo( -rectLength/2, -rectLength/2 );
 
-  var pts = [], starPoints = 5, l;
+  var pts = [], starPoints = 2, l;
 
   for ( i = 0; i < starPoints * 2; i ++ ) {
     if ( i % 2 == 1 ) {
@@ -256,7 +256,7 @@ var createRaceTrack = function(scene) {
 
   smileyShape.holes.push( smileyMouthPath );
 
-  var circle3d = starShape.extrude(extrudeSettings); //circleShape rectShape smileyShape starShape
+  var circle3d = rectShape.extrude(extrudeSettings); //circleShape rectShape smileyShape starShape
   // var circle3d = new THREE.ExtrudeGeometry(circleShape, extrudeBend, extrudeSettings );
 
   var tube = new THREE.TubeGeometry(extrudeSettings.extrudePath, 150, 4, 5, false, true);
