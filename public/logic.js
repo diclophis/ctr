@@ -156,13 +156,13 @@ var createRaceTrack = function(scene) {
     p.add( mesh );
   }
 
-  var extrudeSettings = { amount: 200,  bevelEnabled: true, bevelSegments: 2, steps: 150 }; // bevelSegments: 2, steps: 2 , bevelSegments: 5, bevelSize: 8, bevelThickness:5,
+  var extrudeSettings = { amount: 200,  bevelEnabled: true, bevelSegments: 2, steps: 100 }; // bevelSegments: 2, steps: 2 , bevelSegments: 5, bevelSize: 8, bevelThickness:5,
 
   extrudeSettings.bevelEnabled = false;
 
   var extrudeBend = new THREE.SplineCurve3( //Closed
   [
-    new THREE.Vector3(0, 0, -200),
+    new THREE.Vector3(0, 0, -1000),
     new THREE.Vector3(0, 0, 200),
     /*
     new THREE.Vector3(0, 0, 10),

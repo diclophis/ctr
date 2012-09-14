@@ -1,6 +1,6 @@
 
 var windowSizeAndAspect = function() {
-  var subDivide = 4;
+  var subDivide = 2.5;
   return {
     windowHalfX: window.innerWidth / subDivide,
     windowHalfY: window.innerHeight / subDivide,
@@ -13,7 +13,7 @@ var windowSizeAndAspect = function() {
 var onWindowResize = function(cmra, rndr) {
   var wsa = windowSizeAndAspect();
   cmra.aspect = wsa.aspect;
-  rndr.updateProjectionMatrix();
+  cmra.updateProjectionMatrix();
   rndr.setSize(wsa.x, wsa.y);
 }
 
@@ -49,9 +49,6 @@ var run = function() {
 
   var createCamera = function(wsa) {
     camera = new THREE.PerspectiveCamera(70, wsa.x / wsa.y, 1, 10000);
-    camera.position.x = 20;
-    camera.position.y = 10;
-    camera.position.z = 20;
   };
 
   var createScene = function() {
@@ -72,23 +69,28 @@ var run = function() {
   init();
   animate();
 
+  var st = 0;
+
   (function foo() {
 
     directionRequiredToFollowSpine();
 
     var now = Date.now();
     var dt = (now - then) * 0.01;
+    st += dt;
     //console.log(dt);
     then = now;
 
-    var foward = new THREE.Vector3(0, 0, -1);
+    var foward = new THREE.Vector3(Math.sin(st * 0.1) * 0.01, 0, -1);
 
     if (car_one != null) {
-      camera.lookAt(car_one.position);
-      moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 1.0);
-      followObjectWithObjectAtSpeed(0, dt, car_one, camera, 1.0); 
+      if (st > 70) {
+        //camera.lookAt(car_one.position);
+        moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 5.0);
+        followObjectWithObjectAtSpeed(0, dt, car_one, camera, 5.5);
+      }
     } else {
-      camera.lookAt(scene.position);
+      camera.lookAt(new THREE.Vector3(-10, 0, -200));
     }
 
     camera.position.y = 10.0; //Math.cos(dt * 10.0);
@@ -111,9 +113,9 @@ function init() {
   //var ambient = new THREE.AmbientLight(0xffffff);
   //scene.add(ambient);
 
-  //directionalLight = new THREE.DirectionalLight( 0xffffff );
-  //directionalLight.position.set(0.0, 1.0, 0.0);
-  //scene.add(directionalLight);
+  directionalLight = new THREE.DirectionalLight( 0xffffff );
+  directionalLight.position.set(0.0, 1.0, 0.0);
+  scene.add(directionalLight);
 
   pointLight = new THREE.PointLight(0xffffff, 1.0, 30.0);
   pointLight.position.set(0, 10, 0);
@@ -151,6 +153,10 @@ var createScene2 = function (geometry) {
   car_one.children[0].children[2].material = new THREE.MeshLambertMaterial({color: 0xe0e0e0 }); // wheels chrome
 
   car_one.position.set(0, 1, 100);
+
+  camera.position.x = 10;
+  camera.position.y = 10;
+  camera.position.z = 120;
 
   scene.add(car_one);
 }
