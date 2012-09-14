@@ -162,11 +162,14 @@ var createRaceTrack = function(scene) {
 
   var extrudeBend = new THREE.SplineCurve3( //Closed
   [
-    new THREE.Vector3( 0, 0, 0),
-    new THREE.Vector3( 10, 0, 10),
-    new THREE.Vector3( 20, 0, 20),
-    new THREE.Vector3( 30, 0, 30),
-    new THREE.Vector3( 40, 0, 40)
+    new THREE.Vector3(0, 0, -200),
+    new THREE.Vector3(0, 0, 200),
+    /*
+    new THREE.Vector3(0, 0, 10),
+    new THREE.Vector3(0, 0, 20),
+    new THREE.Vector3(0, 0, 30),
+    new THREE.Vector3(0, 0, 40)
+    */
   ]);
 
   var pipeSpline = new THREE.SplineCurve3([

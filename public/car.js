@@ -1,11 +1,12 @@
 
 var windowSizeAndAspect = function() {
+  var subDivide = 4;
   return {
-    windowHalfX: window.innerWidth / 2,
-    windowHalfY: window.innerHeight / 2,
+    windowHalfX: window.innerWidth / subDivide,
+    windowHalfY: window.innerHeight / subDivide,
     aspect: window.innerWidth / window.innerHeight,
-    x: (window.innerWidth / 3),
-    y: (window.innerHeight / 3)
+    x: (window.innerWidth / subDivide),
+    y: (window.innerHeight / subDivide)
   };
 };
 
@@ -84,16 +85,17 @@ var run = function() {
 
     if (car_one != null) {
       camera.lookAt(car_one.position);
-      //moveCar(dt, car_one, foward, 0.01);
-      followObjectWithObjectAtSpeed(0, dt, car_one, camera, 0.01); 
+      moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 1.0);
+      followObjectWithObjectAtSpeed(0, dt, car_one, camera, 1.0); 
     } else {
       camera.lookAt(scene.position);
     }
 
+    camera.position.y = 10.0; //Math.cos(dt * 10.0);
     //camera.position.x = Math.cos(dt * 10.0);
     //camera.position.z = Math.sin(dt * 10.0);
 
-    setTimeout(foo, 33);
+    setTimeout(foo, 34);
   })();
 
 
@@ -128,9 +130,7 @@ function init() {
   var loader = new THREE.ColladaLoader();
 
   loader.load("ferrari_f50.dae", function(geometry) {
-
-      createScene2(geometry);
-
+    createScene2(geometry);
   });
 
 
@@ -150,7 +150,7 @@ var createScene2 = function (geometry) {
   car_one.children[0].children[1].material = new THREE.MeshLambertMaterial({color: 0x0000ff }); // wheels chrome
   car_one.children[0].children[2].material = new THREE.MeshLambertMaterial({color: 0xe0e0e0 }); // wheels chrome
 
-  car_one.position.set(0, 0, 0);
+  car_one.position.set(0, 1, 100);
 
   scene.add(car_one);
 }
