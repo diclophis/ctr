@@ -76,7 +76,9 @@ var run = function() {
     directionRequiredToFollowSpine();
 
     var now = Date.now();
-    var dt = (now - then) * 0.0001;
+    var dt = (now - then) * 0.01;
+    //console.log(dt);
+    then = now;
 
     var foward = new THREE.Vector3(0, 0, -1);
 
@@ -88,10 +90,10 @@ var run = function() {
       camera.lookAt(scene.position);
     }
 
-    camera.position.x = Math.cos(dt) * 10;
-    camera.position.z = Math.sin(dt) * 10;
+    //camera.position.x = Math.cos(dt * 10.0);
+    //camera.position.z = Math.sin(dt * 10.0);
 
-    setTimeout(foo, 17);
+    setTimeout(foo, 33);
   })();
 
 
@@ -132,6 +134,7 @@ function init() {
   });
 
 
+  createRaceTrack(scene);
 }
 
 
@@ -153,5 +156,5 @@ var createScene2 = function (geometry) {
 }
 
 
-  window.addEventListener('resize', onWindowResize(camera, renderer), false);
+  window.addEventListener('resize', onWindowResize.bind(this, camera, renderer), false);
 }

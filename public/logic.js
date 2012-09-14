@@ -120,7 +120,7 @@ var createCar = function() {
   // and wheels that turn
 };
 
-var createRaceTrack = function() {
+var createRaceTrack = function(scene) {
   // there is a race track
   // that follows a spline curve of points
   // it has a road that is an object
@@ -130,6 +130,141 @@ var createRaceTrack = function() {
   // inside line is dashed white
   // inner ring is white/yellow 70%
   // outer ring is red white 50/50
+  /*
+  var spline = new THREE.SplineCurve3([
+    new THREE.Vector3(-20,  0, 0),
+    new THREE.Vector3(  0, 20, 0),
+    new THREE.Vector3( 20,  0, 0)
+  ]);
+  */
+
+  parent = new THREE.Object3D();
+  parent.position.y = 0;
+  scene.add(parent);
+
+  var addGeometry = function(p, geometry, color, x, y, z, rx, ry, rz, s ) {
+    // 3d shape
+    var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry,
+      [ new THREE.MeshLambertMaterial( { color: color, opacity: 0.2, transparent: true } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true,  opacity: 0.3 } ) ]
+    );
+
+    mesh.position.set( x, y, z);
+    mesh.scale.set( s, s, s );
+
+    if ( geometry.debug ) mesh.add( geometry.debug );
+
+    p.add( mesh );
+  }
+
+  var extrudeSettings = { amount: 200,  bevelEnabled: true, bevelSegments: 2, steps: 150 }; // bevelSegments: 2, steps: 2 , bevelSegments: 5, bevelSize: 8, bevelThickness:5,
+
+  extrudeSettings.bevelEnabled = false;
+
+  var extrudeBend = new THREE.SplineCurve3( //Closed
+  [
+    new THREE.Vector3( 0, 0, 0),
+    new THREE.Vector3( 10, 0, 10),
+    new THREE.Vector3( 20, 0, 20),
+    new THREE.Vector3( 30, 0, 30),
+    new THREE.Vector3( 40, 0, 40)
+  ]);
+
+  var pipeSpline = new THREE.SplineCurve3([
+    new THREE.Vector3(0, 10, -10),
+    new THREE.Vector3(10, 0, -10),
+    new THREE.Vector3(20, 0, 0),
+    new THREE.Vector3(30, 0, 10),
+    new THREE.Vector3(30, 0, 20), new THREE.Vector3(20, 0, 30), new THREE.Vector3(10, 0, 30), new THREE.Vector3(0, 0, 30), new THREE.Vector3(-10, 10, 30), new THREE.Vector3(-10, 20, 30), new THREE.Vector3(0, 30, 30), new THREE.Vector3(10, 30, 30), new THREE.Vector3(20, 30, 15), new THREE.Vector3(10, 30, 10), new THREE.Vector3(0, 30, 10), new THREE.Vector3(-10, 20, 10), new THREE.Vector3(-10, 10, 10), new THREE.Vector3(0, 0, 10), new THREE.Vector3(10, -10, 10), new THREE.Vector3(20, -15, 10), new THREE.Vector3(30, -15, 10), new THREE.Vector3(40, -15, 10), new THREE.Vector3(50, -15, 10), new THREE.Vector3(60, 0, 10), new THREE.Vector3(70, 0, 0), new THREE.Vector3(80, 0, 0), new THREE.Vector3(90, 0, 0), new THREE.Vector3(100, 0, 0)]
+  );
+
+  var sampleClosedSpline = new THREE.ClosedSplineCurve3([
+    new THREE.Vector3(0, -40, -40),
+    new THREE.Vector3(0, 40, -40),
+    new THREE.Vector3(0, 140, -40),
+    new THREE.Vector3(0, 40, 40),
+    new THREE.Vector3(0, -40, 40),
+  ]);
+
+  var randomPoints = [];
+
+  for ( var i = 0; i < 10; i ++ ) {
+    randomPoints.push( new THREE.Vector3(Math.random() * 200,Math.random() * 200,Math.random() * 200 ) );
+  }
+
+  var randomSpline =  new THREE.SplineCurve3( randomPoints );
+
+  extrudeSettings.extrudePath = extrudeBend; //randomSpline; // extrudeBend sampleClosedSpline pipeSpline randomSpline
+
+  // Circle
+
+  var circleRadius = 4;
+  var circleShape = new THREE.Shape();
+  circleShape.moveTo( 0, circleRadius );
+  circleShape.quadraticCurveTo( circleRadius, circleRadius, circleRadius, 0 );
+  circleShape.quadraticCurveTo( circleRadius, -circleRadius, 0, -circleRadius );
+  circleShape.quadraticCurveTo( -circleRadius, -circleRadius, -circleRadius, 0 );
+  circleShape.quadraticCurveTo( -circleRadius, circleRadius, 0, circleRadius);
+
+  var rectLength = 12, rectWidth = 4;
+
+  var rectShape = new THREE.Shape();
+
+  rectShape.moveTo( -rectLength/2, -rectWidth/2 );
+  rectShape.lineTo( -rectLength/2, rectWidth/2 );
+  rectShape.lineTo( rectLength/2, rectWidth/2 );
+  rectShape.lineTo( rectLength/2, -rectLength/2 );
+  rectShape.lineTo( -rectLength/2, -rectLength/2 );
+
+  var pts = [], starPoints = 5, l;
+
+  for ( i = 0; i < starPoints * 2; i ++ ) {
+    if ( i % 2 == 1 ) {
+      l = 5;
+    } else {
+      l = 10;
+    }
+
+    var a = i / starPoints * Math.PI;
+    pts.push( new THREE.Vector2 ( Math.cos( a ) * l, Math.sin( a ) * l ) );
+  }
+
+  var starShape = new THREE.Shape(pts);
+
+  // Smiley
+
+  var smileyShape = new THREE.Shape();
+  smileyShape.moveTo( 80, 40 );
+  smileyShape.arc( 40, 40, 40, 0, Math.PI*2, false );
+
+  var smileyEye1Path = new THREE.Path();
+  smileyEye1Path.moveTo( 35, 20 );
+  smileyEye1Path.arc( 25, 20, 10, 0, Math.PI*2, true );
+  smileyShape.holes.push( smileyEye1Path );
+
+  var smileyEye2Path = new THREE.Path();
+  smileyEye2Path.moveTo( 65, 20 );
+  smileyEye2Path.arc( 55, 20, 10, 0, Math.PI*2, true );
+  smileyShape.holes.push( smileyEye2Path );
+
+  var smileyMouthPath = new THREE.Path();
+
+  smileyMouthPath.moveTo( 20, 40 );
+  smileyMouthPath.quadraticCurveTo( 40, 60, 60, 40 );
+  smileyMouthPath.bezierCurveTo( 70, 45, 70, 50, 60, 60 );
+  smileyMouthPath.quadraticCurveTo( 40, 80, 20, 60 );
+  smileyMouthPath.quadraticCurveTo( 5, 50, 20, 40 );
+
+  smileyShape.holes.push( smileyMouthPath );
+
+  var circle3d = starShape.extrude(extrudeSettings); //circleShape rectShape smileyShape starShape
+  // var circle3d = new THREE.ExtrudeGeometry(circleShape, extrudeBend, extrudeSettings );
+
+  var tube = new THREE.TubeGeometry(extrudeSettings.extrudePath, 150, 4, 5, false, true);
+  // new THREE.TubeGeometry(extrudePath, segments, 2, radiusSegments, closed2, debug);
+
+  addGeometry(parent, circle3d, 0xff1111, 0, 0, 0, 0, 0, 0, 1 );
+  //addGeometry(parent, tube, 0x00ff11, 0, 0, 0, 0, 0, 0, 1 );
+
 };
 
 var createTerrain = function() {
