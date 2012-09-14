@@ -212,14 +212,16 @@ var directionRequiredToFollowSpine = function() {
   // do the maths to calculate what direction
   // an object would need to follow that spline
   // perfectly
+  /*
   var spline = new THREE.SplineCurve3([
     new THREE.Vector3(-20,  0, 0),
     new THREE.Vector3(  0, 20, 0),
     new THREE.Vector3( 20,  0, 0)
   ]);
 
-  console.log(spline.getPoint(0.5));
-  console.log(spline.getTangent(0.5));
+  //console.log(spline.getPoint(0.5));
+  //console.log(spline.getTangent(0.5));
+  */
 };
 
 var avoidHittingSideOfTrackTooHard = function() {

@@ -777,7 +777,7 @@ THREE.ColladaLoader = function () {
 
 				if ( num_materials > 1 ) {
 
-					material = new THREE.MeshFaceMaterial();
+					material = new THREE.MeshFaceMaterial({ color: 0xdddddd});
 					geom.materials = used_materials_array;
 
 					for ( j = 0; j < geom.faces.length; j ++ ) {
@@ -3188,21 +3188,21 @@ THREE.ColladaLoader = function () {
 
 			case 'constant':
 
-				props.color = props.emission;
+				props.color = props.emission || "#e0e0e0";
 				this.material = new THREE.MeshBasicMaterial( props );
 				break;
 
 			case 'phong':
 			case 'blinn':
 
-				props.color = props.diffuse;
+				props.color = props.diffuse || "#e0e0e0";
 				this.material = new THREE.MeshPhongMaterial( props );
 				break;
 
 			case 'lambert':
 			default:
 
-				props.color = props.diffuse;
+				props.color = props.diffuse || "#e0e0e0";
 				this.material = new THREE.MeshLambertMaterial( props );
 				break;
 

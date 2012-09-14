@@ -9,7 +9,20 @@ var windowSizeAndAspect = function() {
   };
 };
 
+var onWindowResize = function(cmra, rndr) {
+  var wsa = windowSizeAndAspect();
+  cmra.aspect = wsa.aspect;
+  rndr.updateProjectionMatrix();
+  rndr.setSize(wsa.x, wsa.y);
+}
+
 var run = function() {
+
+  var animate = function() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+    stats.update();
+  }
 
   var container, stats;
 
@@ -91,17 +104,16 @@ function init() {
   createScene();
 
   // LIGHTS
-  var ambient = new THREE.AmbientLight( 0x020202 );
-  scene.add(ambient);
+  //var ambient = new THREE.AmbientLight(0xffffff);
+  //scene.add(ambient);
 
-  /*
-  directionalLight = new THREE.DirectionalLight( 0xffffff );
-  directionalLight.position.set(5.0, 5.0, 5.0).normalize();
-  scene.add(directionalLight);
-  pointLight = new THREE.PointLight( 0xffaa00 );
-  pointLight.position.set(0, 0, 5);
+  //directionalLight = new THREE.DirectionalLight( 0xffffff );
+  //directionalLight.position.set(0.0, 1.0, 0.0);
+  //scene.add(directionalLight);
+
+  pointLight = new THREE.PointLight(0xffffff, 1.0, 30.0);
+  pointLight.position.set(0, 10, 0);
   scene.add(pointLight);
-  */
 
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(wsa.x, wsa.y);
@@ -112,80 +124,34 @@ function init() {
   createStats();
 
   var loader = new THREE.ColladaLoader();
-  loader.load("ferrari_f50.dae", function( geometry ) { createScene2( geometry, null ) } );
 
-  //window.addEventListener('resize', onWindowResize, false );
+  loader.load("ferrari_f50.dae", function(geometry) {
 
-}
+      createScene2(geometry);
 
+  });
 
-var onWindowResize = function() {
-
-  windowHalfX = window.innerWidth / 2;
-  windowHalfY = window.innerHeight / 2;
-
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(window.innerWidth / 3, window.innerHeight / 3);
 
 }
 
-var createScene2 = function (geometry, materials) {
 
-  var s = 75, m = new THREE.MeshFaceMaterial();
 
-  //var mesh = new THREE.Mesh( geometry, m );
-  //mesh.rotation.y = 1;
-  //mesh.scale.set( s, s, s );
-  //scene.add( mesh );
+var createScene2 = function (geometry) {
 
   car_one = THREE.SceneUtils.cloneObject(geometry.scene);
-  car_two = THREE.SceneUtils.cloneObject(geometry.scene);
 
   //dae.scale.x = dae.scale.y = dae.scale.z = 0.1;
   car_one.updateMatrix();
-  car_two.updateMatrix();
 
-  //scene.add(dae);
-  //car_one.children[0].children[0].material = materials.chrome; // wheels chrome
+  car_one.children[0].children[0].material = new THREE.MeshLambertMaterial({color: 0xffaa00 }); // wheels chrome
+  car_one.children[0].children[1].material = new THREE.MeshLambertMaterial({color: 0x0000ff }); // wheels chrome
+  car_one.children[0].children[2].material = new THREE.MeshLambertMaterial({color: 0xe0e0e0 }); // wheels chrome
 
+  car_one.position.set(0, 0, 0);
 
-    //var mesh1 = new THREE.Mesh(geometry.scene.children[0].children[0].geometry[0], new THREE.MeshFaceMaterial() );
-    //var mesh2 = new THREE.Mesh(geometry.scene.children[0].children[0].geometry[0], new THREE.MeshLambertMaterial( { color: 0xffaa00 } ) );
-
-    // ...
-
-    car_one.position.set(0, 0, 0);
-    car_two.position.set(5, 0, 0);
-
-    // ...
-
-    scene.add(car_one);
-    scene.add(car_two);
+  scene.add(car_one);
 }
 
-function onDocumentMouseMove(event) {
 
-  mouseX = ( event.clientX - windowHalfX );
-  mouseY = ( event.clientY - windowHalfY );
-
-}
-
-function animate() {
-
-  requestAnimationFrame( animate );
-
-  render();
-  stats.update();
-
-}
-
-  function render() {
-
-    if (true) {
-
-      renderer.render(scene, camera);
-    }
-  }
+  window.addEventListener('resize', onWindowResize(camera, renderer), false);
 }
