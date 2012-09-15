@@ -17,6 +17,7 @@ var onWindowResize = function(cmra, rndr) {
   rndr.setSize(wsa.x, wsa.y);
 }
 
+
 var run = function() {
 
   var animate = function() {
@@ -35,6 +36,24 @@ var run = function() {
 
   var car_one = null;
   var car_two = null;
+  
+  var foward = new THREE.Vector3(0, 0, 0);
+
+  document.onkeydown = function(e) {
+    if (e.keyCode == 37) { 
+      // l
+      foward.x =- 0.001;
+    } else if (e.keyCode == 39) { 
+      // r
+    } else if (e.keyCode == 38) { 
+      // r
+      foward.z -= 0.001;
+    }
+
+    console.log(foward);
+    
+    return true;
+  };
 
   var then = Date.now();
 
@@ -80,35 +99,27 @@ var run = function() {
     st += dt;
     then = now;
 
-    var foward = new THREE.Vector3(0, 0, -1);
-
-
     if (car_one != null) {
       if (st > 3) {
         //camera.lookAt(car_one.position);
-        moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 200.0);
+        moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 50.0);
         //followObjectWithObjectAtSpeed(0, dt, car_one, camera, 200.0);
       } else {
-        car_one.position.set(0, 1.1, 200);
+        car_one.position.set(0, 1.1, 0);
       }
 
       camera.position.z = car_one.position.z + 100;
    
       var a = car_one.position.clone();
-      //console.log(a);
       a.addSelf(new THREE.Vector3(0, 0, -30));
 
       camera.lookAt(a);
     } else { 
-      camera.position.z = 250;
+      camera.position.z = 0;
     }
 
     camera.position.y = 10;
     
-    //camera.position.x = 50;
-
-    //camera.up = new THREE.Vector3(0, 1, 0);
-
     setTimeout(foo, 1000 / 30);
   })();
 
