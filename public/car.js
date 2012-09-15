@@ -1,6 +1,6 @@
 
 var windowSizeAndAspect = function() {
-  var subDivide = 2.5;
+  var subDivide = 1;
   return {
     windowHalfX: window.innerWidth / subDivide,
     windowHalfY: window.innerHeight / subDivide,
@@ -48,7 +48,7 @@ var run = function() {
   };
 
   var createCamera = function(wsa) {
-    camera = new THREE.PerspectiveCamera(70, wsa.x / wsa.y, 1, 10000);
+    camera = new THREE.PerspectiveCamera(20, wsa.x / wsa.y, 1, 10000);
   };
 
   var createScene = function() {
@@ -80,28 +80,34 @@ var run = function() {
     st += dt;
     then = now;
 
-    var foward = new THREE.Vector3(Math.sin(st * 0.1) * 0.01, 0, -1);
+    var foward = new THREE.Vector3(0, 0, -1);
 
 
     if (car_one != null) {
-      if (st > 10) {
+      if (st > 3) {
         //camera.lookAt(car_one.position);
-        moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 30.0);
-        followObjectWithObjectAtSpeed(0, dt, car_one, camera, 31.0);
-        camera.position.y = 20;
+        moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 200.0);
+        //followObjectWithObjectAtSpeed(0, dt, car_one, camera, 200.0);
       } else {
-        car_one.position.set(0, 0, 200);
+        car_one.position.set(0, 1.1, 200);
       }
-    
-      camera.lookAt(car_one.position);
-    } else { 
-      camera.position.y = 10;
-      camera.position.z = 210;
-    }
-    
-    camera.position.x = 20;
 
-    camera.up = new THREE.Vector3(0, 1, 0);
+      camera.position.z = car_one.position.z + 100;
+   
+      var a = car_one.position.clone();
+      //console.log(a);
+      a.addSelf(new THREE.Vector3(0, 0, -30));
+
+      camera.lookAt(a);
+    } else { 
+      camera.position.z = 250;
+    }
+
+    camera.position.y = 10;
+    
+    //camera.position.x = 50;
+
+    //camera.up = new THREE.Vector3(0, 1, 0);
 
     setTimeout(foo, 1000 / 30);
   })();

@@ -144,9 +144,10 @@ var createRaceTrack = function(scene) {
 
   var addGeometry = function(p, geometry, color, x, y, z, rx, ry, rz, s ) {
     // 3d shape
-    var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry,
-      [ new THREE.MeshLambertMaterial( { color: color, opacity: 0.2, transparent: true } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true,  opacity: 0.3 } ) ]
-    );
+    var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
+      new THREE.MeshLambertMaterial( { color: color, opacity: 1.0, transparent: false } )
+      //new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true,  opacity: 0.0 } )
+    ]);
 
     mesh.position.set( x, y, z);
     mesh.scale.set( s, s, s );
@@ -156,7 +157,7 @@ var createRaceTrack = function(scene) {
     p.add( mesh );
   }
 
-  var extrudeSettings = { steps: 200 }
+  var extrudeSettings = { steps: 300 }
   //{ amount: 0,  bevelEnabled: false, steps: 100 }; // bevelSegments: 2, steps: 2 , bevelSegments: 5, bevelSize: 8, bevelThickness:5,
 
   extrudeSettings.bevelEnabled = false;
@@ -171,17 +172,24 @@ var createRaceTrack = function(scene) {
     new THREE.Vector3(0, 0, 0)
     */
 
+    /*
     new THREE.Vector3(0, 0, -2000),
     new THREE.Vector3(0, 0, 2000)
+    */
 
-    /*
-    new THREE.Vector3(40, 0, -2000),
+    new THREE.Vector3(0, 0, -7000),
+    new THREE.Vector3(40, 0, -6000),
+    new THREE.Vector3(-40, 0, -5500),
+    new THREE.Vector3(0, 0, -4500),
+    new THREE.Vector3(20, 0, -3500),
+    new THREE.Vector3(-20, 0, -3000),
+    new THREE.Vector3(0, 0, -2100),
+
     new THREE.Vector3(-40, 0, -1500),
     new THREE.Vector3(0, 0, -1000),
     new THREE.Vector3(20, 0, -500),
     new THREE.Vector3(-20, 0, 50),
     new THREE.Vector3(0, 0, 200),
-    */
 
     /*
     new THREE.Vector3(0, 0, 10),
@@ -233,8 +241,8 @@ var createRaceTrack = function(scene) {
   circleShape.quadraticCurveTo( -circleRadius, circleRadius, 0, circleRadius);
   */
 
-  var rectLength = 60.0; //(1.0 / Math.pow(10, 10));
-  var rectWidth = 10.0;
+  var rectLength = 30.0; //(1.0 / Math.pow(10, 10));
+  var rectWidth = 1.0;
 
   var rectShape = new THREE.Shape();
 
@@ -302,7 +310,7 @@ var createRaceTrack = function(scene) {
   //var tube = new THREE.TubeGeometry(extrudeSettings.extrudePath, 150, 4, 5, false, true);
   // new THREE.TubeGeometry(extrudePath, segments, 2, radiusSegments, closed2, debug);
 
-  addGeometry(parent, circle3d, 0xff1111, 0, 0, 0, 0, 0, 0, 1 );
+  addGeometry(parent, circle3d, 0x707070, 0, 0, 0, 0, 0, 0, 1 );
   //addGeometry(parent, tube, 0x00ff11, 0, 0, 0, 0, 0, 0, 1 );
 
 };
