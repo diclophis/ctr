@@ -156,14 +156,33 @@ var createRaceTrack = function(scene) {
     p.add( mesh );
   }
 
-  var extrudeSettings = { amount: 200,  bevelEnabled: true, bevelSegments: 2, steps: 100 }; // bevelSegments: 2, steps: 2 , bevelSegments: 5, bevelSize: 8, bevelThickness:5,
+  var extrudeSettings = { steps: 200 }
+  //{ amount: 0,  bevelEnabled: false, steps: 100 }; // bevelSegments: 2, steps: 2 , bevelSegments: 5, bevelSize: 8, bevelThickness:5,
 
   extrudeSettings.bevelEnabled = false;
 
   var extrudeBend = new THREE.SplineCurve3( //Closed
   [
+    /*
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(5000, 0, 0),
+    new THREE.Vector3(5000, 0, 5000),
+    new THREE.Vector3(0, 0, 5000),
+    new THREE.Vector3(0, 0, 0)
+    */
+
+    new THREE.Vector3(0, 0, -2000),
+    new THREE.Vector3(0, 0, 2000)
+
+    /*
+    new THREE.Vector3(40, 0, -2000),
+    new THREE.Vector3(-40, 0, -1500),
     new THREE.Vector3(0, 0, -1000),
+    new THREE.Vector3(20, 0, -500),
+    new THREE.Vector3(-20, 0, 50),
     new THREE.Vector3(0, 0, 200),
+    */
+
     /*
     new THREE.Vector3(0, 0, 10),
     new THREE.Vector3(0, 0, 20),
@@ -172,6 +191,7 @@ var createRaceTrack = function(scene) {
     */
   ]);
 
+  /*
   var pipeSpline = new THREE.SplineCurve3([
     new THREE.Vector3(0, 10, -10),
     new THREE.Vector3(10, 0, -10),
@@ -187,7 +207,9 @@ var createRaceTrack = function(scene) {
     new THREE.Vector3(0, 40, 40),
     new THREE.Vector3(0, -40, 40),
   ]);
+  */
 
+  /*
   var randomPoints = [];
 
   for ( var i = 0; i < 10; i ++ ) {
@@ -195,9 +217,11 @@ var createRaceTrack = function(scene) {
   }
 
   var randomSpline =  new THREE.SplineCurve3( randomPoints );
+  */
 
   extrudeSettings.extrudePath = extrudeBend; //randomSpline; // extrudeBend sampleClosedSpline pipeSpline randomSpline
 
+  /*
   // Circle
 
   var circleRadius = 4;
@@ -207,17 +231,26 @@ var createRaceTrack = function(scene) {
   circleShape.quadraticCurveTo( circleRadius, -circleRadius, 0, -circleRadius );
   circleShape.quadraticCurveTo( -circleRadius, -circleRadius, -circleRadius, 0 );
   circleShape.quadraticCurveTo( -circleRadius, circleRadius, 0, circleRadius);
+  */
 
-  var rectLength = 1, rectWidth = 30;
+  var rectLength = 60.0; //(1.0 / Math.pow(10, 10));
+  var rectWidth = 10.0;
 
   var rectShape = new THREE.Shape();
 
-  rectShape.moveTo( -rectLength/2, -rectWidth/2 );
-  rectShape.lineTo( -rectLength/2, rectWidth/2 );
-  rectShape.lineTo( rectLength/2, rectWidth/2 );
-  rectShape.lineTo( rectLength/2, -rectLength/2 );
-  rectShape.lineTo( -rectLength/2, -rectLength/2 );
+  //rectShape.moveTo(0, -rectLength/2);
+  //rectShape.lineTo(0, rectLength/2);
+  //rectShape.lineTo(1, -rectLength/2);
+  //rectShape.lineTo(0, -rectLength/2);
+  //rectShape.lineTo( rectLength/2, -rectLength/2 );
+  //rectShape.lineTo( -rectLength/2, -rectLength/2 );
+    //var rectShape = new THREE.Shape();
+    rectShape.moveTo(0, -rectLength);
+    rectShape.lineTo(0, rectLength);
+    rectShape.lineTo(rectWidth, 0);
+    rectShape.lineTo(0, -rectLength);
 
+  /*
   var pts = [], starPoints = 2, l;
 
   for ( i = 0; i < starPoints * 2; i ++ ) {
@@ -258,11 +291,15 @@ var createRaceTrack = function(scene) {
   smileyMouthPath.quadraticCurveTo( 5, 50, 20, 40 );
 
   smileyShape.holes.push( smileyMouthPath );
+  */
 
   var circle3d = rectShape.extrude(extrudeSettings); //circleShape rectShape smileyShape starShape
+  console.log(circle3d.faces.length);
+  circle3d.mergeVertices();
+  console.log(circle3d.faces.length);
   // var circle3d = new THREE.ExtrudeGeometry(circleShape, extrudeBend, extrudeSettings );
 
-  var tube = new THREE.TubeGeometry(extrudeSettings.extrudePath, 150, 4, 5, false, true);
+  //var tube = new THREE.TubeGeometry(extrudeSettings.extrudePath, 150, 4, 5, false, true);
   // new THREE.TubeGeometry(extrudePath, segments, 2, radiusSegments, closed2, debug);
 
   addGeometry(parent, circle3d, 0xff1111, 0, 0, 0, 0, 0, 0, 1 );

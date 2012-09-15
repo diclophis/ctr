@@ -76,28 +76,34 @@ var run = function() {
     directionRequiredToFollowSpine();
 
     var now = Date.now();
-    var dt = (now - then) * 0.01;
+    var dt = (now - then) / 1000;
     st += dt;
-    //console.log(dt);
     then = now;
 
     var foward = new THREE.Vector3(Math.sin(st * 0.1) * 0.01, 0, -1);
 
+
     if (car_one != null) {
-      if (st > 70) {
+      if (st > 10) {
         //camera.lookAt(car_one.position);
-        moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 5.0);
-        followObjectWithObjectAtSpeed(0, dt, car_one, camera, 5.5);
+        moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 30.0);
+        followObjectWithObjectAtSpeed(0, dt, car_one, camera, 31.0);
+        camera.position.y = 20;
+      } else {
+        car_one.position.set(0, 0, 200);
       }
-    } else {
-      camera.lookAt(new THREE.Vector3(-10, 0, -200));
+    
+      camera.lookAt(car_one.position);
+    } else { 
+      camera.position.y = 10;
+      camera.position.z = 210;
     }
+    
+    camera.position.x = 20;
 
-    camera.position.y = 10.0; //Math.cos(dt * 10.0);
-    //camera.position.x = Math.cos(dt * 10.0);
-    //camera.position.z = Math.sin(dt * 10.0);
+    camera.up = new THREE.Vector3(0, 1, 0);
 
-    setTimeout(foo, 34);
+    setTimeout(foo, 1000 / 30);
   })();
 
 
@@ -152,11 +158,7 @@ var createScene2 = function (geometry) {
   car_one.children[0].children[1].material = new THREE.MeshLambertMaterial({color: 0x0000ff }); // wheels chrome
   car_one.children[0].children[2].material = new THREE.MeshLambertMaterial({color: 0xe0e0e0 }); // wheels chrome
 
-  car_one.position.set(0, 1, 100);
 
-  camera.position.x = 10;
-  camera.position.y = 10;
-  camera.position.z = 120;
 
   scene.add(car_one);
 }
