@@ -42,15 +42,27 @@ var run = function() {
   document.onkeydown = function(e) {
     if (e.keyCode == 37) { 
       // l
-      foward.x =- 0.001;
+      foward.x = -0.001;
+      foward.y = -0.00;
+      foward.z = -0.00;
     } else if (e.keyCode == 39) { 
       // r
+      foward.x = 0.001;
+      foward.y = -0.00;
+      foward.z = -0.00;
     } else if (e.keyCode == 38) { 
-      // r
-      foward.z -= 0.001;
+      // u
+      foward.x = -0.00;
+      foward.y = -0.00;
+      foward.z = -0.001;
+    } else if (e.keyCode == 40) { 
+      // u
+      foward.x = -0.00;
+      foward.y = -0.00;
+      foward.z = 0.001;
     }
 
-    console.log(foward);
+    console.log(foward, e.keyCode);
     
     return true;
   };
@@ -90,6 +102,8 @@ var run = function() {
 
   var st = 0;
 
+  var center = new THREE.Vector3(0, 0, 0);
+
   (function foo() {
 
     directionRequiredToFollowSpine();
@@ -108,6 +122,7 @@ var run = function() {
         car_one.position.set(0, 1.1, 0);
       }
 
+      camera.position.x = car_one.position.x + 100;
       camera.position.z = car_one.position.z + 100;
    
       var a = car_one.position.clone();
@@ -115,10 +130,12 @@ var run = function() {
 
       camera.lookAt(a);
     } else { 
-      camera.position.z = 0;
     }
 
-    camera.position.y = 10;
+    //camera.position.z = 0;
+
+
+    camera.position.y = 1000;
     
     setTimeout(foo, 1000 / 30);
   })();

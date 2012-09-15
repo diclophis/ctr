@@ -137,8 +137,8 @@ var createRaceTrack = function(scene) {
 
   var addGeometry = function(p, geometry, color, x, y, z, rx, ry, rz, s ) {
     var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
-      new THREE.MeshLambertMaterial( { color: color, opacity: 1.0, transparent: false } )
-      //new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true,  opacity: 0.0 } )
+      new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
+      new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true,  opacity: 1.0 })
     ]);
 
     mesh.position.set(x, y, z);
@@ -154,15 +154,52 @@ var createRaceTrack = function(scene) {
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(0, 0, -1000),
     new THREE.Vector3(1000, 0, -1000),
+    new THREE.Vector3(1000, 0, 0),
+    new THREE.Vector3(0, 0, 0),
   ]);
 
-  extrudeSettings.extrudePath = extrudeBend;
+
+  function roundedRect( ctx, x, y, width, height, radius ){
+
+    ctx.moveTo( x, y + radius );
+    ctx.lineTo( x, y + height - radius );
+    ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
+    ctx.lineTo( x + width - radius, y + height) ;
+    ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
+    ctx.lineTo( x + width, y + radius );
+    ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
+    ctx.lineTo( x + radius, y );
+    ctx.quadraticCurveTo( x, y, x, y + radius );
+
+  }
+
+  var roundedRectShape = new THREE.Shape();
+  roundedRect(roundedRectShape, 0, 0, 2000, 2000, 100);
+
+  var foo = roundedRectShape.createSpacedPointsGeometry(10);
+
+  var m = new THREE.Matrix4();
+  console.log(m);
+  var gamma = Math.PI/2;
+  m.rotateX(gamma);
+  foo.applyMatrix(m);
+
+  var wang = new THREE.ClosedSplineCurve3(foo.vertices);
+  console.log(wang, extrudeBend);
+
+  extrudeSettings.extrudePath = wang; //roundedRectShape; //extrudeBend;
 
   var rectLength = 30.0;
   var rectWidth = 1.0;
 
   var rectShape = new THREE.Shape();
 
+  /*
+  rectShape.moveTo(0, -rectLength);
+  rectShape.lineTo(0, rectLength);
+  rectShape.lineTo(rectWidth, 0);
+  rectShape.lineTo(0, -rectLength);
+  */
   rectShape.moveTo(0, -rectLength);
   rectShape.lineTo(0, rectLength);
   rectShape.lineTo(rectWidth, 0);
