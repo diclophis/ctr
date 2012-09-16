@@ -155,11 +155,15 @@ var createRaceTrack = function(st, scene) {
       resolution: { type: "v2", value: new THREE.Vector2() }
     };
 
+    /*
     var material = new THREE.ShaderMaterial( {
       uniforms: uniforms1,
       vertexShader: document.getElementById( 'vertexShader' ).textContent,
       fragmentShader: document.getElementById('fragment_shader4').textContent
     });
+    */
+
+    material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.jpg") });
 
     var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
       //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
@@ -169,6 +173,8 @@ var createRaceTrack = function(st, scene) {
 
     mesh.position.set(x, y, z);
     mesh.scale.set(s, s, s );
+
+    //document.body.appendChild(THREE.UVsDebug(geometry));
 
     p.add(mesh);
   }
@@ -181,6 +187,74 @@ var createRaceTrack = function(st, scene) {
     new THREE.Vector3(1000, 0, 0),
     new THREE.Vector3(0, 0, 0),
   ]);
+
+BoundingUVGenerator = {
+    generateTopUV: function( geometry, extrudedShape, extrudeOptions, indexA, indexB, indexC) {
+        var ax = geometry.vertices[ indexA ].x,
+            ay = geometry.vertices[ indexA ].y,
+
+            bx = geometry.vertices[ indexB ].x,
+            by = geometry.vertices[ indexB ].y,
+
+            cx = geometry.vertices[ indexC ].x,
+            cy = geometry.vertices[ indexC ].y,
+
+            bb = extrudedShape.getBoundingBox(),
+            bbx = bb.maxX - bb.minX,
+            bby = bb.maxY - bb.minY;
+
+        return [
+            new THREE.UV( ( ax - bb.minX ) / bbx, 1 - ( ay - bb.minY ) / bby ),
+            new THREE.UV( ( bx - bb.minX ) / bbx, 1 - ( by - bb.minY ) / bby ),
+            new THREE.UV( ( cx - bb.minX ) / bbx, 1 - ( cy - bb.minY ) / bby )
+        ];
+    },
+
+    generateBottomUV: function( geometry, extrudedShape, extrudeOptions, indexA, indexB, indexC) {
+        return this.generateTopUV( geometry, extrudedShape, extrudeOptions, indexA, indexB, indexC );
+    },
+
+    generateSideWallUV: function( geometry, extrudedShape, wallContour, extrudeOptions,
+                                  indexA, indexB, indexC, indexD, stepIndex, stepsLength,
+                                  contourIndex1, contourIndex2 ) {
+        var ax = geometry.vertices[ indexA ].x,
+            ay = geometry.vertices[ indexA ].y,
+            az = geometry.vertices[ indexA ].z,
+
+            bx = geometry.vertices[ indexB ].x,
+            by = geometry.vertices[ indexB ].y,
+            bz = geometry.vertices[ indexB ].z,
+
+            cx = geometry.vertices[ indexC ].x,
+            cy = geometry.vertices[ indexC ].y,
+            cz = geometry.vertices[ indexC ].z,
+
+            dx = geometry.vertices[ indexD ].x,
+            dy = geometry.vertices[ indexD ].y,
+            dz = geometry.vertices[ indexD ].z;
+
+        var amt = extrudeOptions.amount,
+            bb = extrudedShape.getBoundingBox(),
+            bbx = bb.maxX - bb.minX,
+            bby = bb.maxY - bb.minY;
+
+        if ( Math.abs( ay - by ) < 0.01 ) {
+            return [
+                new THREE.UV( ax / bbx, az / amt),
+                new THREE.UV( bx / bbx, bz / amt),
+                new THREE.UV( cx / bbx, cz / amt),
+                new THREE.UV( dx / bbx, dz / amt)
+            ];
+        } else {
+            return [
+                new THREE.UV( ay / bby, az / amt ),
+                new THREE.UV( by / bby, bz / amt ),
+                new THREE.UV( cy / bby, cz / amt ),
+                new THREE.UV( dy / bby, dz / amt )
+            ];
+        }
+    }
+};
 
 
   function roundedRect( ctx, x, y, width, height, radius ){
@@ -213,6 +287,14 @@ var createRaceTrack = function(st, scene) {
 
   var extrudeSettings = { steps: 200 }
   extrudeSettings.extrudePath = wang; //roundedRectShape; //extrudeBend;
+  extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
+  //BoundingUVGenerator; //THREE.ExtrudeGeometry.WorldUVGenerator;
+  //extrudeSettings.extrudeMaterial = 0;
+  extrudeSettings.material = 1;
+
+
+
+
 
   var rectLength = 30.0;
   var rectWidth = 1.0;
@@ -232,7 +314,7 @@ var createRaceTrack = function(st, scene) {
 
   var circle3d = rectShape.extrude(extrudeSettings);
 
-  addGeometry(st, parent, circle3d, 0x707070, 0, 0, 0, 0, 0, 0, 1 );
+  addGeometry(st, parent, circle3d, 0x700000, 0, 0, 0, 0, 0, 0, 1 );
 };
 
 var createTerrain = function() {
