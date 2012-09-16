@@ -134,7 +134,7 @@ var createCar = function() {
   // and wheels that turn
 };
 
-var createRaceTrack = function(scene) {
+var createRaceTrack = function(st, scene) {
   // there is a race track
   // that follows a spline curve of points
   // it has a road that is an object
@@ -149,10 +149,22 @@ var createRaceTrack = function(scene) {
   parent.position.y = 0;
   scene.add(parent);
 
-  var addGeometry = function(p, geometry, color, x, y, z, rx, ry, rz, s ) {
+  var addGeometry = function(st, p, geometry, color, x, y, z, rx, ry, rz, s ) {
+    var uniforms1 = {
+      time: { type: "f", value: st },
+      resolution: { type: "v2", value: new THREE.Vector2() }
+    };
+
+    var material = new THREE.ShaderMaterial( {
+      uniforms: uniforms1,
+      vertexShader: document.getElementById( 'vertexShader' ).textContent,
+      fragmentShader: document.getElementById('fragment_shader4').textContent
+    });
+
     var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
-      new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
-      new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true,  opacity: 1.0 })
+      //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
+      //new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
+      material
     ]);
 
     mesh.position.set(x, y, z);
@@ -191,13 +203,13 @@ var createRaceTrack = function(scene) {
   var foo = roundedRectShape.createSpacedPointsGeometry(10);
 
   var m = new THREE.Matrix4();
-  console.log(m);
+  //console.log(m);
   var gamma = Math.PI/2;
   m.rotateX(gamma);
   foo.applyMatrix(m);
 
   var wang = new THREE.ClosedSplineCurve3(foo.vertices);
-  console.log(wang, extrudeBend);
+  //console.log(wang, extrudeBend);
 
   var extrudeSettings = { steps: 200 }
   extrudeSettings.extrudePath = wang; //roundedRectShape; //extrudeBend;
@@ -220,7 +232,7 @@ var createRaceTrack = function(scene) {
 
   var circle3d = rectShape.extrude(extrudeSettings);
 
-  addGeometry(parent, circle3d, 0x707070, 0, 0, 0, 0, 0, 0, 1 );
+  addGeometry(st, parent, circle3d, 0x707070, 0, 0, 0, 0, 0, 0, 1 );
 };
 
 var createTerrain = function() {

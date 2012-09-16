@@ -241,7 +241,7 @@ var run = function() {
   stats = createStats();
   container.appendChild(stats.domElement);
 
-  createRaceTrack(scene);
+  createRaceTrack(st, scene);
 
   loader.load("ferrari_f50.dae", function(geometry) {
     car_one = createCarFromGeometry(geometry);
