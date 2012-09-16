@@ -163,71 +163,22 @@ var run = function() {
   var turning_dir = 0;
   var accel_dir = 0;
 
+  var st = 0;
+  var loader = new THREE.ColladaLoader();
+  var then = Date.now();
 
-// TODO ---
-//
-var onPointerDown = function(e) {
-  pointers = e.getPointerList();
+  var leftPointerID = -1;
+  var leftPointerPos = new THREE.Vector2(0,0);
+  var leftPointerStartPos = new THREE.Vector2(0,0);
+  var leftVector = new THREE.Vector2(0,0); 
 
-  for(var i = 0; i<pointers.length; i++){
-    var pointer = pointers[i]; 
-    if((leftPointerID<0) && (pointer.x<halfWidth))
-    {
-      leftPointerID = pointer.identifier; 
-      leftPointerStartPos.reset(pointer.x, pointer.y);  
-      leftPointerPos.copyFrom(leftPointerStartPos); 
-      leftVector.reset(0,0); 
-      continue;     
-      } else {
-    } 
-  }
-}
-
-var onPointerMove = function(e) {
-  // Prevent the browser from doing its default thing (scroll, zoom)
-  pointers = e.getPointerList();
-
-  for(var i = 0; i<pointers.length; i++){
-    var pointer =pointers[i]; 
-    if(leftPointerID == pointer.identifier)
-    {
-      leftPointerPos.reset(pointer.x, pointer.y); 
-      leftVector.copyFrom(leftPointerPos); 
-      leftVector.minusEq(leftPointerStartPos);  
-      break;    
-    }   
-  }
-} 
-
-var onPointerUp = function(e) { 
-
-  pointers = e.getPointerList(); 
-  if (pointers.length == 0) {
-    leftPointerID = -1; 
-    if (e.pointerType == PointerTypes.pointer) {
-      leftVector.reset(0,0); 
-    }
-  }
-}
-
-// TODO ---
-
-  var canvas,
-  c, // c is the canvas' context 2D
-  halfWidth, 
-  halfHeight,
-  leftPointerID = -1, 
-  leftPointerPos = new THREE.Vector2(0,0),
-  leftPointerStartPos = new THREE.Vector2(0,0),
-  leftVector = new THREE.Vector2(0,0); 
+  var wsa = windowSizeAndAspect();
 
   var pointers = []; // array of touch vectors
-
 
   container = createContainer();
   document.body.appendChild(container);
 
-  var wsa = windowSizeAndAspect();
   camera = createCamera(wsa);
   scene = createScene();
 
@@ -242,21 +193,12 @@ var onPointerUp = function(e) {
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(wsa.x, wsa.y);
   renderer.setFaceCulling(0);
-
   container.appendChild(renderer.domElement);
-
-  renderer.domElement.addEventListener( 'pointerdown', onPointerDown, false );
-  renderer.domElement.addEventListener( 'pointermove', onPointerMove, false );
-  renderer.domElement.addEventListener( 'pointerup', onPointerUp, false );
 
   stats = createStats();
   container.appendChild(stats.domElement);
 
   createRaceTrack(scene);
-
-  var st = 0;
-  var loader = new THREE.ColladaLoader();
-  var then = Date.now();
 
   loader.load("ferrari_f50.dae", function(geometry) {
     car_one = createCarFromGeometry(geometry);
@@ -266,44 +208,76 @@ var onPointerUp = function(e) {
     tick(then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera);
   });
 
-  //var center = new THREE.Vector3(0, 0, 0);
+  var thingy = {
+    leftPointerID: leftPointerID,
+    leftPointerStartPos: leftPointerStartPos,
+    leftPointerPos: leftPointerPos,
+    leftVector: leftVector,
+    wsa: wsa
+  };
+
+  var onPointerDown = function(e) {
+    pointers = e.getPointerList();
+    for(var i = 0; i<pointers.length; i++){
+      var pointer = pointers[i]; 
+      if((this.leftPointerID<0) && (pointer.x<this.wsa.windowHalfX))
+      {
+        this.leftPointerID = pointer.identifier; 
+        this.leftPointerStartPos.set(pointer.x, pointer.y);  
+        this.leftPointerPos.copy(this.leftPointerStartPos); 
+        this.leftVector.set(0,0); 
+        continue;     
+        } else {
+      } 
+    }
+  }
+
+  var onPointerMove = function(e) {
+    pointers = e.getPointerList();
+    for(var i = 0; i<pointers.length; i++){
+      var pointer = pointers[i]; 
+      if(this.leftPointerID == pointer.identifier)
+      {
+        this.leftPointerPos.set(pointer.x, pointer.y); 
+        this.leftVector.copy(this.leftPointerPos); 
+        this.leftVector.subSelf(this.leftPointerStartPos);  
+        break;    
+      }   
+    }
+  } 
+
+  var onPointerUp = function(e) { 
+    pointers = e.getPointerList(); 
+    if (pointers.length == 0) {
+      this.leftPointerID = -1; 
+      if (e.pointerType == PointerTypes.pointer) {
+        this.leftVector.set(0,0); 
+      }
+    }
+  }
 
   // event listeners
+  renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
+  renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
+  renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
+
   window.addEventListener('resize', onWindowResize.bind(this, camera, renderer), false);
 
   document.onkeydown = function(e) {
     if (e.keyCode == 37) { 
       // l
-      //foward.x = -0.001;
-      //foward.y = -0.00;
-      //foward.z = -0.00;
-      //forward_angle -= 0.1;
       turning_dir = -1;
     } else if (e.keyCode == 39) { 
       // r
-      //foward.x = 0.001;
-      //foward.y = -0.00;
-      //foward.z = -0.00;
-      //forward_angle += 0.1;
       turning_dir = 1;
     } else if (e.keyCode == 38) { 
       // u
-      //foward.x = -0.00;
-      //foward.y = -0.00;
-      //foward.z = -0.001;
-      //forward_speed += 1;
       accel_dir = 1;
     } else if (e.keyCode == 40) { 
       // u
-      //foward.x = -0.00;
-      //foward.y = -0.00;
-      //foward.z = 0.001;
       accel_dir = 0;
     }
 
-    //console.log(foward.x, foward.y, e.keyCode);
-    
     return true;
   };
-
 }
