@@ -1,26 +1,34 @@
+var paused = true;
+
 var tick = function(then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy) {
 
   var now = Date.now();
   var dt = (now - then) / 1000;
-  st += dt;
   then = now;
 
-  if (thingy.leftVector.y < 0) {
-    //forward_speed += ((-thingy.leftVector.y * 0.05) * dt);
-  }
 
-  forward_angle += ((thingy.leftVector.x * 0.0095) * dt);
+  if (paused == false) {
+    forward_angle += ((thingy.leftVector.x * 0.0095) * dt);
+    if (thingy.leftVector.y < 0) {
+      //forward_speed += ((-thingy.leftVector.y * 0.05) * dt);
+    }
+    st += dt;
+  }
 
   foward.x = Math.cos(forward_angle);
   foward.z = Math.sin(forward_angle);
 
-  if (car_one != null) {
-    moveObjectInDirectionAtSpeed(0, dt, car_one, foward, forward_speed);
-    followObjectWithObjectAtSpeed(0, dt, car_one, camera, forward_speed * 1.05);
+  if (paused == false) {
+    if (car_one != null) {
+      moveObjectInDirectionAtSpeed(0, dt, car_one, foward, forward_speed);
+      followObjectWithObjectAtSpeed(0, dt, car_one, camera, forward_speed * 1.05);
+    }
+  }
 
+  if (car_one != null) {
     var b = foward.clone();
     var bb = foward.clone();
-    bb.multiplyScalar(20.0);
+    bb.multiplyScalar(30.0);
     
     b.negate();
 
@@ -32,10 +40,9 @@ var tick = function(then, st, forward_angle, foward, car_one, turning_dir, forwa
 
     car_one.lookAt(c);
     camera.lookAt(a);
-
   }
 
-  camera.position.y = 13;
+  camera.position.y = 16;
 
   setTimeout(tick, 34, then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy);
 };
@@ -53,6 +60,22 @@ var onPointerDown = function(e) {
       continue;     
       } else {
     } 
+  }
+}
+
+var fs = null;
+
+var onContClick = function(e) {
+  paused = true;
+  e.preventDefault();
+  if (fs == null) {
+    fs = true;
+    var cnt = document.getElementById("canvas-container");
+    if (cnt.mozRequestFullScreen) {
+      cnt.mozRequestFullScreen();
+    }
+    var fullscreenForm = document.getElementById("fullscreen-form");
+    fullscreenForm.parentNode.removeChild(fullscreenForm);
   }
 }
 
@@ -91,7 +114,7 @@ var createCarFromGeometry = function(geometry) {
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 2.67;
+  var subDivide = 3.0;
   return {
     windowHalfX: window.innerWidth / subDivide,
     windowHalfY: window.innerHeight / subDivide,
@@ -101,12 +124,22 @@ var windowSizeAndAspect = function() {
   };
 };
 
+var debounceResizeTimeout = null;
 var onWindowResize = function(cmra, rndr) {
-  var wsa = windowSizeAndAspect();
-  cmra.aspect = wsa.aspect;
-  cmra.updateProjectionMatrix();
-  rndr.setSize(wsa.x, wsa.y);
-}
+  paused = true;
+  if (debounceResizeTimeout != null) {
+    clearTimeout(debounceResizeTimeout);
+  }
+  debounceResizeTimeout = setTimeout(function(cmra2, rndr2) {
+    var wsa = windowSizeAndAspect();
+    cmra2.aspect = wsa.aspect;
+    cmra2.updateProjectionMatrix();
+    rndr2.setSize(wsa.x, wsa.y);
+    if (fs == true) {
+      paused = false;
+    }
+  }, 100, cmra, rndr);
+};
 
 var animate = function(rndr, scne, cmra, sts) {
   requestAnimationFrame(animate.bind(this, rndr, scne, cmra, sts));
@@ -161,7 +194,7 @@ var createStats = function() {
 };
 
 var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(45, wsa.x / wsa.y, 1, 1000);
+  var cmra = new THREE.PerspectiveCamera(45, wsa.x / wsa.y, 1, 500);
   return cmra;
 };
 
@@ -174,9 +207,6 @@ var createContainer = function() {
   var cntr = document.createElement('div');
   cntr.id = "canvas-container";
 
-  if (cntr.mozRequestFullScreen) {
-    //container.mozRequestFullScreen();
-  }
 
   return cntr;
 };
@@ -210,14 +240,6 @@ var run = function() {
 
   var wsa = windowSizeAndAspect();
 
-  var thingy = {
-    leftPointerID: -1,
-    leftPointerStartPos: new THREE.Vector2(0,0),
-    leftPointerPos: new THREE.Vector2(0,0),
-    leftVector: new THREE.Vector2(0,0),
-    wsa: wsa,
-    pointers: [] // array of touch vectors
-  };
 
   container = createContainer();
   document.body.appendChild(container);
@@ -246,17 +268,28 @@ var run = function() {
   loader.load("ferrari_f50.dae", function(geometry) {
     car_one = createCarFromGeometry(geometry);
     scene.add(car_one);
-
     animate(renderer, scene, camera, stats);
     tick(then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy);
   });
+  var thingy = {
+    leftPointerID: -1,
+    leftPointerStartPos: new THREE.Vector2(0,0),
+    leftPointerPos: new THREE.Vector2(0,0),
+    leftVector: new THREE.Vector2(0,0),
+    wsa: wsa,
+    pointers: [], // array of touch vectors,
+    fs: null,
+    cntr: container
+  };
+
+  document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
 
   // event listeners
   renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
   renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
   renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
 
-  window.addEventListener('resize', onWindowResize.bind(this, camera, renderer), false);
+  window.addEventListener('resize', onWindowResize.bind(thingy, camera, renderer), false);
 
   document.onkeydown = function(e) {
     if (e.keyCode == 37) { 
