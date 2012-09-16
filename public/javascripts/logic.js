@@ -168,7 +168,7 @@ var createRaceTrack = function(st, scene) {
     var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
       //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
       //new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
-      material
+      material,
     ]);
 
     mesh.position.set(x, y, z);
@@ -285,7 +285,7 @@ BoundingUVGenerator = {
   var wang = new THREE.ClosedSplineCurve3(foo.vertices);
   //console.log(wang, extrudeBend);
 
-  var extrudeSettings = { steps: 200 }
+  var extrudeSettings = { steps: 300 }
   extrudeSettings.extrudePath = wang; //roundedRectShape; //extrudeBend;
   extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
   //BoundingUVGenerator; //THREE.ExtrudeGeometry.WorldUVGenerator;

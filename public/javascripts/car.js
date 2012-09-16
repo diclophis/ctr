@@ -9,7 +9,7 @@ var tick = function(then, st, forward_angle, foward, car_one, turning_dir, forwa
     //forward_speed += ((-thingy.leftVector.y * 0.05) * dt);
   }
 
-  forward_angle += ((thingy.leftVector.x * 0.02) * dt);
+  forward_angle += ((thingy.leftVector.x * 0.0095) * dt);
 
   foward.x = Math.cos(forward_angle);
   foward.z = Math.sin(forward_angle);
@@ -35,7 +35,7 @@ var tick = function(then, st, forward_angle, foward, car_one, turning_dir, forwa
 
   }
 
-  camera.position.y = 10;
+  camera.position.y = 13;
 
   setTimeout(tick, 34, then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy);
 };
@@ -193,7 +193,7 @@ var run = function() {
   var car_one = null;
   var car_two = null;
   var forward_angle = 0;
-  var forward_speed = 150;
+  var forward_speed = 250;
   
   var foward = new THREE.Vector3(0, 0, 0);
   var turning_dir = 0;
