@@ -1,4 +1,8 @@
 
+
+
+
+
 var windowSizeAndAspect = function() {
   var subDivide = 4;
   return {
@@ -23,6 +27,77 @@ var run = function() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
     stats.update();
+
+
+    //c.clearRect(0,0,canvas.width, canvas.height); 
+
+    //ship.targetVel.copyFrom(leftVector);
+    //ship.targetVel.multiplyEq(0.15);
+    //ship.update(); 
+
+    /*
+    with(ship.pos) {
+      if(x<0) x = canvas.width; 
+      else if(x>canvas.width) x = 0;
+      if(y<0) y = canvas.height; 
+      else if (y>canvas.height) y = 0; 
+    }
+
+    ship.draw(); 
+
+
+    for (var i = 0; i < bullets.length; i++) {
+      var bullet = bullets[i]; 
+      if(!bullet.enabled) continue; 
+      bullet.update(); 
+      bullet.draw(c); 
+      if(!bullet.enabled)
+      {
+        spareBullets.push(bullet); 
+
+      }
+
+
+    }
+    */
+
+    /*
+    for(var i=0; i<pointers.length; i++) {
+
+      var pointer = pointers[i]; 
+
+      if(pointer.identifier == leftPointerID){
+        c.beginPath(); 
+        c.strokeStyle = "cyan"; 
+        c.lineWidth = 6; 
+        c.arc(leftPointerStartPos.x, leftPointerStartPos.y, 40,0,Math.PI*2,true); 
+        c.stroke();
+        c.beginPath(); 
+        c.strokeStyle = "cyan"; 
+        c.lineWidth = 2; 
+        c.arc(leftPointerStartPos.x, leftPointerStartPos.y, 60,0,Math.PI*2,true); 
+        c.stroke();
+        c.beginPath(); 
+        c.strokeStyle = "cyan"; 
+        c.arc(leftPointerPos.x, leftPointerPos.y, 40, 0,Math.PI*2, true); 
+        c.stroke(); 
+
+        } else {
+
+        c.beginPath(); 
+        c.fillStyle = "white";
+        c.fillText(pointer.type + " id : "+pointer.identifier+" x:"+pointer.x+" y:"+pointer.y, pointer.x+30, pointer.y-30); 
+
+        c.beginPath(); 
+        c.strokeStyle = "red";
+        c.lineWidth = "6";
+        c.arc(pointer.x, pointer.y, 40, 0, Math.PI*2, true); 
+        c.stroke();
+      }
+    }
+    */
+    //c.fillText("hello", 0,0); 
+
   }
 
   var container, stats;
@@ -76,6 +151,57 @@ var run = function() {
     
     return true;
   };
+
+
+function onPointerDown(e) {
+  pointers = e.getPointerList();
+
+  for(var i = 0; i<pointers.length; i++){
+    var pointer =pointers[i]; 
+    if((leftPointerID<0) && (pointer.x<halfWidth))
+    {
+      leftPointerID = pointer.identifier; 
+      leftPointerStartPos.reset(pointer.x, pointer.y);  
+      leftPointerPos.copyFrom(leftPointerStartPos); 
+      leftVector.reset(0,0); 
+      continue;     
+      } else {
+
+      //makeBullet(); 
+
+    } 
+  }
+}
+
+function onPointerMove(e) {
+  // Prevent the browser from doing its default thing (scroll, zoom)
+  pointers = e.getPointerList();
+
+  for(var i = 0; i<pointers.length; i++){
+    var pointer =pointers[i]; 
+    if(leftPointerID == pointer.identifier)
+    {
+      leftPointerPos.reset(pointer.x, pointer.y); 
+      leftVector.copyFrom(leftPointerPos); 
+      leftVector.minusEq(leftPointerStartPos);  
+      break;    
+    }   
+  }
+
+
+} 
+
+function onPointerUp(e) { 
+
+  pointers = e.getPointerList(); 
+  if (pointers.length == 0) {
+    leftPointerID = -1; 
+    if (e.pointerType == PointerTypes.pointer) {
+      leftVector.reset(0,0); 
+    }
+  }
+}
+
 
 
   var createStats = function() {
@@ -197,6 +323,43 @@ function init() {
   renderer.setFaceCulling(0);
 
   container.appendChild(renderer.domElement);
+
+renderer.domElement.addEventListener( 'pointerdown', onPointerDown, false );
+renderer.domElement.addEventListener( 'pointermove', onPointerMove, false );
+renderer.domElement.addEventListener( 'pointerup', onPointerUp, false );
+
+
+
+  var canvas,
+  c, // c is the canvas' context 2D
+  halfWidth, 
+  halfHeight,
+  leftPointerID = -1, 
+  leftPointerPos = new THREE.Vector2(0,0),
+  leftPointerStartPos = new THREE.Vector2(0,0),
+  leftVector = new THREE.Vector2(0,0); 
+
+  var pointers = []; // array of touch vectors
+
+  /*
+  c = renderer.domElement.getContext('2d');
+  c.strokeStyle = "#ffffff";
+  c.lineWidth =2; 
+  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   createStats();
 
