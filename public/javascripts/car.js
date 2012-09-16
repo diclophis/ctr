@@ -232,7 +232,64 @@ function onPointerUp(e) {
     document.body.appendChild(container);
   };
 
-  init();
+  var canvas,
+  c, // c is the canvas' context 2D
+  halfWidth, 
+  halfHeight,
+  leftPointerID = -1, 
+  leftPointerPos = new THREE.Vector2(0,0),
+  leftPointerStartPos = new THREE.Vector2(0,0),
+  leftVector = new THREE.Vector2(0,0); 
+
+  var pointers = []; // array of touch vectors
+
+
+  createContainer();
+  
+  var wsa = windowSizeAndAspect();
+  createCamera(wsa);
+  createScene();
+
+  // LIGHTS
+  //var ambient = new THREE.AmbientLight(0xffffff);
+  //scene.add(ambient);
+
+  directionalLight = new THREE.DirectionalLight( 0xffffff );
+  directionalLight.position.set(0.0, 1.0, 0.0);
+  scene.add(directionalLight);
+
+  pointLight = new THREE.PointLight(0xffffff, 1.0, 30.0);
+  pointLight.position.set(0, 10, 0);
+  scene.add(pointLight);
+
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(wsa.x, wsa.y);
+  renderer.setFaceCulling(0);
+
+  container.appendChild(renderer.domElement);
+
+renderer.domElement.addEventListener( 'pointerdown', onPointerDown, false );
+renderer.domElement.addEventListener( 'pointermove', onPointerMove, false );
+renderer.domElement.addEventListener( 'pointerup', onPointerUp, false );
+
+  /*
+  c = renderer.domElement.getContext('2d');
+  c.strokeStyle = "#ffffff";
+  c.lineWidth =2; 
+  */
+
+  createStats();
+
+  var loader = new THREE.ColladaLoader();
+
+  loader.load("ferrari_f50.dae", function(geometry) {
+    car_one = createCarFromGeometry(geometry);
+    scene.add(car_one);
+  });
+
+
+  createRaceTrack(scene);
+
   animate();
 
   var st = 0;
@@ -298,54 +355,6 @@ function onPointerUp(e) {
   })();
 
 
-function init() {
-
-  createContainer();
-  
-  var wsa = windowSizeAndAspect();
-  createCamera(wsa);
-  createScene();
-
-  // LIGHTS
-  //var ambient = new THREE.AmbientLight(0xffffff);
-  //scene.add(ambient);
-
-  directionalLight = new THREE.DirectionalLight( 0xffffff );
-  directionalLight.position.set(0.0, 1.0, 0.0);
-  scene.add(directionalLight);
-
-  pointLight = new THREE.PointLight(0xffffff, 1.0, 30.0);
-  pointLight.position.set(0, 10, 0);
-  scene.add(pointLight);
-
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize(wsa.x, wsa.y);
-  renderer.setFaceCulling(0);
-
-  container.appendChild(renderer.domElement);
-
-renderer.domElement.addEventListener( 'pointerdown', onPointerDown, false );
-renderer.domElement.addEventListener( 'pointermove', onPointerMove, false );
-renderer.domElement.addEventListener( 'pointerup', onPointerUp, false );
-
-
-
-  var canvas,
-  c, // c is the canvas' context 2D
-  halfWidth, 
-  halfHeight,
-  leftPointerID = -1, 
-  leftPointerPos = new THREE.Vector2(0,0),
-  leftPointerStartPos = new THREE.Vector2(0,0),
-  leftVector = new THREE.Vector2(0,0); 
-
-  var pointers = []; // array of touch vectors
-
-  /*
-  c = renderer.domElement.getContext('2d');
-  c.strokeStyle = "#ffffff";
-  c.lineWidth =2; 
-  */
 
 
 
@@ -353,45 +362,21 @@ renderer.domElement.addEventListener( 'pointerup', onPointerUp, false );
 
 
 
-
-
-
-
-
-
-
-
-  createStats();
-
-  var loader = new THREE.ColladaLoader();
-
-  loader.load("ferrari_f50.dae", function(geometry) {
-    createScene2(geometry);
-  });
-
-
-  createRaceTrack(scene);
-}
-
-
-
-var createScene2 = function (geometry) {
-
-  car_one = THREE.SceneUtils.cloneObject(geometry.scene);
+var createCarFromGeometry = function(geometry) {
+  var car = THREE.SceneUtils.cloneObject(geometry.scene);
 
   //dae.scale.x = dae.scale.y = dae.scale.z = 0.1;
-  car_one.updateMatrix();
+  car.updateMatrix();
+  car.children[0].children[0].material = new THREE.MeshLambertMaterial({color: 0xffaa00 }); // wheels chrome
+  car.children[0].children[1].material = new THREE.MeshLambertMaterial({color: 0x0000ff }); // wheels chrome
+  car.children[0].children[2].material = new THREE.MeshLambertMaterial({color: 0xe0e0e0 }); // wheels chrome
+  car.position.set(0, 1.1, 0);
 
-  car_one.children[0].children[0].material = new THREE.MeshLambertMaterial({color: 0xffaa00 }); // wheels chrome
-  car_one.children[0].children[1].material = new THREE.MeshLambertMaterial({color: 0x0000ff }); // wheels chrome
-  car_one.children[0].children[2].material = new THREE.MeshLambertMaterial({color: 0xe0e0e0 }); // wheels chrome
-
-
-
-  car_one.position.set(0, 1.1, 0);
-  scene.add(car_one);
+  return car;
 }
 
 
+  // event listeners
   window.addEventListener('resize', onWindowResize.bind(this, camera, renderer), false);
+
 }
