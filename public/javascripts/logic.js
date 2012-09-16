@@ -152,7 +152,7 @@ var createRaceTrack = function(scene) {
   var addGeometry = function(p, geometry, color, x, y, z, rx, ry, rz, s ) {
     var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
       new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
-      new THREE.MeshBasicMaterial({ color: color + 20, wireframe: true,  opacity: 1.0 })
+      new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true,  opacity: 1.0 })
     ]);
 
     mesh.position.set(x, y, z);

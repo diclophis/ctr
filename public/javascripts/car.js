@@ -1,25 +1,25 @@
-
-var tick = function(then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera) {
+var tick = function(then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy) {
 
   var now = Date.now();
   var dt = (now - then) / 1000;
   st += dt;
   then = now;
 
-  forward_angle += ((turning_dir * 1) * dt);
+  if (thingy.leftVector.y < 0) {
+    //forward_speed += ((-thingy.leftVector.y * 0.05) * dt);
+  }
+
+  forward_angle += ((thingy.leftVector.x * 0.02) * dt);
 
   foward.x = Math.cos(forward_angle);
   foward.z = Math.sin(forward_angle);
 
-  //foward.x = 
   if (car_one != null) {
-    //camera.lookAt(car_one.position);
     moveObjectInDirectionAtSpeed(0, dt, car_one, foward, forward_speed);
-    followObjectWithObjectAtSpeed(0, dt, car_one, camera, forward_speed * 0.999);
+    followObjectWithObjectAtSpeed(0, dt, car_one, camera, forward_speed * 1.05);
 
     var b = foward.clone();
     var bb = foward.clone();
-    //bb.negate();
     bb.multiplyScalar(20.0);
     
     b.negate();
@@ -36,26 +36,62 @@ var tick = function(then, st, forward_angle, foward, car_one, turning_dir, forwa
   }
 
   camera.position.y = 10;
-  
-  setTimeout(tick, 67, then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera);
-//})();
+
+  setTimeout(tick, 34, then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy);
 };
+
+var onPointerDown = function(e) {
+  this.pointers = e.getPointerList();
+  for(var i = 0; i<this.pointers.length; i++){
+    var pointer = this.pointers[i]; 
+    if((this.leftPointerID<0)) // && (pointer.x<this.wsa.windowHalfX))
+    {
+      this.leftPointerID = pointer.identifier; 
+      this.leftPointerStartPos.set(pointer.x, pointer.y);  
+      this.leftPointerPos.copy(this.leftPointerStartPos); 
+      this.leftVector.set(0,0); 
+      continue;     
+      } else {
+    } 
+  }
+}
+
+var onPointerMove = function(e) {
+  this.pointers = e.getPointerList();
+  for(var i = 0; i<this.pointers.length; i++){
+    var pointer = this.pointers[i]; 
+    if(this.leftPointerID == pointer.identifier)
+    {
+      this.leftPointerPos.set(pointer.x, pointer.y); 
+      this.leftVector.copy(this.leftPointerPos); 
+      this.leftVector.subSelf(this.leftPointerStartPos);  
+      break;    
+    }   
+  }
+} 
+
+var onPointerUp = function(e) { 
+  this.pointers = e.getPointerList(); 
+  if (this.pointers.length == 0) {
+    this.leftPointerID = -1; 
+    if (e.pointerType == PointerTypes.pointer) {
+      this.leftVector.set(0,0); 
+    }
+  }
+}
 
 var createCarFromGeometry = function(geometry) {
   var car = THREE.SceneUtils.cloneObject(geometry.scene);
-
-  //dae.scale.x = dae.scale.y = dae.scale.z = 0.1;
   car.updateMatrix();
   car.children[0].children[0].material = new THREE.MeshLambertMaterial({color: 0xffaa00 }); // wheels chrome
   car.children[0].children[1].material = new THREE.MeshLambertMaterial({color: 0x0000ff }); // wheels chrome
   car.children[0].children[2].material = new THREE.MeshLambertMaterial({color: 0xe0e0e0 }); // wheels chrome
   car.position.set(0, 1.1, 0);
-
   return car;
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 4;
+  var subDivide = 2.67;
   return {
     windowHalfX: window.innerWidth / subDivide,
     windowHalfY: window.innerHeight / subDivide,
@@ -157,7 +193,7 @@ var run = function() {
   var car_one = null;
   var car_two = null;
   var forward_angle = 0;
-  var forward_speed = 100;
+  var forward_speed = 150;
   
   var foward = new THREE.Vector3(0, 0, 0);
   var turning_dir = 0;
@@ -174,7 +210,14 @@ var run = function() {
 
   var wsa = windowSizeAndAspect();
 
-  var pointers = []; // array of touch vectors
+  var thingy = {
+    leftPointerID: -1,
+    leftPointerStartPos: new THREE.Vector2(0,0),
+    leftPointerPos: new THREE.Vector2(0,0),
+    leftVector: new THREE.Vector2(0,0),
+    wsa: wsa,
+    pointers: [] // array of touch vectors
+  };
 
   container = createContainer();
   document.body.appendChild(container);
@@ -205,56 +248,8 @@ var run = function() {
     scene.add(car_one);
 
     animate(renderer, scene, camera, stats);
-    tick(then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera);
+    tick(then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy);
   });
-
-  var thingy = {
-    leftPointerID: leftPointerID,
-    leftPointerStartPos: leftPointerStartPos,
-    leftPointerPos: leftPointerPos,
-    leftVector: leftVector,
-    wsa: wsa
-  };
-
-  var onPointerDown = function(e) {
-    pointers = e.getPointerList();
-    for(var i = 0; i<pointers.length; i++){
-      var pointer = pointers[i]; 
-      if((this.leftPointerID<0) && (pointer.x<this.wsa.windowHalfX))
-      {
-        this.leftPointerID = pointer.identifier; 
-        this.leftPointerStartPos.set(pointer.x, pointer.y);  
-        this.leftPointerPos.copy(this.leftPointerStartPos); 
-        this.leftVector.set(0,0); 
-        continue;     
-        } else {
-      } 
-    }
-  }
-
-  var onPointerMove = function(e) {
-    pointers = e.getPointerList();
-    for(var i = 0; i<pointers.length; i++){
-      var pointer = pointers[i]; 
-      if(this.leftPointerID == pointer.identifier)
-      {
-        this.leftPointerPos.set(pointer.x, pointer.y); 
-        this.leftVector.copy(this.leftPointerPos); 
-        this.leftVector.subSelf(this.leftPointerStartPos);  
-        break;    
-      }   
-    }
-  } 
-
-  var onPointerUp = function(e) { 
-    pointers = e.getPointerList(); 
-    if (pointers.length == 0) {
-      this.leftPointerID = -1; 
-      if (e.pointerType == PointerTypes.pointer) {
-        this.leftVector.set(0,0); 
-      }
-    }
-  }
 
   // event listeners
   renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
@@ -280,4 +275,4 @@ var run = function() {
 
     return true;
   };
-}
+};
