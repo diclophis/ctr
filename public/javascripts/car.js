@@ -39,6 +39,8 @@ var run = function() {
   var forward_speed = 100;
   
   var foward = new THREE.Vector3(0, 0, 0);
+  var turning_dir = 0;
+  var accel_dir = 0;
 
   document.onkeydown = function(e) {
     if (e.keyCode == 37) { 
@@ -46,24 +48,28 @@ var run = function() {
       //foward.x = -0.001;
       //foward.y = -0.00;
       //foward.z = -0.00;
-      forward_angle -= 0.1;
+      //forward_angle -= 0.1;
+      turning_dir = -1;
     } else if (e.keyCode == 39) { 
       // r
       //foward.x = 0.001;
       //foward.y = -0.00;
       //foward.z = -0.00;
-      forward_angle += 0.1;
+      //forward_angle += 0.1;
+      turning_dir = 1;
     } else if (e.keyCode == 38) { 
       // u
       //foward.x = -0.00;
       //foward.y = -0.00;
       //foward.z = -0.001;
-      forward_speed += 1;
+      //forward_speed += 1;
+      accel_dir = 1;
     } else if (e.keyCode == 40) { 
       // u
       //foward.x = -0.00;
       //foward.y = -0.00;
       //foward.z = 0.001;
+      accel_dir = 0;
     }
 
     //console.log(foward.x, foward.y, e.keyCode);
@@ -123,6 +129,9 @@ var run = function() {
     //m.setRotationFromQuaternion(q);
     //m.lookAt(new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 1), new THREE.Vector3(0, 1, 0))
     //foward.setEulerFromRotationMatrix(m);
+
+    forward_angle += ((turning_dir * 1) * dt);
+
     foward.x = Math.cos(forward_angle);
     foward.z = Math.sin(forward_angle);
 
