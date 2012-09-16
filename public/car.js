@@ -1,6 +1,6 @@
 
 var windowSizeAndAspect = function() {
-  var subDivide = 3;
+  var subDivide = 4;
   return {
     windowHalfX: window.innerWidth / subDivide,
     windowHalfY: window.innerHeight / subDivide,
@@ -36,6 +36,7 @@ var run = function() {
   var car_one = null;
   var car_two = null;
   var forward_angle = 0;
+  var forward_speed = 100;
   
   var foward = new THREE.Vector3(0, 0, 0);
 
@@ -57,6 +58,7 @@ var run = function() {
       //foward.x = -0.00;
       //foward.y = -0.00;
       //foward.z = -0.001;
+      forward_speed += 1;
     } else if (e.keyCode == 40) { 
       // u
       //foward.x = -0.00;
@@ -80,7 +82,7 @@ var run = function() {
   };
 
   var createCamera = function(wsa) {
-    camera = new THREE.PerspectiveCamera(20, wsa.x / wsa.y, 1, 1000);
+    camera = new THREE.PerspectiveCamera(45, wsa.x / wsa.y, 1, 1000);
   };
 
   var createScene = function() {
@@ -127,8 +129,8 @@ var run = function() {
     //foward.x = 
     if (car_one != null) {
       //camera.lookAt(car_one.position);
-      moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 100.0);
-      followObjectWithObjectAtSpeed(0, dt, car_one, camera, 99.99999);
+      moveObjectInDirectionAtSpeed(0, dt, car_one, foward, forward_speed);
+      followObjectWithObjectAtSpeed(0, dt, car_one, camera, forward_speed * 0.999);
 
 
       //camera.position.x = 0; //car_one.position.x - 1;// + (b.x * 20.0);
@@ -155,9 +157,9 @@ var run = function() {
 
     //camera.position.z = 0;
 
-    camera.position.y = 25;
+    camera.position.y = 10;
     
-    setTimeout(foo, 1);
+    setTimeout(foo, 67);
   })();
 
 

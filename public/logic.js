@@ -3,14 +3,27 @@
 
 var moveObjectInDirectionAtSpeed = function(st, dt, obj, dir, spd) {
 
+  // copy the input
+  var inp = dir.clone();
   // clean up the input
-  dir.normalize();
+  inp.normalize();
 
   // calculate the distance traveled over time in that direction
-  dir.multiplyScalar(spd * dt);
+  inp.multiplyScalar(spd * dt);
 
   // move object that much distance
-  obj.position.addSelf(dir);
+  //obj.position.addSelf(inp);
+  obj.position.x += inp.x;
+  obj.position.z += inp.z;
+  
+  //var abc = obj.clone();
+  //console.log(obj);
+  //two.addSelf(inp);
+
+  //obj.x = two.x;
+  //obj.z = two.z;
+  
+  //console.log(inp);
 
 };
 
@@ -139,7 +152,7 @@ var createRaceTrack = function(scene) {
   var addGeometry = function(p, geometry, color, x, y, z, rx, ry, rz, s ) {
     var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
       new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
-      new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true,  opacity: 1.0 })
+      new THREE.MeshBasicMaterial({ color: color + 20, wireframe: true,  opacity: 1.0 })
     ]);
 
     mesh.position.set(x, y, z);
@@ -147,7 +160,6 @@ var createRaceTrack = function(scene) {
 
     p.add(mesh);
   }
-
 
   // should be closed
   var extrudeBend = new THREE.SplineCurve3([
@@ -187,7 +199,7 @@ var createRaceTrack = function(scene) {
   var wang = new THREE.ClosedSplineCurve3(foo.vertices);
   console.log(wang, extrudeBend);
 
-  var extrudeSettings = { steps: 100 }
+  var extrudeSettings = { steps: 200 }
   extrudeSettings.extrudePath = wang; //roundedRectShape; //extrudeBend;
 
   var rectLength = 30.0;
