@@ -147,7 +147,6 @@ var createRaceTrack = function(scene) {
     p.add(mesh);
   }
 
-  var extrudeSettings = { steps: 1000 }
 
   // should be closed
   var extrudeBend = new THREE.SplineCurve3([
@@ -187,6 +186,7 @@ var createRaceTrack = function(scene) {
   var wang = new THREE.ClosedSplineCurve3(foo.vertices);
   console.log(wang, extrudeBend);
 
+  var extrudeSettings = { steps: 100 }
   extrudeSettings.extrudePath = wang; //roundedRectShape; //extrudeBend;
 
   var rectLength = 30.0;

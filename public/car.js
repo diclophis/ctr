@@ -1,6 +1,6 @@
 
 var windowSizeAndAspect = function() {
-  var subDivide = 1;
+  var subDivide = 3;
   return {
     windowHalfX: window.innerWidth / subDivide,
     windowHalfY: window.innerHeight / subDivide,
@@ -16,7 +16,6 @@ var onWindowResize = function(cmra, rndr) {
   cmra.updateProjectionMatrix();
   rndr.setSize(wsa.x, wsa.y);
 }
-
 
 var run = function() {
 
@@ -36,38 +35,40 @@ var run = function() {
 
   var car_one = null;
   var car_two = null;
+  var forward_angle = 0;
   
   var foward = new THREE.Vector3(0, 0, 0);
 
   document.onkeydown = function(e) {
     if (e.keyCode == 37) { 
       // l
-      foward.x = -0.001;
-      foward.y = -0.00;
-      foward.z = -0.00;
+      //foward.x = -0.001;
+      //foward.y = -0.00;
+      //foward.z = -0.00;
+      forward_angle -= 0.1;
     } else if (e.keyCode == 39) { 
       // r
-      foward.x = 0.001;
-      foward.y = -0.00;
-      foward.z = -0.00;
+      //foward.x = 0.001;
+      //foward.y = -0.00;
+      //foward.z = -0.00;
+      forward_angle += 0.1;
     } else if (e.keyCode == 38) { 
       // u
-      foward.x = -0.00;
-      foward.y = -0.00;
-      foward.z = -0.001;
+      //foward.x = -0.00;
+      //foward.y = -0.00;
+      //foward.z = -0.001;
     } else if (e.keyCode == 40) { 
       // u
-      foward.x = -0.00;
-      foward.y = -0.00;
-      foward.z = 0.001;
+      //foward.x = -0.00;
+      //foward.y = -0.00;
+      //foward.z = 0.001;
     }
 
-    console.log(foward, e.keyCode);
+    //console.log(foward.x, foward.y, e.keyCode);
     
     return true;
   };
 
-  var then = Date.now();
 
   var createStats = function() {
     stats = new Stats();
@@ -79,7 +80,7 @@ var run = function() {
   };
 
   var createCamera = function(wsa) {
-    camera = new THREE.PerspectiveCamera(20, wsa.x / wsa.y, 1, 10000);
+    camera = new THREE.PerspectiveCamera(20, wsa.x / wsa.y, 1, 1000);
   };
 
   var createScene = function() {
@@ -103,41 +104,62 @@ var run = function() {
   var st = 0;
 
   var center = new THREE.Vector3(0, 0, 0);
+  var then = Date.now();
 
   (function foo() {
 
     directionRequiredToFollowSpine();
 
     var now = Date.now();
-    var dt = (now - then) / 1000;
+    var dt = (now - then) / 1;
     st += dt;
     then = now;
 
+    //var q = new THREE.Quaternion();
+    //q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), forward_angle);
+    //var m = new THREE.Matrix4();
+    //m.setRotationFromQuaternion(q);
+    //m.lookAt(new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 1), new THREE.Vector3(0, 1, 0))
+    //foward.setEulerFromRotationMatrix(m);
+    foward.x = Math.cos(forward_angle);
+    foward.z = Math.sin(forward_angle);
+
+
+
+    //foward.x = 
     if (car_one != null) {
-      if (st > 3) {
-        //camera.lookAt(car_one.position);
-        moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 50.0);
-        //followObjectWithObjectAtSpeed(0, dt, car_one, camera, 200.0);
-      } else {
-        car_one.position.set(0, 1.1, 0);
-      }
+      //camera.lookAt(car_one.position);
+      moveObjectInDirectionAtSpeed(0, dt, car_one, foward, 100.0);
+      followObjectWithObjectAtSpeed(0, dt, car_one, camera, 99.99999);
 
-      camera.position.x = car_one.position.x + 100;
-      camera.position.z = car_one.position.z + 100;
+
+      //camera.position.x = 0; //car_one.position.x - 1;// + (b.x * 20.0);
+      //camera.position.z = 0; //car_one.position.z - 1;// + (b.z * 20.0);
    
-      var a = car_one.position.clone();
-      a.addSelf(new THREE.Vector3(0, 0, -30));
+      var b = foward.clone();
+      var bb = foward.clone();
+      //bb.negate();
+      bb.multiplyScalar(20.0);
+      
+      b.negate();
 
+      var a = car_one.position.clone();
+      a.addSelf(bb);
+
+      var c = car_one.position.clone();
+      c.addSelf(b);
+
+      car_one.lookAt(c);
       camera.lookAt(a);
+
     } else { 
     }
 
     //camera.position.z = 0;
 
-
-    camera.position.y = 1000;
+    camera.position.y = 25;
     
-    setTimeout(foo, 1000 / 30);
+    setTimeout(foo, 1000 / 100);
   })();
 
 
@@ -194,6 +216,7 @@ var createScene2 = function (geometry) {
 
 
 
+  car_one.position.set(0, 1.1, 0);
   scene.add(car_one);
 }
 
