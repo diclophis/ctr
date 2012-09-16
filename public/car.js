@@ -111,7 +111,7 @@ var run = function() {
     directionRequiredToFollowSpine();
 
     var now = Date.now();
-    var dt = (now - then) / 1;
+    var dt = (now - then) / 1000;
     st += dt;
     then = now;
 
@@ -123,8 +123,6 @@ var run = function() {
     //foward.setEulerFromRotationMatrix(m);
     foward.x = Math.cos(forward_angle);
     foward.z = Math.sin(forward_angle);
-
-
 
     //foward.x = 
     if (car_one != null) {
@@ -159,7 +157,7 @@ var run = function() {
 
     camera.position.y = 25;
     
-    setTimeout(foo, 1000 / 100);
+    setTimeout(foo, 1);
   })();
 
 

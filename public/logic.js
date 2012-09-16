@@ -18,6 +18,7 @@ var followObjectWithObjectAtSpeed = function(st, dt, car, camera, speed) {
   // there is a distance between the two objects
   var distance = new THREE.Vector3(0, 0, 0);
   distance.sub(car.position, camera.position);
+  //distance.y = 0;
 
   // move the camera towards the car at speed
   // in the direction of the distance
