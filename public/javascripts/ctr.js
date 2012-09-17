@@ -1,6 +1,6 @@
-var paused = true;
+var paused = false;
 
-var tick = function(then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy) {
+var tick = function(then, st, forward_angle, foward, car_one, forward_speed, camera, thingy) {
 
   var now = Date.now();
   var dt = (now - then) / 1000;
@@ -44,7 +44,9 @@ var tick = function(then, st, forward_angle, foward, car_one, turning_dir, forwa
 
   camera.position.y = 16;
 
-  setTimeout(tick, 1, then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy);
+  thingy.scene.updateMatrixWorld();
+
+  setTimeout(tick, 1000 / 25, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
 };
 
 var onPointerDown = function(e) {
@@ -66,14 +68,14 @@ var onPointerDown = function(e) {
 var fs = null;
 
 var onContClick = function(e) {
-  paused = true;
+  //paused = true;
   e.preventDefault();
   if (fs == null) {
     fs = true;
     var cnt = document.getElementById("canvas-container");
-    if (cnt.mozRequestFullScreen) {
-      cnt.mozRequestFullScreen();
-    }
+    //if (cnt.mozRequestFullScreen) {
+    //  cnt.mozRequestFullScreen();
+    //}
     var fullscreenForm = document.getElementById("fullscreen-form");
     fullscreenForm.parentNode.removeChild(fullscreenForm);
   }
@@ -115,30 +117,22 @@ var createCarFromGeometry = function(geometry) {
 
 var windowSizeAndAspect = function() {
   var subDivide = 3.0;
-  return {
-    windowHalfX: window.innerWidth / subDivide,
-    windowHalfY: window.innerHeight / subDivide,
+  var r = {
+    windowHalfX: Math.floor(window.innerWidth / subDivide),
+    windowHalfY: Math.floor(window.innerHeight / subDivide),
     aspect: window.innerWidth / window.innerHeight,
-    x: (window.innerWidth / subDivide),
-    y: (window.innerHeight / subDivide)
+    x: Math.floor(window.innerWidth / subDivide),
+    y: Math.floor(window.innerHeight / subDivide)
   };
+  console.log(r);
+  return r;
 };
 
-var debounceResizeTimeout = null;
 var onWindowResize = function(cmra, rndr) {
-  paused = true;
-  if (debounceResizeTimeout != null) {
-    clearTimeout(debounceResizeTimeout);
-  }
-  debounceResizeTimeout = setTimeout(function(cmra2, rndr2) {
-    var wsa = windowSizeAndAspect();
-    cmra2.aspect = wsa.aspect;
-    cmra2.updateProjectionMatrix();
-    rndr2.setSize(wsa.x, wsa.y);
-    if (fs == true) {
-      paused = false;
-    }
-  }, 100, cmra, rndr);
+  var wsa = windowSizeAndAspect();
+  cmra.aspect = wsa.aspect;
+  cmra.updateProjectionMatrix();
+  rndr.setSize(wsa.x, wsa.y);
 };
 
 var animate = function(rndr, scne, cmra, sts) {
@@ -211,103 +205,6 @@ var createContainer = function() {
   return cntr;
 };
 
-var run = function() {
-
-  var container = null;
-  var stats = null;
-
-  var camera = null;
-  var scene = null;
-  var renderer = null;
-
-  var car_one = null;
-  var car_two = null;
-  var forward_angle = 0;
-  var forward_speed = 250;
-  
-  var foward = new THREE.Vector3(0, 0, 0);
-  var turning_dir = 0;
-  var accel_dir = 0;
-
-  var st = 0;
-  var loader = new THREE.ColladaLoader();
-  var then = Date.now();
-
-  var leftPointerID = -1;
-  var leftPointerPos = new THREE.Vector2(0,0);
-  var leftPointerStartPos = new THREE.Vector2(0,0);
-  var leftVector = new THREE.Vector2(0,0); 
-
-  var wsa = windowSizeAndAspect();
-
-
-  container = createContainer();
-  document.body.appendChild(container);
-
-  camera = createCamera(wsa);
-  scene = createScene();
-
-  directionalLight = new THREE.DirectionalLight( 0xffffff );
-  directionalLight.position.set(0.0, 1.0, 0.0);
-  scene.add(directionalLight);
-
-  pointLight = new THREE.PointLight(0xffffff, 1.0, 30.0);
-  pointLight.position.set(0, 10, 0);
-  scene.add(pointLight);
-
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize(wsa.x, wsa.y);
-  renderer.setFaceCulling(0);
-  container.appendChild(renderer.domElement);
-
-  stats = createStats();
-  container.appendChild(stats.domElement);
-
-  createRaceTrack(st, scene);
-
-  loader.load("ferrari_f50.dae", function(geometry) {
-    car_one = createCarFromGeometry(geometry);
-    scene.add(car_one);
-    animate(renderer, scene, camera, stats);
-    tick(then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy);
-  });
-  var thingy = {
-    leftPointerID: -1,
-    leftPointerStartPos: new THREE.Vector2(0,0),
-    leftPointerPos: new THREE.Vector2(0,0),
-    leftVector: new THREE.Vector2(0,0),
-    wsa: wsa,
-    pointers: [], // array of touch vectors,
-    fs: null
-  };
-
-  document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
-
-  // event listeners
-  renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
-  renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
-  renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
-
-  window.addEventListener('resize', onWindowResize.bind(thingy, camera, renderer), false);
-
-  document.onkeydown = function(e) {
-    if (e.keyCode == 37) { 
-      // l
-      turning_dir = -1;
-    } else if (e.keyCode == 39) { 
-      // r
-      turning_dir = 1;
-    } else if (e.keyCode == 38) { 
-      // u
-      accel_dir = 1;
-    } else if (e.keyCode == 40) { 
-      // u
-      accel_dir = 0;
-    }
-
-    return true;
-  };
-};
 // logic of racing game
 // http://www.youtube.com/watch?v=NUU_F9TvXco
 
@@ -444,7 +341,7 @@ var createCar = function() {
   // and wheels that turn
 };
 
-var createRaceTrack = function(st, scene) {
+var createRaceTrack = function(scene) {
   // there is a race track
   // that follows a spline curve of points
   // it has a road that is an object
@@ -455,24 +352,10 @@ var createRaceTrack = function(st, scene) {
   // inner ring is white/yellow 70%
   // outer ring is red white 50/50
 
-  parent = new THREE.Object3D();
-  parent.position.y = 0;
-  scene.add(parent);
+  trackObject = new THREE.Object3D();
+  trackObject.position.y = 0;
 
-  var addGeometry = function(st, p, geometry, color, x, y, z, rx, ry, rz, s ) {
-    var uniforms1 = {
-      time: { type: "f", value: st },
-      resolution: { type: "v2", value: new THREE.Vector2() }
-    };
-
-    /*
-    var material = new THREE.ShaderMaterial( {
-      uniforms: uniforms1,
-      vertexShader: document.getElementById( 'vertexShader' ).textContent,
-      fragmentShader: document.getElementById('fragment_shader4').textContent
-    });
-    */
-
+  var addGeometry = function(p, geometry, color, x, y, z, rx, ry, rz, s ) {
     material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.jpg") });
 
     var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
@@ -489,86 +372,7 @@ var createRaceTrack = function(st, scene) {
     p.add(mesh);
   }
 
-  // should be closed
-  var extrudeBend = new THREE.SplineCurve3([
-    new THREE.Vector3(0, 0, 0),
-    new THREE.Vector3(0, 0, -1000),
-    new THREE.Vector3(1000, 0, -1000),
-    new THREE.Vector3(1000, 0, 0),
-    new THREE.Vector3(0, 0, 0),
-  ]);
-
-BoundingUVGenerator = {
-    generateTopUV: function( geometry, extrudedShape, extrudeOptions, indexA, indexB, indexC) {
-        var ax = geometry.vertices[ indexA ].x,
-            ay = geometry.vertices[ indexA ].y,
-
-            bx = geometry.vertices[ indexB ].x,
-            by = geometry.vertices[ indexB ].y,
-
-            cx = geometry.vertices[ indexC ].x,
-            cy = geometry.vertices[ indexC ].y,
-
-            bb = extrudedShape.getBoundingBox(),
-            bbx = bb.maxX - bb.minX,
-            bby = bb.maxY - bb.minY;
-
-        return [
-            new THREE.UV( ( ax - bb.minX ) / bbx, 1 - ( ay - bb.minY ) / bby ),
-            new THREE.UV( ( bx - bb.minX ) / bbx, 1 - ( by - bb.minY ) / bby ),
-            new THREE.UV( ( cx - bb.minX ) / bbx, 1 - ( cy - bb.minY ) / bby )
-        ];
-    },
-
-    generateBottomUV: function( geometry, extrudedShape, extrudeOptions, indexA, indexB, indexC) {
-        return this.generateTopUV( geometry, extrudedShape, extrudeOptions, indexA, indexB, indexC );
-    },
-
-    generateSideWallUV: function( geometry, extrudedShape, wallContour, extrudeOptions,
-                                  indexA, indexB, indexC, indexD, stepIndex, stepsLength,
-                                  contourIndex1, contourIndex2 ) {
-        var ax = geometry.vertices[ indexA ].x,
-            ay = geometry.vertices[ indexA ].y,
-            az = geometry.vertices[ indexA ].z,
-
-            bx = geometry.vertices[ indexB ].x,
-            by = geometry.vertices[ indexB ].y,
-            bz = geometry.vertices[ indexB ].z,
-
-            cx = geometry.vertices[ indexC ].x,
-            cy = geometry.vertices[ indexC ].y,
-            cz = geometry.vertices[ indexC ].z,
-
-            dx = geometry.vertices[ indexD ].x,
-            dy = geometry.vertices[ indexD ].y,
-            dz = geometry.vertices[ indexD ].z;
-
-        var amt = extrudeOptions.amount,
-            bb = extrudedShape.getBoundingBox(),
-            bbx = bb.maxX - bb.minX,
-            bby = bb.maxY - bb.minY;
-
-        if ( Math.abs( ay - by ) < 0.01 ) {
-            return [
-                new THREE.UV( ax / bbx, az / amt),
-                new THREE.UV( bx / bbx, bz / amt),
-                new THREE.UV( cx / bbx, cz / amt),
-                new THREE.UV( dx / bbx, dz / amt)
-            ];
-        } else {
-            return [
-                new THREE.UV( ay / bby, az / amt ),
-                new THREE.UV( by / bby, bz / amt ),
-                new THREE.UV( cy / bby, cz / amt ),
-                new THREE.UV( dy / bby, dz / amt )
-            ];
-        }
-    }
-};
-
-
-  function roundedRect( ctx, x, y, width, height, radius ){
-
+  function roundedRect(ctx, x, y, width, height, radius) {
     ctx.moveTo( x, y + radius );
     ctx.lineTo( x, y + height - radius );
     ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
@@ -578,7 +382,6 @@ BoundingUVGenerator = {
     ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
     ctx.lineTo( x + radius, y );
     ctx.quadraticCurveTo( x, y, x, y + radius );
-
   }
 
   var roundedRectShape = new THREE.Shape();
@@ -587,44 +390,31 @@ BoundingUVGenerator = {
   var foo = roundedRectShape.createSpacedPointsGeometry(10);
 
   var m = new THREE.Matrix4();
-  //console.log(m);
   var gamma = Math.PI/2;
   m.rotateX(gamma);
   foo.applyMatrix(m);
 
   var wang = new THREE.ClosedSplineCurve3(foo.vertices);
-  //console.log(wang, extrudeBend);
 
   var extrudeSettings = { steps: 300 }
-  extrudeSettings.extrudePath = wang; //roundedRectShape; //extrudeBend;
+  extrudeSettings.extrudePath = wang;
   extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
-  //BoundingUVGenerator; //THREE.ExtrudeGeometry.WorldUVGenerator;
-  //extrudeSettings.extrudeMaterial = 0;
   extrudeSettings.material = 1;
-
-
-
-
 
   var rectLength = 30.0;
   var rectWidth = 1.0;
-
   var rectShape = new THREE.Shape();
 
-  /*
-  rectShape.moveTo(0, -rectLength);
-  rectShape.lineTo(0, rectLength);
-  rectShape.lineTo(rectWidth, 0);
-  rectShape.lineTo(0, -rectLength);
-  */
   rectShape.moveTo(0, -rectLength);
   rectShape.lineTo(0, rectLength);
   rectShape.lineTo(rectWidth, 0);
   rectShape.lineTo(0, -rectLength);
 
-  var circle3d = rectShape.extrude(extrudeSettings);
+  var trackGeometry = rectShape.extrude(extrudeSettings);
 
-  addGeometry(st, parent, circle3d, 0x700000, 0, 0, 0, 0, 0, 0, 1 );
+  addGeometry(trackObject, trackGeometry, 0x700000, 0, 0, 0, 0, 0, 0, 1 );
+
+  return trackObject;
 };
 
 var createTerrain = function() {
@@ -783,3 +573,80 @@ var turnCarRight = function(st, dt, car) {
 var turnCarLeft = function(st, dt, car) {
 };
 
+var createDirectionalLight = function() {
+  dl = new THREE.DirectionalLight( 0xffffff );
+  dl.position.set(0.0, 1.0, 0.0);
+  return dl;
+};
+
+var createPointLight = function() {
+  pl = new THREE.PointLight(0xffffff, 1.0, 30.0);
+  pl.position.set(0, 10, 0);
+  return pl;
+};
+
+var run = function(body) {
+
+  var wsa = windowSizeAndAspect();
+
+  var container = createContainer();
+  body.appendChild(container);
+
+  var camera = createCamera(wsa);
+  var scene = createScene();
+
+  var directionalLight = createDirectionalLight();
+  scene.add(directionalLight);
+
+  var pointLight = createPointLight();
+  scene.add(pointLight);
+
+  var renderer = new THREE.WebGLRenderer({precision: "lowp", });
+  renderer.setSize(wsa.x, wsa.y);
+  renderer.setFaceCulling("back");
+  renderer.autoUpdateScene = false;
+  container.appendChild(renderer.domElement);
+
+  var stats = createStats();
+  container.appendChild(stats.domElement);
+
+  var raceTrack = createRaceTrack(scene);
+  scene.add(raceTrack);
+
+  var thingy = {
+    leftPointerID: -1,
+    leftPointerStartPos: new THREE.Vector2(0, 0),
+    leftPointerPos: new THREE.Vector2(0, 0),
+    leftVector: new THREE.Vector2(0, 0),
+    wsa: wsa,
+    pointers: [],
+    fs: null,
+    scene: scene
+  };
+
+  var loader = new THREE.ColladaLoader();
+  loader.load("ferrari_f50.dae", function(geometry) {
+    var car_one = createCarFromGeometry(geometry);
+    scene.add(car_one);
+    animate(renderer, scene, camera, stats);
+    tick(Date.now(), 0, 0, new THREE.Vector3(0, 0, 0), car_one, 250, camera, thingy);
+  });
+
+  document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
+
+  // event listeners
+  renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
+  renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
+  renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
+
+  window.addEventListener('resize', onWindowResize.bind(thingy, camera, renderer), false);
+
+};
+
+    /*
+    var material = new THREE.ShaderMaterial( {
+      uniforms: uniforms1,
+      vertexShader: document.getElementById( 'vertexShader' ).textContent,
+      fragmentShader: document.getElementById('fragment_shader4').textContent
+    });
+    */
