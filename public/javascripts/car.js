@@ -44,7 +44,7 @@ var tick = function(then, st, forward_angle, foward, car_one, turning_dir, forwa
 
   camera.position.y = 16;
 
-  setTimeout(tick, 34, then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy);
+  setTimeout(tick, 1, then, st, forward_angle, foward, car_one, turning_dir, forward_speed, camera, thingy);
 };
 
 var onPointerDown = function(e) {
@@ -278,8 +278,7 @@ var run = function() {
     leftVector: new THREE.Vector2(0,0),
     wsa: wsa,
     pointers: [], // array of touch vectors,
-    fs: null,
-    cntr: container
+    fs: null
   };
 
   document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
