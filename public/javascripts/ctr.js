@@ -6,11 +6,18 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
   var dt = (now - then) / 1000;
   then = now;
 
-
   if (paused == false) {
-    forward_angle += ((thingy.leftVector.x * 0.0095) * dt);
-    if (thingy.leftVector.y < 0) {
-      //forward_speed += ((-thingy.leftVector.y * 0.05) * dt);
+    forward_angle += ((thingy.leftVector.x * 0.003) * dt);
+    if (thingy.speedUp) {
+      forward_speed += ((30) * dt);
+    } else {
+      forward_speed -= ((100) * dt);
+    }
+    if (forward_speed < 0) {
+      forward_speed = 0;
+    }
+    if (forward_speed > 200) {
+      forward_speed = 200;
     }
     st += dt;
   }
@@ -50,6 +57,7 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
 };
 
 var onPointerDown = function(e) {
+  this.speedUp = true;
   this.pointers = e.getPointerList();
   for(var i = 0; i<this.pointers.length; i++){
     var pointer = this.pointers[i]; 
@@ -103,6 +111,7 @@ var onPointerUp = function(e) {
       this.leftVector.set(0,0); 
     }
   }
+  this.speedUp = false;
 }
 
 var createCarFromGeometry = function(geometry) {
@@ -360,8 +369,8 @@ var createRaceTrack = function(scene) {
 
     var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
       //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
-      //new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
-      material,
+      new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
+      //material,
     ]);
 
     mesh.position.set(x, y, z);
@@ -395,23 +404,29 @@ var createRaceTrack = function(scene) {
   foo.applyMatrix(m);
 
   var spine = new THREE.ClosedSplineCurve3(foo.vertices);
-  var s = spine.getPoints(40);
+  var s = spine.getPoints(300);
   var g = new THREE.Geometry();
+  for (var i=0; i<s.length; i++) {
+    s[i].y = Math.sin(i) * 1.0;
+  }
+
+  s[0].y = 0;
+  s[s.length - 1].y = 0;
+
   g.vertices = s;
 
   var lineObject = new THREE.Line(g); //new THREE.Geometry(spine.getPoints(100)));
   lineObject.position.y += 5;
   trackObject.add(lineObject);
 
-
-  var wang = new THREE.ClosedSplineCurve3(foo.vertices);
+  var wang = new THREE.ClosedSplineCurve3(s);
 
   var extrudeSettings = { steps: 300 }
   extrudeSettings.extrudePath = wang;
   extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
   extrudeSettings.material = 1;
 
-  var rectLength = 30.0;
+  var rectLength = 40.0;
   var rectWidth = 1.0;
   var rectShape = new THREE.Shape();
 
@@ -631,7 +646,8 @@ var run = function(body) {
     wsa: wsa,
     pointers: [],
     fs: null,
-    scene: scene
+    scene: scene,
+    speedUp: false
   };
 
   var loader = new THREE.ColladaLoader();
@@ -639,7 +655,7 @@ var run = function(body) {
     var car_one = createCarFromGeometry(geometry);
     scene.add(car_one);
     animate(renderer, scene, camera, stats);
-    tick(Date.now(), 0, 0, new THREE.Vector3(0, 0, 0), car_one, 250, camera, thingy);
+    tick(Date.now(), 0, 0, new THREE.Vector3(0, 0, 0), car_one, 1, camera, thingy);
   });
 
   document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
