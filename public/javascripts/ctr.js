@@ -1,62 +1,66 @@
 var paused = false;
 
 var tick = function(then, st, forward_angle, foward, car_one, forward_speed, camera, thingy) {
+  var tm = (1000 / 22);
 
   var now = Date.now();
   var dt = (now - then) / 1000;
   then = now;
 
-  if (paused == false) {
-    forward_angle += ((thingy.leftVector.x * 0.002) * dt);
-    if (thingy.speedUp) {
-      forward_speed += ((30) * dt);
-    } else {
-      forward_speed -= ((100) * dt);
-    }
-    if (forward_speed < 0) {
-      forward_speed = 0;
-    }
-    if (forward_speed > 200) {
-      forward_speed = 200;
-    }
-    st += dt;
-  }
+  if (dt < (tm * 1.1)) {
 
-  foward.x = Math.cos(forward_angle);
-  foward.z = Math.sin(forward_angle);
+    if (paused == false) {
+      forward_angle += ((thingy.leftVector.x * 0.005) * dt);
+      if (thingy.speedUp) {
+        forward_speed += ((60) * dt);
+      } else {
+        forward_speed -= ((100) * dt);
+      }
+      if (forward_speed < 0) {
+        forward_speed = 0;
+      }
+      if (forward_speed > 350) {
+        forward_speed = 350;
+      }
+      st += dt;
+    }
 
-  if (paused == false) {
+    foward.x = Math.cos(forward_angle);
+    foward.z = Math.sin(forward_angle);
+
+    if (paused == false) {
+      if (car_one != null) {
+        moveObjectInDirectionAtSpeed(0, dt, car_one, foward, forward_speed);
+        followObjectWithObjectAtSpeed(0, dt, car_one, camera, forward_speed);
+      }
+    }
+
     if (car_one != null) {
-      moveObjectInDirectionAtSpeed(0, dt, car_one, foward, forward_speed);
-      followObjectWithObjectAtSpeed(0, dt, car_one, camera, forward_speed);
+      var b = foward.clone();
+      var bb = foward.clone();
+
+      bb.multiplyScalar(200.0); //how far in front
+      
+      b.negate();
+
+      var a = car_one.position.clone();
+      a.addSelf(bb);
+
+      var c = car_one.position.clone();
+      c.addSelf(b);
+
+      car_one.lookAt(c);
+      camera.lookAt(a);
     }
+
+    //camera.position.x = 25;
+    camera.position.y = 20;
+    //camera.position.z = 65;
   }
-
-  if (car_one != null) {
-    var b = foward.clone();
-    var bb = foward.clone();
-
-    bb.multiplyScalar(200.0); //how far in front
-    
-    b.negate();
-
-    var a = car_one.position.clone();
-    a.addSelf(bb);
-
-    var c = car_one.position.clone();
-    c.addSelf(b);
-
-    car_one.lookAt(c);
-    camera.lookAt(a);
-  }
-
-  //camera.position.x = 25;
-  camera.position.y = 30;
-  //camera.position.z = 65;
 
   //thingy.scene.updateMatrixWorld();
+  setTimeout(tick, tm, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
 
-  setTimeout(tick, 1000 / 25, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
 };
 
 var onPointerDown = function(e) {
@@ -110,7 +114,6 @@ var onPointerUp = function(e) {
   this.pointers = e.getPointerList(); 
   if (this.pointers.length == 0) {
     this.leftPointerID = -1; 
-      console.log("wha", e.pointerType);
     //if (e.pointerType == PointerTypes.pointer) {
       this.leftVector.set(0,0); 
     //}
@@ -130,7 +133,7 @@ var createCarFromGeometry = function(geometry) {
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 3.0;
+  var subDivide = 3;
   var r = {
     windowHalfX: Math.floor(window.innerWidth / subDivide),
     windowHalfY: Math.floor(window.innerHeight / subDivide),
@@ -138,7 +141,6 @@ var windowSizeAndAspect = function() {
     x: Math.floor(window.innerWidth / subDivide),
     y: Math.floor(window.innerHeight / subDivide)
   };
-  //console.log(r);
   return r;
 };
 
@@ -152,7 +154,7 @@ var onWindowResize = function(cmra, rndr) {
 var animate = function(rndr, scne, cmra, sts) {
   requestAnimationFrame(animate.bind(this, rndr, scne, cmra, sts));
   rndr.render(scne, cmra);
-  //sts.update();
+  sts.update();
 
   /*
   for(var i=0; i<pointers.length; i++) {
@@ -368,7 +370,7 @@ var createRaceTrack = function(scene) {
 
 
   var addGeometry = function(p, geometry, color, x, y, z, rx, ry, rz, s ) {
-    material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.jpg") });
+    material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.png") });
 
     var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
       //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
@@ -404,7 +406,10 @@ var createRaceTrack = function(scene) {
   var roundedRectShape = new THREE.Shape();
   roundedRect(roundedRectShape, 0, 0, 2000, 2000, 100);
 
-  var foo = roundedRectShape.createSpacedPointsGeometry(5);
+  var tightness = 6;
+  var quality = 100;
+
+  var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
   var m = new THREE.Matrix4();
   var gamma = Math.PI/2;
@@ -412,7 +417,10 @@ var createRaceTrack = function(scene) {
   foo.applyMatrix(m);
 
   var spine = new THREE.ClosedSplineCurve3(foo.vertices);
-  var s = spine.getPoints(30);
+
+  //var g = spine.createPointsGeometry(1000);
+
+  var s = spine.getPoints(quality);
   var g = new THREE.Geometry();
   //for (var i=0; i<s.length; i++) {
   //  s[i].y = Math.sin(i) * 1.0;
@@ -426,10 +434,10 @@ var createRaceTrack = function(scene) {
   lineObject.position.y += 5;
   trackObject.add(lineObject);
 
-  var wang = new THREE.ClosedSplineCurve3(s);
+  //var wang = new THREE.ClosedSplineCurve3(s);
 
-  var extrudeSettings = { steps: 100 }
-  extrudeSettings.extrudePath = wang;
+  var extrudeSettings = { steps: quality }
+  extrudeSettings.extrudePath = spine;
   extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
   extrudeSettings.material = 1;
 
