@@ -124,7 +124,7 @@ var windowSizeAndAspect = function() {
     x: Math.floor(window.innerWidth / subDivide),
     y: Math.floor(window.innerHeight / subDivide)
   };
-  console.log(r);
+  //console.log(r);
   return r;
 };
 
@@ -138,7 +138,7 @@ var onWindowResize = function(cmra, rndr) {
 var animate = function(rndr, scne, cmra, sts) {
   requestAnimationFrame(animate.bind(this, rndr, scne, cmra, sts));
   rndr.render(scne, cmra);
-  sts.update();
+  //sts.update();
 
   /*
   for(var i=0; i<pointers.length; i++) {
@@ -188,7 +188,7 @@ var createStats = function() {
 };
 
 var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(45, wsa.x / wsa.y, 1, 500);
+  var cmra = new THREE.PerspectiveCamera(45, wsa.x / wsa.y, 1, 1000);
   return cmra;
 };
 
@@ -394,6 +394,16 @@ var createRaceTrack = function(scene) {
   m.rotateX(gamma);
   foo.applyMatrix(m);
 
+  var spine = new THREE.ClosedSplineCurve3(foo.vertices);
+  var s = spine.getPoints(40);
+  var g = new THREE.Geometry();
+  g.vertices = s;
+
+  var lineObject = new THREE.Line(g); //new THREE.Geometry(spine.getPoints(100)));
+  lineObject.position.y += 5;
+  trackObject.add(lineObject);
+
+
   var wang = new THREE.ClosedSplineCurve3(foo.vertices);
 
   var extrudeSettings = { steps: 300 }
@@ -504,8 +514,8 @@ var directionRequiredToFollowSpine = function() {
     new THREE.Vector3( 20,  0, 0)
   ]);
 
-  //console.log(spline.getPoint(0.5));
-  //console.log(spline.getTangent(0.5));
+  //(spline.getPoint(0.5));
+  //(spline.getTangent(0.5));
   */
 };
 
