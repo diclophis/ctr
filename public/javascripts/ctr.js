@@ -366,8 +366,6 @@ var createRaceTrack = function(scene) {
   // inner ring is white/yellow 70%
   // outer ring is red white 50/50
 
-  trackObject = new THREE.Object3D();
-  trackObject.position.y = 0;
 
   var addGeometry = function(p, geometry, color, x, y, z, rx, ry, rz, s ) {
     material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.jpg") });
@@ -400,10 +398,13 @@ var createRaceTrack = function(scene) {
     ctx.quadraticCurveTo( x, y, x, y + radius );
   }
 
+  trackObject = new THREE.Object3D();
+  trackObject.position.y = 0;
+
   var roundedRectShape = new THREE.Shape();
   roundedRect(roundedRectShape, 0, 0, 2000, 2000, 100);
 
-  var foo = roundedRectShape.createSpacedPointsGeometry(10);
+  var foo = roundedRectShape.createSpacedPointsGeometry(5);
 
   var m = new THREE.Matrix4();
   var gamma = Math.PI/2;
@@ -411,7 +412,7 @@ var createRaceTrack = function(scene) {
   foo.applyMatrix(m);
 
   var spine = new THREE.ClosedSplineCurve3(foo.vertices);
-  var s = spine.getPoints(300);
+  var s = spine.getPoints(30);
   var g = new THREE.Geometry();
   //for (var i=0; i<s.length; i++) {
   //  s[i].y = Math.sin(i) * 1.0;
@@ -427,7 +428,7 @@ var createRaceTrack = function(scene) {
 
   var wang = new THREE.ClosedSplineCurve3(s);
 
-  var extrudeSettings = { steps: 1000 }
+  var extrudeSettings = { steps: 100 }
   extrudeSettings.extrudePath = wang;
   extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
   extrudeSettings.material = 1;
