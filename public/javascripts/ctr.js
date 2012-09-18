@@ -7,7 +7,7 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
   then = now;
 
   if (paused == false) {
-    forward_angle += ((thingy.leftVector.x * 0.003) * dt);
+    forward_angle += ((thingy.leftVector.x * 0.002) * dt);
     if (thingy.speedUp) {
       forward_speed += ((30) * dt);
     } else {
@@ -28,14 +28,15 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
   if (paused == false) {
     if (car_one != null) {
       moveObjectInDirectionAtSpeed(0, dt, car_one, foward, forward_speed);
-      //followObjectWithObjectAtSpeed(0, dt, car_one, camera, 10.0);
+      followObjectWithObjectAtSpeed(0, dt, car_one, camera, forward_speed);
     }
   }
 
   if (car_one != null) {
     var b = foward.clone();
     var bb = foward.clone();
-    bb.multiplyScalar(30.0);
+
+    bb.multiplyScalar(200.0); //how far in front
     
     b.negate();
 
@@ -49,12 +50,11 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
     camera.lookAt(a);
   }
 
-  camera.position.x = 31;
-  camera.position.y = 100;
-  camera.position.y = 91;
+  //camera.position.x = 25;
+  camera.position.y = 30;
+  //camera.position.z = 65;
 
-
-  thingy.scene.updateMatrixWorld();
+  //thingy.scene.updateMatrixWorld();
 
   setTimeout(tick, 1000 / 25, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
 };
@@ -110,20 +110,22 @@ var onPointerUp = function(e) {
   this.pointers = e.getPointerList(); 
   if (this.pointers.length == 0) {
     this.leftPointerID = -1; 
-    if (e.pointerType == PointerTypes.pointer) {
+      console.log("wha", e.pointerType);
+    //if (e.pointerType == PointerTypes.pointer) {
       this.leftVector.set(0,0); 
-    }
+    //}
   }
   this.speedUp = false;
 }
 
 var createCarFromGeometry = function(geometry) {
   var car = THREE.SceneUtils.cloneObject(geometry.scene);
+  car.scale.set(20, 20, 20);
+  car.position.set(0, 0, 0);
   car.updateMatrix();
-  car.children[0].children[0].material = new THREE.MeshLambertMaterial({color: 0xffaa00 }); // wheels chrome
-  car.children[0].children[1].material = new THREE.MeshLambertMaterial({color: 0x0000ff }); // wheels chrome
-  car.children[0].children[2].material = new THREE.MeshLambertMaterial({color: 0xe0e0e0 }); // wheels chrome
-  car.position.set(0, 1.1, 0);
+  car.children[0].material = new THREE.MeshLambertMaterial({color: 0xffaa00 }); // wheels chrome
+  //car.children[0].children[1].material = new THREE.MeshLambertMaterial({color: 0x0000ff }); // wheels chrome
+  //car.children[0].children[2].material = new THREE.MeshLambertMaterial({color: 0xe0e0e0 }); // wheels chrome
   return car;
 }
 
@@ -200,7 +202,7 @@ var createStats = function() {
 };
 
 var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(45, wsa.x / wsa.y, 1, 1000);
+  var cmra = new THREE.PerspectiveCamera(20, wsa.x / wsa.y, 1, 10000);
   return cmra;
 };
 
@@ -378,6 +380,8 @@ var createRaceTrack = function(scene) {
 
     mesh.position.set(x, y, z);
     mesh.scale.set(s, s, s );
+    //console.log(mesh);
+    mesh.children[0].geometry.mergeVertices();
 
     //document.body.appendChild(THREE.UVsDebug(geometry));
 
@@ -632,7 +636,7 @@ var run = function(body) {
   var renderer = new THREE.WebGLRenderer({precision: "lowp", });
   renderer.setSize(wsa.x, wsa.y);
   renderer.setFaceCulling("back");
-  renderer.autoUpdateScene = false;
+  //renderer.autoUpdateScene = false;
   container.appendChild(renderer.domElement);
 
   var stats = createStats();
@@ -654,9 +658,9 @@ var run = function(body) {
   };
 
   var loader = new THREE.ColladaLoader();
-  loader.load("ferrari_f50.dae", function(geometry) {
+  loader.load("F1.dae", function(geometry) {
     var car_one = createCarFromGeometry(geometry);
-    car_one.position.set(31, 1, 97);
+    car_one.position.set(31, 1.9, 97);
     scene.add(car_one);
     animate(renderer, scene, camera, stats);
     tick(Date.now(), 0, 0, new THREE.Vector3(0, 0, 0), car_one, 1, camera, thingy);
