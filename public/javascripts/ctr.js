@@ -204,7 +204,7 @@ var createStats = function() {
 };
 
 var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(20, wsa.x / wsa.y, 1, 10000);
+  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 10000);
   return cmra;
 };
 
@@ -407,7 +407,7 @@ var createRaceTrack = function(scene) {
   roundedRect(roundedRectShape, 0, 0, 2000, 2000, 100);
 
   var tightness = 6;
-  var quality = 100;
+  var quality = 200;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
