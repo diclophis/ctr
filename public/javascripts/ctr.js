@@ -28,7 +28,7 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
   if (paused == false) {
     if (car_one != null) {
       moveObjectInDirectionAtSpeed(0, dt, car_one, foward, forward_speed);
-      followObjectWithObjectAtSpeed(0, dt, car_one, camera, forward_speed * 1.05);
+      //followObjectWithObjectAtSpeed(0, dt, car_one, camera, 10.0);
     }
   }
 
@@ -49,7 +49,10 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
     camera.lookAt(a);
   }
 
-  camera.position.y = 16;
+  camera.position.x = 31;
+  camera.position.y = 100;
+  camera.position.y = 91;
+
 
   thingy.scene.updateMatrixWorld();
 
@@ -369,8 +372,8 @@ var createRaceTrack = function(scene) {
 
     var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
       //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
-      new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
-      //material,
+      //new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
+      material,
     ]);
 
     mesh.position.set(x, y, z);
@@ -406,12 +409,11 @@ var createRaceTrack = function(scene) {
   var spine = new THREE.ClosedSplineCurve3(foo.vertices);
   var s = spine.getPoints(300);
   var g = new THREE.Geometry();
-  for (var i=0; i<s.length; i++) {
-    s[i].y = Math.sin(i) * 1.0;
-  }
-
-  s[0].y = 0;
-  s[s.length - 1].y = 0;
+  //for (var i=0; i<s.length; i++) {
+  //  s[i].y = Math.sin(i) * 1.0;
+  //}
+  //s[0].y = 0;
+  //s[s.length - 1].y = 0;
 
   g.vertices = s;
 
@@ -421,7 +423,7 @@ var createRaceTrack = function(scene) {
 
   var wang = new THREE.ClosedSplineCurve3(s);
 
-  var extrudeSettings = { steps: 300 }
+  var extrudeSettings = { steps: 1000 }
   extrudeSettings.extrudePath = wang;
   extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
   extrudeSettings.material = 1;
@@ -436,6 +438,7 @@ var createRaceTrack = function(scene) {
   rectShape.lineTo(0, -rectLength);
 
   var trackGeometry = rectShape.extrude(extrudeSettings);
+  trackGeometry.mergeVertices();
 
   addGeometry(trackObject, trackGeometry, 0x700000, 0, 0, 0, 0, 0, 0, 1 );
 
@@ -653,6 +656,7 @@ var run = function(body) {
   var loader = new THREE.ColladaLoader();
   loader.load("ferrari_f50.dae", function(geometry) {
     var car_one = createCarFromGeometry(geometry);
+    car_one.position.set(31, 1, 97);
     scene.add(car_one);
     animate(renderer, scene, camera, stats);
     tick(Date.now(), 0, 0, new THREE.Vector3(0, 0, 0), car_one, 1, camera, thingy);
