@@ -133,7 +133,7 @@ var createCarFromGeometry = function(geometry) {
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 3;
+  var subDivide = 1;
   var r = {
     windowHalfX: Math.floor(window.innerWidth / subDivide),
     windowHalfY: Math.floor(window.innerHeight / subDivide),
@@ -204,7 +204,7 @@ var createStats = function() {
 };
 
 var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 10000);
+  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 500);
   return cmra;
 };
 
@@ -369,25 +369,6 @@ var createRaceTrack = function(scene) {
   // outer ring is red white 50/50
 
 
-  var addGeometry = function(p, geometry, color, x, y, z, rx, ry, rz, s ) {
-    material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.png") });
-
-    var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, [
-      //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
-      //new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
-      material,
-    ]);
-
-    mesh.position.set(x, y, z);
-    mesh.scale.set(s, s, s );
-    //console.log(mesh);
-    mesh.children[0].geometry.mergeVertices();
-
-    //document.body.appendChild(THREE.UVsDebug(geometry));
-
-    p.add(mesh);
-  }
-
   function roundedRect(ctx, x, y, width, height, radius) {
     ctx.moveTo( x, y + radius );
     ctx.lineTo( x, y + height - radius );
@@ -406,8 +387,8 @@ var createRaceTrack = function(scene) {
   var roundedRectShape = new THREE.Shape();
   roundedRect(roundedRectShape, 0, 0, 2000, 2000, 100);
 
-  var tightness = 6;
-  var quality = 200;
+  var tightness = 7;
+  var quality = 50;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
@@ -451,9 +432,23 @@ var createRaceTrack = function(scene) {
   rectShape.lineTo(0, -rectLength);
 
   var trackGeometry = rectShape.extrude(extrudeSettings);
-  trackGeometry.mergeVertices();
 
-  addGeometry(trackObject, trackGeometry, 0x700000, 0, 0, 0, 0, 0, 0, 1 );
+  //addGeometry(trackObject, trackGeometry, 0x700000, 0, 0, 0, 0, 0, 0, 1.0);
+    material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.png") });
+
+    var mesh = THREE.SceneUtils.createMultiMaterialObject(trackGeometry, [
+      //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
+      //new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
+      material,
+    ]);
+
+    //mesh.position.set(x, y, z);
+    //mesh.scale.set(s, s, s );
+    //console.log(mesh);
+
+    //document.body.appendChild(THREE.UVsDebug(geometry));
+
+    trackObject.add(mesh);
 
   return trackObject;
 };

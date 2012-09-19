@@ -4,30 +4,6 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
     <style>
-      /*
-      body, html {
-        width: 100%;
-        height: 100%;
-        background-color: #000000;
-        margin: 0;
-        padding: 0;
-      }
-      #stats {
-        width: 10%;
-        height: 10%;
-      }
-      form {
-        display: none;
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 25%;
-        height: 25%;
-        z-index: 1;
-        margin: 0;
-        padding: 0;
-      }
-      */
       #canvas-container, canvas, body, html {
         width: 100%;
         height: 99.1%;
@@ -35,7 +11,7 @@
         padding: 0;
       }
 
-      x {
+      canvas {
         image-rendering: optimizeSpeed;
         image-rendering: -moz-crisp-edges;
         image-rendering: -webkit-optimize-contrast;
@@ -144,7 +120,11 @@
     <script src="javascripts/ctr.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        run(document.body);
+        try {
+          run(document.body);
+        } catch(e) {
+          alert(e);
+        }
       });
     </script>
   </head>
