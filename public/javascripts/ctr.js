@@ -1,7 +1,7 @@
 var paused = false;
 
 var tick = function(then, st, forward_angle, foward, car_one, forward_speed, camera, thingy) {
-  var tm = (1000 / 22);
+  var tm = (1000 / 20);
 
   var now = Date.now();
   var dt = (now - then) / 1000;
@@ -204,7 +204,7 @@ var createStats = function() {
 };
 
 var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 500);
+  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 3000);
   return cmra;
 };
 
@@ -385,10 +385,10 @@ var createRaceTrack = function(scene) {
   trackObject.position.y = 0;
 
   var roundedRectShape = new THREE.Shape();
-  roundedRect(roundedRectShape, 0, 0, 2000, 2000, 100);
+  roundedRect(roundedRectShape, 0, 0, 5000, 5000, 100);
 
   var tightness = 7;
-  var quality = 50;
+  var quality = 100;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
@@ -637,10 +637,14 @@ var run = function(body) {
   var pointLight = createPointLight();
   scene.add(pointLight);
 
-  var renderer = new THREE.WebGLRenderer({precision: "lowp", });
-  renderer.setSize(wsa.x, wsa.y);
+  //precision: "lowp"
+  var renderer = new THREE.WebGLRenderer({
+    alpha: false,
+    maxLights: 2,
+    stencil: false
+  });
   renderer.setFaceCulling("back");
-  //renderer.autoUpdateScene = false;
+  renderer.setSize(wsa.x, wsa.y);
   container.appendChild(renderer.domElement);
 
   var stats = createStats();
