@@ -387,7 +387,7 @@ var createRaceTrack = function(scene) {
   roundedRect(roundedRectShape, 0, 0, 5000, 5000, 500);
 
   var tightness = 5;
-  var quality = 300;
+  var quality = 200;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
@@ -396,7 +396,7 @@ var createRaceTrack = function(scene) {
   m.rotateX(gamma);
   foo.applyMatrix(m);
 
-  if (false) {
+  if (true) {
     var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00 });
     for (var i=0; i<foo.vertices.length; i++) {
 
