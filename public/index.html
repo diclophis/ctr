@@ -111,7 +111,6 @@
       }
 
     </script>
-
     <script src="javascripts/pointer.min.js"></script>
     <script src="javascripts/three.min.js"></script>
     <script src="javascripts/UVsUtils.js"></script>
@@ -121,7 +120,11 @@
     <script src="javascripts/ctr.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        run(document.body);
+        try {
+          run(document.body);
+        } catch(e) {
+          alert(e);
+        }
       });
     </script>
   </head>

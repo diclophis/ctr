@@ -217,7 +217,6 @@ var createContainer = function() {
   var cntr = document.createElement('div');
   cntr.id = "canvas-container";
 
-
   return cntr;
 };
 
@@ -397,52 +396,40 @@ var createRaceTrack = function(scene) {
   m.rotateX(gamma);
   foo.applyMatrix(m);
 
-  var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00 });
-  for (var i=0; i<foo.vertices.length; i++) {
+  if (false) {
+    var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00 });
+    for (var i=0; i<foo.vertices.length; i++) {
 
-    /*
-    var text = i.toString();
+      /*
+      var text = i.toString();
 
-    var textGeo = new THREE.TextGeometry( text, {
-      size: 50,
-      height: 5,
-    });
+      var textGeo = new THREE.TextGeometry( text, {
+        size: 50,
+        height: 5,
+      });
 
-    var textMesh = new THREE.Mesh(textGeo, textMat);
-    textMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 10, foo.vertices[i].z);
-    trackObject.add(textMesh);
-    */
-  
-    var radius = 5;
-    var trackPointGeo = new THREE.SphereGeometry(radius); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
-    var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
-    trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 5, foo.vertices[i].z);
-    trackObject.add(trackPointMesh);
-
+      var textMesh = new THREE.Mesh(textGeo, textMat);
+      textMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 10, foo.vertices[i].z);
+      trackObject.add(textMesh);
+      */
+    
+      var radius = 5;
+      var trackPointGeo = new THREE.SphereGeometry(radius); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
+      var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
+      trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 5, foo.vertices[i].z);
+      trackObject.add(trackPointMesh);
+    }
   }
-
-  //for (var i=0; i<foo.vertices.length; i++) {
-  //  foo.vertices[i].y = Math.sin(i) * 10.0;
-  //}
 
   var spine = new THREE.ClosedSplineCurve3(foo.vertices);
 
-  //var g = spine.createPointsGeometry(1000);
-
   var s = spine.getPoints(quality);
-  //var g = new THREE.LatheGeometry(s);
   var g = new THREE.Geometry();
 
   var spineCurvePath = new THREE.CurvePath();
   spineCurvePath.add(spine);
-  //console.log(spineCurvePath);
   var spineGeom = spineCurvePath.createSpacedPointsGeometry(quality);
   
-  //console.log(spineGeom);
-  //s[0].y = 0;
-  //s[s.length - 1].y = 0;
-  //g.vertices = s;
-
   var lineObject = new THREE.Line(spineGeom);
   lineObject.position.y += 5;
   trackObject.add(lineObject);
@@ -465,11 +452,6 @@ var createRaceTrack = function(scene) {
 
   material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.png") });
 
-  //var mesh = THREE.SceneUtils.createMultiMaterialObject(trackGeometry, [
-  //  //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
-  //  //new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
-  //  material,
-  //]);
   var mesh = new THREE.Mesh(trackGeometry, material);
 
   trackObject.add(mesh);
@@ -661,8 +643,8 @@ var run = function(body) {
   var pointLight = createPointLight();
   scene.add(pointLight);
 
-  //precision: "lowp"
   var renderer = new THREE.WebGLRenderer({
+    precision: "lowp",
     alpha: false,
     maxLights: 2,
     stencil: false
@@ -674,8 +656,8 @@ var run = function(body) {
   var stats = createStats();
   container.appendChild(stats.domElement);
 
-  var raceTrack = createRaceTrack(scene);
-  scene.add(raceTrack);
+  //var raceTrack = createRaceTrack(scene);
+  //scene.add(raceTrack);
 
   var thingy = {
     leftPointerID: -1,
