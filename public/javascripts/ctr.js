@@ -385,9 +385,9 @@ var createRaceTrack = function(scene) {
   trackObject.position.y = 0;
 
   var roundedRectShape = new THREE.Shape();
-  roundedRect(roundedRectShape, 0, 0, 5000, 5000, 100);
+  roundedRect(roundedRectShape, 0, 0, 5000, 5000, 500);
 
-  var tightness = 7;
+  var tightness = 5;
   var quality = 100;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
@@ -396,6 +396,30 @@ var createRaceTrack = function(scene) {
   var gamma = Math.PI/2;
   m.rotateX(gamma);
   foo.applyMatrix(m);
+
+  var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00 });
+  for (var i=0; i<foo.vertices.length; i++) {
+
+    /*
+    var text = i.toString();
+
+    var textGeo = new THREE.TextGeometry( text, {
+      size: 50,
+      height: 5,
+    });
+
+    var textMesh = new THREE.Mesh(textGeo, textMat);
+    textMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 10, foo.vertices[i].z);
+    trackObject.add(textMesh);
+    */
+  
+    var radius = 5;
+    var trackPointGeo = new THREE.SphereGeometry(radius); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
+    var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
+    trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 8, foo.vertices[i].z);
+    trackObject.add(trackPointMesh);
+
+  }
 
   //for (var i=0; i<foo.vertices.length; i++) {
   //  foo.vertices[i].y = Math.sin(i) * 10.0;
