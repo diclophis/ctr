@@ -397,28 +397,34 @@ var createRaceTrack = function(scene) {
   m.rotateX(gamma);
   foo.applyMatrix(m);
 
+  //for (var i=0; i<foo.vertices.length; i++) {
+  //  foo.vertices[i].y = Math.sin(i) * 10.0;
+  //}
+
   var spine = new THREE.ClosedSplineCurve3(foo.vertices);
 
   //var g = spine.createPointsGeometry(1000);
 
   var s = spine.getPoints(quality);
+  //var g = new THREE.LatheGeometry(s);
   var g = new THREE.Geometry();
-  //for (var i=0; i<s.length; i++) {
-  //  s[i].y = Math.sin(i) * 1.0;
-  //}
+
+  var spineCurvePath = new THREE.CurvePath();
+  spineCurvePath.add(spine);
+  console.log(spineCurvePath);
+  var spineGeom = spineCurvePath.createSpacedPointsGeometry(quality);
+  
+  //console.log(spineGeom);
   //s[0].y = 0;
   //s[s.length - 1].y = 0;
+  //g.vertices = s;
 
-  g.vertices = s;
-
-  var lineObject = new THREE.Line(g); //new THREE.Geometry(spine.getPoints(100)));
+  var lineObject = new THREE.Line(spineGeom);
   lineObject.position.y += 5;
   trackObject.add(lineObject);
 
-  //var wang = new THREE.ClosedSplineCurve3(s);
-
   var extrudeSettings = { steps: quality }
-  extrudeSettings.extrudePath = spine;
+  extrudeSettings.extrudePath = spineCurvePath;
   extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
   extrudeSettings.material = 1;
 
@@ -433,22 +439,16 @@ var createRaceTrack = function(scene) {
 
   var trackGeometry = rectShape.extrude(extrudeSettings);
 
-  //addGeometry(trackObject, trackGeometry, 0x700000, 0, 0, 0, 0, 0, 0, 1.0);
-    material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.png") });
+  material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.png") });
 
-    var mesh = THREE.SceneUtils.createMultiMaterialObject(trackGeometry, [
-      //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
-      //new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
-      material,
-    ]);
+  //var mesh = THREE.SceneUtils.createMultiMaterialObject(trackGeometry, [
+  //  //new THREE.MeshLambertMaterial( {color: color, opacity: 1.0, transparent: false }),
+  //  //new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, opacity: 1.0 })
+  //  material,
+  //]);
+  var mesh = new THREE.Mesh(trackGeometry, material);
 
-    //mesh.position.set(x, y, z);
-    //mesh.scale.set(s, s, s );
-    //console.log(mesh);
-
-    //document.body.appendChild(THREE.UVsDebug(geometry));
-
-    trackObject.add(mesh);
+  trackObject.add(mesh);
 
   return trackObject;
 };
