@@ -29,8 +29,8 @@ THREE.UVsUtils.CylinderUVGenerator.prototype = {
 
         // generate uv
         var u_list = this.lengthCache;
-        var v1 = stepIndex / stepsLength;
-        var v2 = ( stepIndex + 1 ) / stepsLength;
+        var v1 = 0; //stepIndex / (stepsLength);
+        var v2 = 0.33; //( stepIndex + 1 ) / (stepsLength);
         
         var u1 = u_list[contourIndex1];
         var u2 = u_list[contourIndex2];

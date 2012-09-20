@@ -133,7 +133,7 @@ var createCarFromGeometry = function(geometry) {
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 1;
+  var subDivide = 2;
   var r = {
     windowHalfX: Math.floor(window.innerWidth / subDivide),
     windowHalfY: Math.floor(window.innerHeight / subDivide),
@@ -388,7 +388,7 @@ var createRaceTrack = function(scene) {
   roundedRect(roundedRectShape, 0, 0, 5000, 5000, 500);
 
   var tightness = 5;
-  var quality = 100;
+  var quality = 300;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
@@ -416,7 +416,7 @@ var createRaceTrack = function(scene) {
     var radius = 5;
     var trackPointGeo = new THREE.SphereGeometry(radius); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
     var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
-    trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 8, foo.vertices[i].z);
+    trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 5, foo.vertices[i].z);
     trackObject.add(trackPointMesh);
 
   }
@@ -435,7 +435,7 @@ var createRaceTrack = function(scene) {
 
   var spineCurvePath = new THREE.CurvePath();
   spineCurvePath.add(spine);
-  console.log(spineCurvePath);
+  //console.log(spineCurvePath);
   var spineGeom = spineCurvePath.createSpacedPointsGeometry(quality);
   
   //console.log(spineGeom);
