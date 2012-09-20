@@ -643,12 +643,16 @@ var run = function(body) {
   var pointLight = createPointLight();
   scene.add(pointLight);
 
+  //var renderer = new THREE.WebGLRenderer({
+  //  precision: "lowp",
+  //  alpha: false,
+  //  maxLights: 2,
+  //  stencil: false
+  //});
   var renderer = new THREE.WebGLRenderer({
-    precision: "lowp",
-    alpha: false,
-    maxLights: 2,
-    stencil: false
+    precision: "lowp"
   });
+
   renderer.setFaceCulling("back");
   renderer.setSize(wsa.x, wsa.y);
   container.appendChild(renderer.domElement);
@@ -656,8 +660,8 @@ var run = function(body) {
   var stats = createStats();
   container.appendChild(stats.domElement);
 
-  //var raceTrack = createRaceTrack(scene);
-  //scene.add(raceTrack);
+  var raceTrack = createRaceTrack(scene);
+  scene.add(raceTrack);
 
   var thingy = {
     leftPointerID: -1,
