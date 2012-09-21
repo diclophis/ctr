@@ -2,7 +2,7 @@ var paused = false;
 
 var tick = function() {
   //then, st, forward_angle, foward, car_one, forward_speed, camera, thingy) {
-  var tm = (1000 / 19);
+  var tm = (1000 / 26);
 
   var now = Date.now();
   var dt = (now - this.then) / 1000;
@@ -11,7 +11,7 @@ var tick = function() {
   if (dt < (tm * 1.1)) {
 
     if (this.paused == false) {
-      this.forward_angle += ((this.leftVector.x * 0.0045) * dt);
+      this.forward_angle += ((this.leftVector.x * 0.00345) * dt);
       if (this.speedUp) {
         this.forward_speed += ((60) * dt);
       } else {
@@ -178,7 +178,7 @@ var createStats = function() {
 };
 
 var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 3000);
+  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 1000);
   //var cmra = new THREE.OrthographicCamera(wsa.x / - 2, wsa.x / 2, wsa.y / 2, wsa.y / - 2, -10000, 10000);
   return cmra;
 };
@@ -382,7 +382,7 @@ var createRaceTrack = function(scene) {
   roundedRect(roundedRectShape, 0, 0, 5000, 5000, 500);
 
   var tightness = 3;
-  var quality = 400;
+  var quality = 1000;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
@@ -645,7 +645,6 @@ var run = function(body) {
   //  stencil: false
   //});
   var renderer = new THREE.WebGLRenderer({
-    precision: "lowp"
   });
 
   renderer.setFaceCulling("back");
