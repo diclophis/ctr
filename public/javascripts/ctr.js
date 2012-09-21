@@ -358,6 +358,26 @@ var createCar = function() {
   // and wheels that turn
 };
 
+var createCarCage = function() {
+  var createLineGeometry = function() {
+    var linGeo = new THREE.Geometry();
+    lineGeo.vertices.push(new THREE.Vector3(0, 0, 0));
+    lineGeo.vertices.push(new THREE.Vector3(0, 0, 0));
+    return lineGeo;
+  }
+
+  createLine = function() {
+    var line = THREE.Line(createLineGeometry());
+    return line;
+  }
+  return {
+    n: createLine(),
+    e: createLine(),
+    s: createLine(),
+    w: createLine()
+  };
+};
+
 var createRaceTrack = function(scene) {
   // there is a race track
   // that follows a spline curve of points
