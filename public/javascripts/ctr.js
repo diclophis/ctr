@@ -2,7 +2,7 @@ var paused = false;
 
 var tick = function() {
   //then, st, forward_angle, foward, car_one, forward_speed, camera, thingy) {
-  var tm = (1000 / 24);
+  var tm = (1000 / 19);
 
   var now = Date.now();
   var dt = (now - this.then) / 1000;
@@ -11,7 +11,7 @@ var tick = function() {
   if (dt < (tm * 1.1)) {
 
     if (this.paused == false) {
-      this.forward_angle += ((this.leftVector.x * 0.005) * dt);
+      this.forward_angle += ((this.leftVector.x * 0.0045) * dt);
       if (this.speedUp) {
         this.forward_speed += ((60) * dt);
       } else {
@@ -143,7 +143,7 @@ var createCarFromGeometry = function(geometry) {
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 3;
+  var subDivide = 2.33;
   var r = {
     windowHalfX: Math.floor(window.innerWidth / subDivide),
     windowHalfY: Math.floor(window.innerHeight / subDivide),
