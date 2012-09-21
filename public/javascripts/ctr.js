@@ -26,6 +26,10 @@ var tick = function() {
       this.st += dt;
     }
 
+    var skid = (this.leftVector.x * 0.001);
+    var drift = this.foward.clone();
+    drift.x = Math.cos(this.forward_angle + skid);
+    drift.z = Math.sin(this.forward_angle + skid);
     this.foward.x = Math.cos(this.forward_angle);
     this.foward.z = Math.sin(this.forward_angle);
 
@@ -37,26 +41,28 @@ var tick = function() {
     }
 
     if (this.car_one != null) {
-      var b = this.foward.clone();
-      var bb = this.foward.clone();
 
-      bb.multiplyScalar(1000.0); //how far in front
-      
-      b.negate();
+      var farForward = this.foward.clone().multiplyScalar(100.0); //how far in front
+      var farBack = this.foward.clone().negate().multiplyScalar(50.0); //how far in back
 
-      var a = this.car_one.position.clone();
-      a.addSelf(bb);
+      var reallyFarOut = this.car_one.position.clone().addSelf(farForward);
+      var reallyFarBack = this.car_one.position.clone().addSelf(farBack);
 
-      var c = this.car_one.position.clone();
-      c.addSelf(b);
+      //
+      var whereCarIsPointing = this.car_one.position.clone().addSelf(drift);
+      this.car_one.lookAt(whereCarIsPointing);
 
-      this.car_one.lookAt(c);
-      this.camera.lookAt(a);
+      //b.multiplyScalar(10.0);
+
+      this.camera.lookAt(reallyFarOut);
+      this.camera.position.set(0 + reallyFarBack.x, 8.0, 0 + reallyFarBack.z);
+      //console.log(this.car_one.position.x, this.camera.position.x);
     }
 
-    //camera.position.x = 25;
-    this.camera.position.y = 20;
-    //camera.position.z = 65;
+    //this.camera.position.x = this.car_one.position.x;
+    //this.camera.position.y = 5;
+    //this.camera.position.z = this.car_one.position.z;
+    this.camera.updateProjectionMatrix();
   }
 
   //thingy.scene.updateMatrixWorld();
@@ -118,7 +124,7 @@ var onPointerUp = function(e) {
   if (this.pointers.length == 0) {
     this.leftPointerID = -1; 
     //if (e.pointerType == PointerTypes.pointer) {
-      this.leftVector.set(0,0); 
+      //this.leftVector.set(0,0); 
     //}
   }
   this.speedUp = false;
@@ -136,7 +142,7 @@ var createCarFromGeometry = function(geometry) {
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 2;
+  var subDivide = 2.5;
   var r = {
     windowHalfX: Math.floor(window.innerWidth / subDivide),
     windowHalfY: Math.floor(window.innerHeight / subDivide),
@@ -147,11 +153,11 @@ var windowSizeAndAspect = function() {
   return r;
 };
 
-var onWindowResize = function(cmra, rndr) {
+var onWindowResize = function() {
   var wsa = windowSizeAndAspect();
-  cmra.aspect = wsa.aspect;
-  cmra.updateProjectionMatrix();
-  rndr.setSize(wsa.x, wsa.y);
+  this.camera.aspect = wsa.aspect;
+  this.camera.updateProjectionMatrix();
+  this.renderer.setSize(wsa.x, wsa.y);
 };
 
 var animate = function() {
@@ -160,44 +166,6 @@ var animate = function() {
   requestAnimationFrame(animate.bind(this));
   this.renderer.render(this.scene, this.camera);
   this.stats.update();
-
-  /*
-  for(var i=0; i<pointers.length; i++) {
-
-    var pointer = pointers[i]; 
-
-    if(pointer.identifier == leftPointerID){
-      c.beginPath(); 
-      c.strokeStyle = "cyan"; 
-      c.lineWidth = 6; 
-      c.arc(leftPointerStartPos.x, leftPointerStartPos.y, 40,0,Math.PI*2,true); 
-      c.stroke();
-      c.beginPath(); 
-      c.strokeStyle = "cyan"; 
-      c.lineWidth = 2; 
-      c.arc(leftPointerStartPos.x, leftPointerStartPos.y, 60,0,Math.PI*2,true); 
-      c.stroke();
-      c.beginPath(); 
-      c.strokeStyle = "cyan"; 
-      c.arc(leftPointerPos.x, leftPointerPos.y, 40, 0,Math.PI*2, true); 
-      c.stroke(); 
-
-      } else {
-
-      c.beginPath(); 
-      c.fillStyle = "white";
-      c.fillText(pointer.type + " id : "+pointer.identifier+" x:"+pointer.x+" y:"+pointer.y, pointer.x+30, pointer.y-30); 
-
-      c.beginPath(); 
-      c.strokeStyle = "red";
-      c.lineWidth = "6";
-      c.arc(pointer.x, pointer.y, 40, 0, Math.PI*2, true); 
-      c.stroke();
-    }
-  }
-  */
-  //c.fillText("hello", 0,0); 
-
 }
 
 var createStats = function() {
@@ -210,6 +178,7 @@ var createStats = function() {
 
 var createCamera = function(wsa) {
   var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 6000);
+  //var cmra = new THREE.OrthographicCamera(wsa.x / - 2, wsa.x / 2, wsa.y / 2, wsa.y / - 2, -10000, 10000);
   return cmra;
 };
 
@@ -688,14 +657,12 @@ var run = function(body) {
   var raceTrack = createRaceTrack(scene);
   scene.add(raceTrack);
 
-
   var loader = new THREE.ColladaLoader();
   loader.load("F1.dae", function(geometry) {
+
     var car_one = createCarFromGeometry(geometry);
     car_one.position.set(31, 1.9, 97);
     scene.add(car_one);
-
-    // (then, st, forward_angle, foward, car_one, forward_speed, camera, thingy)
 
     var thingy = {
       then: Date.now(),
@@ -720,28 +687,21 @@ var run = function(body) {
       stats: stats
     };
 
-    //document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
-
     // event listeners
     renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
     renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
     renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
-
     window.addEventListener('resize', onWindowResize.bind(thingy), false);
-
-    //(renderer, scene, camera, stats);
+    //document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
     animate.apply(thingy)
-    // (Date.now(), 0, 0, new THREE.Vector3(0, 0, 0), car_one, 1, camera, thingy);
     tick.apply(thingy);
   });
-
-
 };
 
-    /*
-    var material = new THREE.ShaderMaterial( {
-      uniforms: uniforms1,
-      vertexShader: document.getElementById( 'vertexShader' ).textContent,
-      fragmentShader: document.getElementById('fragment_shader4').textContent
-    });
-    */
+var createShaderMaterial = function() {
+  var material = new THREE.ShaderMaterial( {
+    uniforms: uniforms1,
+    vertexShader: document.getElementById( 'vertexShader' ).textContent,
+    fragmentShader: document.getElementById('fragment_shader4').textContent
+  });
+};
