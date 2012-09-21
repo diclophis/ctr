@@ -2,7 +2,7 @@ var paused = false;
 
 var tick = function() {
   //then, st, forward_angle, foward, car_one, forward_speed, camera, thingy) {
-  var tm = (1000 / 20);
+  var tm = (1000 / 24);
 
   var now = Date.now();
   var dt = (now - this.then) / 1000;
@@ -15,6 +15,7 @@ var tick = function() {
       if (this.speedUp) {
         this.forward_speed += ((60) * dt);
       } else {
+        this.leftVector.x -= ((2.0 * this.leftVector.x) * dt);
         this.forward_speed -= ((200) * dt);
       }
       if (this.forward_speed < 0) {
@@ -55,7 +56,7 @@ var tick = function() {
       //b.multiplyScalar(10.0);
 
       this.camera.lookAt(reallyFarOut);
-      this.camera.position.set(0 + reallyFarBack.x, 8.0, 0 + reallyFarBack.z);
+      this.camera.position.set(0 + reallyFarBack.x, 10.0, 0 + reallyFarBack.z);
       //console.log(this.car_one.position.x, this.camera.position.x);
     }
 
@@ -80,7 +81,7 @@ var onPointerDown = function(e) {
       this.leftPointerID = pointer.identifier; 
       this.leftPointerStartPos.set(pointer.x, pointer.y);  
       this.leftPointerPos.copy(this.leftPointerStartPos); 
-      this.leftVector.set(0,0); 
+      //this.leftVector.set(0,0); 
       continue;     
       } else {
     } 
@@ -142,7 +143,7 @@ var createCarFromGeometry = function(geometry) {
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 2.5;
+  var subDivide = 3;
   var r = {
     windowHalfX: Math.floor(window.innerWidth / subDivide),
     windowHalfY: Math.floor(window.innerHeight / subDivide),
@@ -177,7 +178,7 @@ var createStats = function() {
 };
 
 var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 6000);
+  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 3000);
   //var cmra = new THREE.OrthographicCamera(wsa.x / - 2, wsa.x / 2, wsa.y / 2, wsa.y / - 2, -10000, 10000);
   return cmra;
 };
@@ -407,11 +408,11 @@ var createRaceTrack = function(scene) {
       trackObject.add(textMesh);
       */
     
-      var radius = 5;
-      var trackPointGeo = new THREE.SphereGeometry(radius); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
-      var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
-      trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 5, foo.vertices[i].z);
-      trackObject.add(trackPointMesh);
+      //var radius = 5;
+      //var trackPointGeo = new THREE.SphereGeometry(radius); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
+      //var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
+      //trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 5, foo.vertices[i].z);
+      //trackObject.add(trackPointMesh);
     }
   }
 
