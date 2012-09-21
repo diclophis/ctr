@@ -31,6 +31,16 @@ THREE.UVsUtils.CylinderUVGenerator.prototype = {
         var u_list = this.lengthCache;
         var v1 = 0; //stepIndex / (stepsLength);
         var v2 = 0.33; //( stepIndex + 1 ) / (stepsLength);
+        //console.log(stepIndex / (stepsLength), ( stepIndex + 1 ) / (stepsLength));
+
+        var p = stepIndex / (stepsLength);
+        var p2 = (stepIndex + 1) / (stepsLength);
+        var q = ((Math.sin(40.0 * p * (Math.PI/2)) + 1) / 2);
+        var q2 = ((Math.sin(40.0 * p2 * (Math.PI/2)) + 1) / 2);
+        //console.log(p, q);
+
+        v1 = q;
+        v2 = q2;
         
         var u1 = u_list[contourIndex1];
         var u2 = u_list[contourIndex2];

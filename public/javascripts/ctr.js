@@ -54,7 +54,7 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
     }
 
     //camera.position.x = 25;
-    camera.position.y = 20;
+    camera.position.y = 4000;
     //camera.position.z = 65;
   }
 
@@ -204,7 +204,7 @@ var createStats = function() {
 };
 
 var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 3000);
+  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 6000);
   return cmra;
 };
 
@@ -386,7 +386,7 @@ var createRaceTrack = function(scene) {
   var roundedRectShape = new THREE.Shape();
   roundedRect(roundedRectShape, 0, 0, 5000, 5000, 500);
 
-  var tightness = 5;
+  var tightness = 32;
   var quality = 200;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
