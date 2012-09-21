@@ -154,10 +154,12 @@ var onWindowResize = function(cmra, rndr) {
   rndr.setSize(wsa.x, wsa.y);
 };
 
-var animate = function(rndr, scne, cmra, sts) {
-  requestAnimationFrame(animate.bind(this, rndr, scne, cmra, sts));
-  rndr.render(scne, cmra);
-  sts.update();
+var animate = function() {
+  //rndr, scne, cmra, sts) {
+  //, rndr, scne, cmra, sts));
+  requestAnimationFrame(animate.bind(this));
+  this.renderer.render(this.scene, this.camera);
+  this.stats.update();
 
   /*
   for(var i=0; i<pointers.length; i++) {
@@ -712,7 +714,10 @@ var run = function(body) {
       scene: scene,
       speedUp: false,
       paused: false,
-      forward_angle: 0
+      forward_angle: 0,
+      renderer: renderer,
+      scene: scene,
+      stats: stats
     };
 
     //document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
@@ -722,9 +727,10 @@ var run = function(body) {
     renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
     renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
 
-    window.addEventListener('resize', onWindowResize.bind(thingy, camera, renderer), false);
+    window.addEventListener('resize', onWindowResize.bind(thingy), false);
 
-    animate(renderer, scene, camera, stats);
+    //(renderer, scene, camera, stats);
+    animate.apply(thingy)
     // (Date.now(), 0, 0, new THREE.Vector3(0, 0, 0), car_one, 1, camera, thingy);
     tick.apply(thingy);
   });
