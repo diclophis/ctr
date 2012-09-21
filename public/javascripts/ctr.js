@@ -14,7 +14,7 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
       if (thingy.speedUp) {
         forward_speed += ((60) * dt);
       } else {
-        forward_speed -= ((100) * dt);
+        forward_speed -= ((200) * dt);
       }
       if (forward_speed < 0) {
         forward_speed = 0;
@@ -39,7 +39,7 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
       var b = foward.clone();
       var bb = foward.clone();
 
-      bb.multiplyScalar(200.0); //how far in front
+      bb.multiplyScalar(1000.0); //how far in front
       
       b.negate();
 
@@ -54,7 +54,7 @@ var tick = function(then, st, forward_angle, foward, car_one, forward_speed, cam
     }
 
     //camera.position.x = 25;
-    camera.position.y = 4000;
+    camera.position.y = 20;
     //camera.position.z = 65;
   }
 
@@ -80,6 +80,7 @@ var onPointerDown = function(e) {
   }
 }
 
+/*
 var fs = null;
 
 var onContClick = function(e) {
@@ -95,6 +96,7 @@ var onContClick = function(e) {
     fullscreenForm.parentNode.removeChild(fullscreenForm);
   }
 }
+*/
 
 var onPointerMove = function(e) {
   this.pointers = e.getPointerList();
@@ -371,12 +373,12 @@ var createRaceTrack = function(scene) {
   function roundedRect(ctx, x, y, width, height, radius) {
     ctx.moveTo( x, y + radius );
     ctx.lineTo( x, y + height - radius );
-    ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
+    //ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
     ctx.lineTo( x + width - radius, y + height) ;
-    ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
+    //ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
     ctx.lineTo( x + width, y + radius );
-    ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
-    ctx.lineTo( x + radius, y );
+    //ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
+    //ctx.lineTo( x + radius, y );
     ctx.quadraticCurveTo( x, y, x, y + radius );
   }
 
@@ -386,8 +388,8 @@ var createRaceTrack = function(scene) {
   var roundedRectShape = new THREE.Shape();
   roundedRect(roundedRectShape, 0, 0, 5000, 5000, 500);
 
-  var tightness = 32;
-  var quality = 200;
+  var tightness = 3;
+  var quality = 400;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
@@ -684,7 +686,7 @@ var run = function(body) {
     tick(Date.now(), 0, 0, new THREE.Vector3(0, 0, 0), car_one, 1, camera, thingy);
   });
 
-  document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
+  //document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
 
   // event listeners
   renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
