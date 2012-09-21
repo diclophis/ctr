@@ -1,65 +1,66 @@
 var paused = false;
 
-var tick = function(then, st, forward_angle, foward, car_one, forward_speed, camera, thingy) {
+var tick = function() {
+  //then, st, forward_angle, foward, car_one, forward_speed, camera, thingy) {
   var tm = (1000 / 20);
 
   var now = Date.now();
-  var dt = (now - then) / 1000;
-  then = now;
+  var dt = (now - this.then) / 1000;
+  this.then = now;
 
   if (dt < (tm * 1.1)) {
 
-    if (paused == false) {
-      forward_angle += ((thingy.leftVector.x * 0.005) * dt);
-      if (thingy.speedUp) {
-        forward_speed += ((60) * dt);
+    if (this.paused == false) {
+      this.forward_angle += ((this.leftVector.x * 0.005) * dt);
+      if (this.speedUp) {
+        this.forward_speed += ((60) * dt);
       } else {
-        forward_speed -= ((200) * dt);
+        this.forward_speed -= ((200) * dt);
       }
-      if (forward_speed < 0) {
-        forward_speed = 0;
+      if (this.forward_speed < 0) {
+        this.forward_speed = 0;
       }
-      if (forward_speed > 350) {
-        forward_speed = 350;
+      if (this.forward_speed > 350) {
+        this.forward_speed = 350;
       }
-      st += dt;
+      this.st += dt;
     }
 
-    foward.x = Math.cos(forward_angle);
-    foward.z = Math.sin(forward_angle);
+    this.foward.x = Math.cos(this.forward_angle);
+    this.foward.z = Math.sin(this.forward_angle);
 
-    if (paused == false) {
-      if (car_one != null) {
-        moveObjectInDirectionAtSpeed(0, dt, car_one, foward, forward_speed);
-        followObjectWithObjectAtSpeed(0, dt, car_one, camera, forward_speed);
+    if (this.paused == false) {
+      if (this.car_one != null) {
+        moveObjectInDirectionAtSpeed(0, dt, this.car_one, this.foward, this.forward_speed);
+        followObjectWithObjectAtSpeed(0, dt, this.car_one, this.camera, this.forward_speed);
       }
     }
 
-    if (car_one != null) {
-      var b = foward.clone();
-      var bb = foward.clone();
+    if (this.car_one != null) {
+      var b = this.foward.clone();
+      var bb = this.foward.clone();
 
       bb.multiplyScalar(1000.0); //how far in front
       
       b.negate();
 
-      var a = car_one.position.clone();
+      var a = this.car_one.position.clone();
       a.addSelf(bb);
 
-      var c = car_one.position.clone();
+      var c = this.car_one.position.clone();
       c.addSelf(b);
 
-      car_one.lookAt(c);
-      camera.lookAt(a);
+      this.car_one.lookAt(c);
+      this.camera.lookAt(a);
     }
 
     //camera.position.x = 25;
-    camera.position.y = 20;
+    this.camera.position.y = 20;
     //camera.position.z = 65;
   }
 
   //thingy.scene.updateMatrixWorld();
-  setTimeout(tick, tm, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
+  setTimeout(tick.bind(this), tm); //, tm, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
 
 };
 
@@ -685,35 +686,49 @@ var run = function(body) {
   var raceTrack = createRaceTrack(scene);
   scene.add(raceTrack);
 
-  var thingy = {
-    leftPointerID: -1,
-    leftPointerStartPos: new THREE.Vector2(0, 0),
-    leftPointerPos: new THREE.Vector2(0, 0),
-    leftVector: new THREE.Vector2(0, 0),
-    wsa: wsa,
-    pointers: [],
-    fs: null,
-    scene: scene,
-    speedUp: false
-  };
 
   var loader = new THREE.ColladaLoader();
   loader.load("F1.dae", function(geometry) {
     var car_one = createCarFromGeometry(geometry);
     car_one.position.set(31, 1.9, 97);
     scene.add(car_one);
+
+    // (then, st, forward_angle, foward, car_one, forward_speed, camera, thingy)
+
+    var thingy = {
+      then: Date.now(),
+      st: 0,
+      foward: new THREE.Vector3(0, 0, 0),
+      car_one: car_one,
+      forward_speed: 0,
+      camera: camera,
+      leftPointerID: -1,
+      leftPointerStartPos: new THREE.Vector2(0, 0),
+      leftPointerPos: new THREE.Vector2(0, 0),
+      leftVector: new THREE.Vector2(0, 0),
+      wsa: wsa,
+      pointers: [],
+      fs: null,
+      scene: scene,
+      speedUp: false,
+      paused: false,
+      forward_angle: 0
+    };
+
+    //document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
+
+    // event listeners
+    renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
+    renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
+    renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
+
+    window.addEventListener('resize', onWindowResize.bind(thingy, camera, renderer), false);
+
     animate(renderer, scene, camera, stats);
-    tick(Date.now(), 0, 0, new THREE.Vector3(0, 0, 0), car_one, 1, camera, thingy);
+    // (Date.now(), 0, 0, new THREE.Vector3(0, 0, 0), car_one, 1, camera, thingy);
+    tick.apply(thingy);
   });
 
-  //document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
-
-  // event listeners
-  renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
-  renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
-  renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
-
-  window.addEventListener('resize', onWindowResize.bind(thingy, camera, renderer), false);
 
 };
 
