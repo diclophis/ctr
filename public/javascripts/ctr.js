@@ -381,7 +381,7 @@ var createRaceTrack = function(scene) {
   var roundedRectShape = new THREE.Shape();
   roundedRect(roundedRectShape, 0, 0, 5000, 5000, 500);
 
-  var tightness = 3;
+  var tightness = 10;
   var quality = 1000;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
@@ -408,11 +408,11 @@ var createRaceTrack = function(scene) {
       trackObject.add(textMesh);
       */
     
-      //var radius = 5;
-      //var trackPointGeo = new THREE.SphereGeometry(radius); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
-      //var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
-      //trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 5, foo.vertices[i].z);
-      //trackObject.add(trackPointMesh);
+      var radius = 5;
+      var trackPointGeo = new THREE.SphereGeometry(radius); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
+      var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
+      trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 5, foo.vertices[i].z);
+      trackObject.add(trackPointMesh);
     }
   }
 
@@ -696,6 +696,14 @@ var run = function(body) {
     animate.apply(thingy)
     tick.apply(thingy);
   });
+
+//var sink = Sink(function(buffer, channelCount){
+//    var i;
+//    for (i=0; i<buffer.length; i++){
+//        buffer[i] = Math.random() - 0.5;
+//    }
+//});
+
 };
 
 var createShaderMaterial = function() {
