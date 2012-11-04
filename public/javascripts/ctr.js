@@ -1,14 +1,22 @@
 var paused = false;
 
+var animate = function() {
+  requestAnimationFrame(animate.bind(this));
+  if (this.dirty) { 
+    this.renderer.render(this.scene, this.camera);
+    this.stats.update();
+    this.dirty = false;
+  }
+}
+
 var tick = function() {
-  //then, st, forward_angle, foward, car_one, forward_speed, camera, thingy) {
   var tm = (1000 / 26);
 
   var now = Date.now();
   var dt = (now - this.then) / 1000;
   this.then = now;
 
-  if (true || dt < (tm * 1.1)) {
+  if (dt < (tm * 1.1)) {
 
     if (this.paused == false) {
       this.forward_angle += ((this.leftVector.x * 0.00345) * dt);
@@ -68,7 +76,7 @@ var tick = function() {
   }
 
   //thingy.scene.updateMatrixWorld();
-  //setTimeout(tick.bind(this), tm); //, tm, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
+  setTimeout(tick.bind(this), tm); //, tm, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
 
 };
 
@@ -162,16 +170,6 @@ var onWindowResize = function() {
   this.renderer.setSize(wsa.x, wsa.y);
 };
 
-var animate = function() {
-  //rndr, scne, cmra, sts) {
-  //, rndr, scne, cmra, sts));
-  //requestAnimationFrame(animate.bind(this));
-  if (this.dirty) { 
-    this.renderer.render(this.scene, this.camera);
-    this.stats.update();
-    this.dirty = false;
-  }
-}
 
 var createStats = function() {
   var sts = new Stats();
@@ -699,18 +697,11 @@ var run = function(body) {
     window.addEventListener('resize', onWindowResize.bind(thingy), false);
     //document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
     //animate.apply(thingy)
-    window.cheese = animate.bind(thingy);
-    window.puffs = tick.bind(thingy);
+    //window.cheese = animate.bind(thingy);
+    //window.puffs = tick.bind(thingy);
+    animate.apply(thingy);
     tick.apply(thingy);
   });
-
-//var sink = Sink(function(buffer, channelCount){
-//    var i;
-//    for (i=0; i<buffer.length; i++){
-//        buffer[i] = Math.random() - 0.5;
-//    }
-//});
-
 };
 
 var createShaderMaterial = function() {
