@@ -8,7 +8,7 @@ var tick = function() {
   var dt = (now - this.then) / 1000;
   this.then = now;
 
-  if (dt < (tm * 1.1)) {
+  if (true || dt < (tm * 1.1)) {
 
     if (this.paused == false) {
       this.forward_angle += ((this.leftVector.x * 0.00345) * dt);
@@ -64,10 +64,11 @@ var tick = function() {
     //this.camera.position.y = 5;
     //this.camera.position.z = this.car_one.position.z;
     this.camera.updateProjectionMatrix();
+    this.dirty = true;
   }
 
   //thingy.scene.updateMatrixWorld();
-  setTimeout(tick.bind(this), tm); //, tm, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
+  //setTimeout(tick.bind(this), tm); //, tm, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
 
 };
 
@@ -164,9 +165,12 @@ var onWindowResize = function() {
 var animate = function() {
   //rndr, scne, cmra, sts) {
   //, rndr, scne, cmra, sts));
-  requestAnimationFrame(animate.bind(this));
-  this.renderer.render(this.scene, this.camera);
-  this.stats.update();
+  //requestAnimationFrame(animate.bind(this));
+  if (this.dirty) { 
+    this.renderer.render(this.scene, this.camera);
+    this.stats.update();
+    this.dirty = false;
+  }
 }
 
 var createStats = function() {
@@ -684,7 +688,8 @@ var run = function(body) {
       forward_angle: 0,
       renderer: renderer,
       scene: scene,
-      stats: stats
+      stats: stats,
+      dirty: false
     };
 
     // event listeners
@@ -693,7 +698,9 @@ var run = function(body) {
     renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
     window.addEventListener('resize', onWindowResize.bind(thingy), false);
     //document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
-    animate.apply(thingy)
+    //animate.apply(thingy)
+    window.cheese = animate.bind(thingy);
+    window.puffs = tick.bind(thingy);
     tick.apply(thingy);
   });
 
