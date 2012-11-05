@@ -3,7 +3,9 @@ var paused = false;
 var animate = function() {
   requestAnimationFrame(animate.bind(this));
   if (this.dirty) { 
+    this.renderer.render(this.skyBoxScene, this.skyBoxCamera);
     this.renderer.render(this.scene, this.camera);
+
     this.stats.update();
     this.dirty = false;
   }
@@ -66,12 +68,16 @@ var tick = function() {
       this.camera.lookAt(reallyFarOut);
       this.camera.position.set(0 + reallyFarBack.x, 10.0, 0 + reallyFarBack.z);
       //console.log(this.car_one.position.x, this.camera.position.x);
+
+      //this.skyBox.position.set(this.car_one.position.x, 0, this.car_one.position.z);
     }
 
     //this.camera.position.x = this.car_one.position.x;
     //this.camera.position.y = 5;
     //this.camera.position.z = this.car_one.position.z;
     this.camera.updateProjectionMatrix();
+    this.skyBoxCamera.rotation.copy(this.camera.rotation);
+
     this.dirty = true;
   }
 
@@ -167,6 +173,8 @@ var onWindowResize = function() {
   var wsa = windowSizeAndAspect();
   this.camera.aspect = wsa.aspect;
   this.camera.updateProjectionMatrix();
+  this.skyBoxCamera.aspect = wsa.aspect;
+  this.skyBoxCamera.updateProjectionMatrix();
   this.renderer.setSize(wsa.x, wsa.y);
 };
 
@@ -180,7 +188,7 @@ var createStats = function() {
 };
 
 var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 1000);
+  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 500);
   //var cmra = new THREE.OrthographicCamera(wsa.x / - 2, wsa.x / 2, wsa.y / 2, wsa.y / - 2, -10000, 10000);
   return cmra;
 };
@@ -451,7 +459,12 @@ var createRaceTrack = function(scene) {
 
   var mesh = new THREE.Mesh(trackGeometry, material);
 
+  console.log(trackGeometry.computeBoundingBox());
+  console.log(trackGeometry.boundingBox);
+
   trackObject.add(mesh);
+
+  console.log(trackObject.position);
 
   return trackObject;
 };
@@ -489,12 +502,11 @@ var createTerrain = function() {
   */
 };
 
-var createWorld = function() {
+var createSkyBox = function() {
   // there is a world with blue sky
 
-/*
   // http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/
-  var urlPrefix = "textures/cube/skybox/";
+  var urlPrefix = "SwedishRoyalCastle/";
   var urls = [ urlPrefix + "px.jpg", urlPrefix + "nx.jpg",
                urlPrefix + "py.jpg", urlPrefix + "ny.jpg",
                urlPrefix + "pz.jpg", urlPrefix + "nz.jpg" ];
@@ -502,17 +514,29 @@ var createWorld = function() {
 
   var shader  = THREE.ShaderUtils.lib["cube"];
   shader.uniforms["tCube"].texture = textureCube;
-  var material = new THREE.MeshShaderMaterial({
+  var skyMaterial = new THREE.ShaderMaterial({
     fragmentShader  : shader.fragmentShader,
     vertexShader  : shader.vertexShader,
-    uniforms  : shader.uniforms
+    uniforms  : shader.uniforms,
+    depthWrite: false,
+    side: THREE.BackSide
   });
 
-  skyboxMesh  = new THREE.Mesh( new THREE.CubeGeometry( 100000, 100000, 100000, 1, 1, 1, null, true ), material );
+  var M = 100 * 1;
+  var skyGeometry = new THREE.CubeGeometry(M, M, M, 2, 2, 2, null, true);
+  //var skyMaterial = new THREE.MeshBasicMaterial({color: 0x3030ff, side: THREE.BackSide, wireframe: true});
+  var skyboxMesh  = new THREE.Mesh(skyGeometry, skyMaterial);
 
-  scene.add(skyboxMesh);
-*/
+  var skyboxObject = new THREE.Object3D();
+  skyboxObject.add(skyboxMesh);
 
+  return skyboxObject;
+
+};
+
+var createSkyBoxCamera = function(wsa) {
+  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 200);
+  return cmra;
 };
 
 var raceForPolePosition = function() {
@@ -634,11 +658,23 @@ var run = function(body) {
   var camera = createCamera(wsa);
   var scene = createScene();
 
+
   var directionalLight = createDirectionalLight();
   scene.add(directionalLight);
 
   var pointLight = createPointLight();
   scene.add(pointLight);
+
+  var stats = createStats();
+  container.appendChild(stats.domElement);
+
+  var raceTrack = createRaceTrack(scene);
+  scene.add(raceTrack);
+
+  var skyBoxCamera = createSkyBoxCamera(wsa);
+  var skyBoxScene = createScene();
+  var skyBox = createSkyBox();
+  skyBoxScene.add(skyBox);
 
   //var renderer = new THREE.WebGLRenderer({
   //  precision: "lowp",
@@ -651,13 +687,8 @@ var run = function(body) {
 
   renderer.setFaceCulling("back");
   renderer.setSize(wsa.x, wsa.y);
+  renderer.autoClear = false;
   container.appendChild(renderer.domElement);
-
-  var stats = createStats();
-  container.appendChild(stats.domElement);
-
-  var raceTrack = createRaceTrack(scene);
-  scene.add(raceTrack);
 
   var loader = new THREE.ColladaLoader();
   loader.load("F1.dae", function(geometry) {
@@ -671,6 +702,8 @@ var run = function(body) {
       st: 0,
       foward: new THREE.Vector3(0, 0, 0),
       car_one: car_one,
+      skyBoxCamera: skyBoxCamera,
+      skyBoxScene: skyBoxScene,
       forward_speed: 0,
       camera: camera,
       leftPointerID: -1,
@@ -695,19 +728,17 @@ var run = function(body) {
     renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
     renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
     window.addEventListener('resize', onWindowResize.bind(thingy), false);
-    //document.getElementById("fullscreen-form").addEventListener('submit', onContClick, false);
-    //animate.apply(thingy)
-    //window.cheese = animate.bind(thingy);
-    //window.puffs = tick.bind(thingy);
     animate.apply(thingy);
     tick.apply(thingy);
   });
 };
 
+/*
 var createShaderMaterial = function() {
   var material = new THREE.ShaderMaterial( {
     uniforms: uniforms1,
-    vertexShader: document.getElementById( 'vertexShader' ).textContent,
+    vertexShader: document.getElementById('vertexShader' ).textContent,
     fragmentShader: document.getElementById('fragment_shader4').textContent
   });
 };
+*/
