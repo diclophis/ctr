@@ -60,30 +60,20 @@ var tick = function() {
       var reallyFarOut = this.car_one.position.clone().addSelf(farForward);
       var reallyFarBack = this.car_one.position.clone().addSelf(farBack);
 
-      //
       var whereCarIsPointing = this.car_one.position.clone().addSelf(drift);
       this.car_one.lookAt(whereCarIsPointing);
 
-      //b.multiplyScalar(10.0);
-
       this.camera.lookAt(reallyFarOut);
       this.camera.position.set(0 + reallyFarBack.x, 10.0, 0 + reallyFarBack.z);
-      //console.log(this.car_one.position.x, this.camera.position.x);
-
-      //this.skyBox.position.set(this.car_one.position.x, 0, this.car_one.position.z);
     }
 
-    //this.camera.position.x = this.car_one.position.x;
-    //this.camera.position.y = 5;
-    //this.camera.position.z = this.car_one.position.z;
     this.camera.updateProjectionMatrix();
     this.skyBoxCamera.rotation.copy(this.camera.rotation);
 
     this.dirty = true;
   }
 
-  //thingy.scene.updateMatrixWorld();
-  setTimeout(tick.bind(this), tm); //, tm, then, st, forward_angle, foward, car_one, forward_speed, camera, thingy);
+  setTimeout(tick.bind(this), tm);
 
 };
 
@@ -304,6 +294,18 @@ var createBannerObject = function() {
   // with text that is textured black
   // there is also a blimp objecet
   // that pulls the flat object
+      /*
+      var text = i.toString();
+
+      var textGeo = new THREE.TextGeometry( text, {
+        size: 50,
+        height: 5,
+      });
+
+      var textMesh = new THREE.Mesh(textGeo, textMat);
+      textMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 10, foo.vertices[i].z);
+      trackObject.add(textMesh);
+      */
 };
 
 var createCar = function() {
@@ -346,12 +348,8 @@ var createRaceTrack = function(scene) {
   function roundedRect(ctx, x, y, width, height, radius) {
     ctx.moveTo( x, y + radius );
     ctx.lineTo( x, y + height - radius );
-    //ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
     ctx.lineTo( x + width - radius, y + height) ;
-    //ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
     ctx.lineTo( x + width, y + radius );
-    //ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
-    //ctx.lineTo( x + radius, y );
     ctx.quadraticCurveTo( x, y, x, y + radius );
   }
 
@@ -374,20 +372,6 @@ var createRaceTrack = function(scene) {
   if (true) {
     var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00, wireframe: false});
     for (var i=0; i<foo.vertices.length; i++) {
-
-      /*
-      var text = i.toString();
-
-      var textGeo = new THREE.TextGeometry( text, {
-        size: 50,
-        height: 5,
-      });
-
-      var textMesh = new THREE.Mesh(textGeo, textMat);
-      textMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 10, foo.vertices[i].z);
-      trackObject.add(textMesh);
-      */
-    
       var radius = 5;
       var trackPointGeo = new THREE.SphereGeometry(radius, 3, 3); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
       var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
@@ -396,9 +380,18 @@ var createRaceTrack = function(scene) {
     }
   }
 
+  /*
+  console.log(foo.vertices.length);
+  */
+
   var spine = new THREE.ClosedSplineCurve3(foo.vertices);
 
-  var s = spine.getPoints(quality);
+  //console.log(spine);
+  //for (var i=0; i<spine.points.length; i++) {
+  //  spine.points[i].y = Math.sin(i) * 10.0;
+  //}
+
+  //var s = spine.getPoints(quality);
   var g = new THREE.Geometry();
 
   var spineCurvePath = new THREE.CurvePath();
@@ -409,7 +402,7 @@ var createRaceTrack = function(scene) {
   lineObject.position.y += 5;
   trackObject.add(lineObject);
 
-  var extrudeSettings = { steps: quality }
+  var extrudeSettings = { steps: quality };
   extrudeSettings.extrudePath = spineCurvePath;
   extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
   extrudeSettings.material = 1;
@@ -429,12 +422,7 @@ var createRaceTrack = function(scene) {
 
   var mesh = new THREE.Mesh(trackGeometry, material);
 
-  console.log(trackGeometry.computeBoundingBox());
-  console.log(trackGeometry.boundingBox);
-
   trackObject.add(mesh);
-
-  console.log(trackObject.position);
 
   return trackObject;
 };
