@@ -3,6 +3,7 @@ var paused = false;
 var animate = function() {
   requestAnimationFrame(animate.bind(this));
   if (this.dirty) { 
+    this.renderer.clear(false, true, false);
     this.renderer.render(this.skyBoxScene, this.skyBoxCamera);
     this.renderer.render(this.scene, this.camera);
 
@@ -12,7 +13,7 @@ var animate = function() {
 }
 
 var tick = function() {
-  var tm = (1000 / 26);
+  var tm = (1000 / 33);
 
   var now = Date.now();
   var dt = (now - this.then) / 1000;
@@ -103,30 +104,11 @@ var onPointerDown = function(e) {
   }
 }
 
-/*
-var fs = null;
-
-var onContClick = function(e) {
-  //paused = true;
-  e.preventDefault();
-  if (fs == null) {
-    fs = true;
-    var cnt = document.getElementById("canvas-container");
-    //if (cnt.mozRequestFullScreen) {
-    //  cnt.mozRequestFullScreen();
-    //}
-    var fullscreenForm = document.getElementById("fullscreen-form");
-    fullscreenForm.parentNode.removeChild(fullscreenForm);
-  }
-}
-*/
-
 var onPointerMove = function(e) {
   this.pointers = e.getPointerList();
-  for(var i = 0; i<this.pointers.length; i++){
+  for (var i = 0; i<this.pointers.length; i++){
     var pointer = this.pointers[i]; 
-    if(this.leftPointerID == pointer.identifier)
-    {
+    if (this.leftPointerID == pointer.identifier) {
       this.leftPointerPos.set(pointer.x, pointer.y); 
       this.leftVector.copy(this.leftPointerPos); 
       this.leftVector.subSelf(this.leftPointerStartPos);  
@@ -151,9 +133,7 @@ var createCarFromGeometry = function(geometry) {
   car.scale.set(20, 20, 20);
   car.position.set(0, 0, 0);
   car.updateMatrix();
-  car.children[0].material = new THREE.MeshLambertMaterial({color: 0xffaa00 }); // wheels chrome
-  //car.children[0].children[1].material = new THREE.MeshLambertMaterial({color: 0x0000ff }); // wheels chrome
-  //car.children[0].children[2].material = new THREE.MeshLambertMaterial({color: 0xe0e0e0 }); // wheels chrome
+  car.children[0].material = new THREE.MeshLambertMaterial({color: 0xffaa00 });
   return car;
 }
 
@@ -187,9 +167,8 @@ var createStats = function() {
   return sts;
 };
 
-var createCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 500);
-  //var cmra = new THREE.OrthographicCamera(wsa.x / - 2, wsa.x / 2, wsa.y / 2, wsa.y / - 2, -10000, 10000);
+var createCamera = function(wsa, lookFar) {
+  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, lookFar);
   return cmra;
 };
 
@@ -212,6 +191,7 @@ var moveObjectInDirectionAtSpeed = function(st, dt, obj, dir, spd) {
 
   // copy the input
   var inp = dir.clone();
+
   // clean up the input
   inp.normalize();
 
@@ -222,15 +202,6 @@ var moveObjectInDirectionAtSpeed = function(st, dt, obj, dir, spd) {
   //obj.position.addSelf(inp);
   obj.position.x += inp.x;
   obj.position.z += inp.z;
-  
-  //var abc = obj.clone();
-  //console.log(obj);
-  //two.addSelf(inp);
-
-  //obj.x = two.x;
-  //obj.z = two.z;
-  
-  //console.log(inp);
 
 };
 
@@ -372,7 +343,6 @@ var createRaceTrack = function(scene) {
   // inner ring is white/yellow 70%
   // outer ring is red white 50/50
 
-
   function roundedRect(ctx, x, y, width, height, radius) {
     ctx.moveTo( x, y + radius );
     ctx.lineTo( x, y + height - radius );
@@ -402,7 +372,7 @@ var createRaceTrack = function(scene) {
   foo.applyMatrix(m);
 
   if (true) {
-    var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00 });
+    var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00, wireframe: false});
     for (var i=0; i<foo.vertices.length; i++) {
 
       /*
@@ -419,7 +389,7 @@ var createRaceTrack = function(scene) {
       */
     
       var radius = 5;
-      var trackPointGeo = new THREE.SphereGeometry(radius); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
+      var trackPointGeo = new THREE.SphereGeometry(radius, 3, 3); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
       var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
       trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 5, foo.vertices[i].z);
       trackObject.add(trackPointMesh);
@@ -522,7 +492,7 @@ var createSkyBox = function() {
     side: THREE.BackSide
   });
 
-  var M = 100 * 1;
+  var M = 999 * 1;
   var skyGeometry = new THREE.CubeGeometry(M, M, M, 2, 2, 2, null, true);
   //var skyMaterial = new THREE.MeshBasicMaterial({color: 0x3030ff, side: THREE.BackSide, wireframe: true});
   var skyboxMesh  = new THREE.Mesh(skyGeometry, skyMaterial);
@@ -532,11 +502,6 @@ var createSkyBox = function() {
 
   return skyboxObject;
 
-};
-
-var createSkyBoxCamera = function(wsa) {
-  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, 200);
-  return cmra;
 };
 
 var raceForPolePosition = function() {
@@ -655,9 +620,8 @@ var run = function(body) {
   var container = createContainer();
   body.appendChild(container);
 
-  var camera = createCamera(wsa);
+  var camera = createCamera(wsa, 1000);
   var scene = createScene();
-
 
   var directionalLight = createDirectionalLight();
   scene.add(directionalLight);
@@ -671,7 +635,7 @@ var run = function(body) {
   var raceTrack = createRaceTrack(scene);
   scene.add(raceTrack);
 
-  var skyBoxCamera = createSkyBoxCamera(wsa);
+  var skyBoxCamera = createCamera(wsa, 1000);
   var skyBoxScene = createScene();
   var skyBox = createSkyBox();
   skyBoxScene.add(skyBox);
