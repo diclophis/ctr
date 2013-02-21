@@ -58,10 +58,10 @@ var tick = function() {
       var farForward = this.foward.clone().multiplyScalar(100.0); //how far in front
       var farBack = this.foward.clone().negate().multiplyScalar(50.0); //how far in back
 
-      var reallyFarOut = this.car_one.position.clone().addSelf(farForward);
-      var reallyFarBack = this.car_one.position.clone().addSelf(farBack);
+      var reallyFarOut = this.car_one.position.clone().add(farForward);
+      var reallyFarBack = this.car_one.position.clone().add(farBack);
 
-      var whereCarIsPointing = this.car_one.position.clone().addSelf(drift);
+      var whereCarIsPointing = this.car_one.position.clone().add(drift);
       this.car_one.lookAt(whereCarIsPointing);
 
       this.camera.lookAt(reallyFarOut);
@@ -102,7 +102,7 @@ var onPointerMove = function(e) {
     if (this.leftPointerID == pointer.identifier) {
       this.leftPointerPos.set(pointer.x, pointer.y); 
       this.leftVector.copy(this.leftPointerPos); 
-      this.leftVector.subSelf(this.leftPointerStartPos);  
+      this.leftVector.sub(this.leftPointerStartPos);  
       break;    
     }   
   }
@@ -120,7 +120,8 @@ var onPointerUp = function(e) {
 }
 
 var createCarFromGeometry = function(geometry) {
-  var car = THREE.SceneUtils.cloneObject(geometry.scene);
+  //var car = THREE.SceneUtils.cloneObject(geometry.scene);
+  var car = geometry.scene;
   car.scale.set(20, 20, 20);
   car.position.set(0, 0, 0);
   car.updateMatrix();
@@ -129,7 +130,7 @@ var createCarFromGeometry = function(geometry) {
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 2.66;
+  var subDivide = 1; //2.66;
   var r = {
     windowHalfX: Math.floor(window.innerWidth / subDivide),
     windowHalfY: Math.floor(window.innerHeight / subDivide),
@@ -199,7 +200,7 @@ var moveObjectInDirectionAtSpeed = function(st, dt, obj, dir, spd) {
 var followObjectWithObjectAtSpeed = function(st, dt, car, camera, speed) {
   // there is a distance between the two objects
   var distance = new THREE.Vector3(0, 0, 0);
-  distance.sub(car.position, camera.position);
+  distance.subVectors(car.position, camera.position);
   //distance.y = 0;
 
   // move the camera towards the car at speed
@@ -471,8 +472,8 @@ var createSkyBox = function() {
                urlPrefix + "pz.jpg", urlPrefix + "nz.jpg" ];
   var textureCube = THREE.ImageUtils.loadTextureCube(urls);
 
-  var shader  = THREE.ShaderUtils.lib["cube"];
-  shader.uniforms["tCube"].texture = textureCube;
+  var shader  = THREE.ShaderLib["cube"];
+  shader.uniforms["tCube"].value = textureCube;
   var skyMaterial = new THREE.ShaderMaterial({
     fragmentShader  : shader.fragmentShader,
     vertexShader  : shader.vertexShader,
@@ -663,7 +664,8 @@ var main = function(body) {
   var renderer = new THREE.WebGLRenderer({
   });
 
-  renderer.setFaceCulling("back");
+  //renderer.setFaceCulling("back");
+  console.log(wsa);
   renderer.setSize(wsa.x, wsa.y);
   renderer.autoClear = false;
   container.appendChild(renderer.domElement);

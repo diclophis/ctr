@@ -49,10 +49,10 @@ THREE.UVsUtils.CylinderUVGenerator.prototype = {
         u1 *= this.uRepeat;
         u2 *= this.uRepeat;
         return [
-            new THREE.UV( u1, v1 ),
-            new THREE.UV( u2, v1 ),
-            new THREE.UV( u2, v2 ),
-            new THREE.UV( u1, v2 )
+            new THREE.Vector2( u1, v1 ),
+            new THREE.Vector2( u2, v1 ),
+            new THREE.Vector2( u2, v2 ),
+            new THREE.Vector2( u1, v2 )
         ];
     },
     
