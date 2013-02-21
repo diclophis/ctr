@@ -2,6 +2,7 @@ var paused = false;
 
 var animate = function() {
   requestAnimationFrame(animate.bind(this));
+  tick.apply(this);
   if (this.dirty) { 
     this.renderer.clear(false, true, false);
     this.renderer.render(this.skyBoxScene, this.skyBoxCamera);
@@ -16,10 +17,11 @@ var tick = function() {
   var tm = (1000 / this.fps);
 
   var now = Date.now();
-  var dt = (now - this.then) / 1000;
+  //var dt = (now - this.then) / 1000;
+  var dt = tm * 0.001;
   this.then = now;
 
-  if (dt < (tm * 1.1)) {
+  //if (dt < (tm * 1.1)) {
 
     if (this.paused == false) {
       this.forward_angle += ((this.leftVector.x * 0.00345) * dt);
@@ -71,9 +73,9 @@ var tick = function() {
     this.skyBoxCamera.rotation.copy(this.camera.rotation);
 
     this.dirty = true;
-  }
+  //}
 
-  setTimeout(tick.bind(this), tm);
+  //setTimeout(tick.bind(this), tm);
 
 };
 
@@ -141,12 +143,16 @@ var windowSizeAndAspect = function() {
 };
 
 var onWindowResize = function() {
-  var wsa = windowSizeAndAspect();
-  this.camera.aspect = wsa.aspect;
-  this.camera.updateProjectionMatrix();
-  this.skyBoxCamera.aspect = wsa.aspect;
-  this.skyBoxCamera.updateProjectionMatrix();
-  this.renderer.setSize(wsa.x, wsa.y);
+  this.container.className = "hidden";
+  setTimeout(function(game) {
+    var wsa = windowSizeAndAspect();
+    game.camera.aspect = wsa.aspect;
+    game.camera.updateProjectionMatrix();
+    game.skyBoxCamera.aspect = wsa.aspect;
+    game.skyBoxCamera.updateProjectionMatrix();
+    game.renderer.setSize(wsa.x, wsa.y);
+    game.container.className = "";
+  }, 1000, this);
 };
 
 
@@ -682,7 +688,7 @@ var main = function(body) {
     scene.add(car_one);
 
     var thingy = {
-      fps: 15.0,
+      fps: 35.0,
       then: Date.now(),
       st: 0,
       foward: new THREE.Vector3(0, 0, 0),
@@ -705,7 +711,8 @@ var main = function(body) {
       renderer: renderer,
       scene: scene,
       stats: stats,
-      dirty: false
+      dirty: false,
+      container: container,
     };
 
     // event listeners
