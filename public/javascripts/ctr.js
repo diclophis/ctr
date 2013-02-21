@@ -634,7 +634,7 @@ var main = function(body) {
   }, false);
 
 
-  var camera = createCamera(wsa, 1000);
+  var camera = createCamera(wsa, 2000);
   var scene = createScene();
 
   var directionalLight = createDirectionalLight();
