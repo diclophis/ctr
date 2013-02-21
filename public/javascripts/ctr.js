@@ -15,7 +15,6 @@ var animate = function() {
 var tick = function() {
   var tm = (1000 / this.fps);
 
-
   var now = Date.now();
   var dt = (now - this.then) / 1000;
   this.then = now;
@@ -410,17 +409,22 @@ var createRaceTrack = function(scene) {
   extrudeSettings.material = 1;
 
   var rectLength = 40.0;
-  var rectWidth = 1.0;
+  var rectWidth = 0.1;
   var rectShape = new THREE.Shape();
 
   rectShape.moveTo(0, -rectLength);
   rectShape.lineTo(0, rectLength);
-  rectShape.lineTo(rectWidth, 0);
+  //rectShape.lineTo(rectWidth, 0);
+  rectShape.lineTo(rectWidth, rectLength);
   rectShape.lineTo(0, -rectLength);
 
   var trackGeometry = rectShape.extrude(extrudeSettings);
 
-  material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("track.png") });
+  var removed = trackGeometry.mergeVertices();
+
+  console.log(removed);
+
+  material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
 
   var mesh = new THREE.Mesh(trackGeometry, material);
 
@@ -678,7 +682,7 @@ var main = function(body) {
     scene.add(car_one);
 
     var thingy = {
-      fps: 31.0,
+      fps: 15.0,
       then: Date.now(),
       st: 0,
       foward: new THREE.Vector3(0, 0, 0),
