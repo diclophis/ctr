@@ -38,7 +38,7 @@ var tick = function() {
       this.st += dt;
     }
 
-    var skid = (this.leftVector.x * 0.001);
+    var skid = (this.leftVector.x * 0.0001 * (this.forward_speed * 0.1));
     var drift = this.foward.clone();
     drift.x = Math.cos(this.forward_angle + skid);
     drift.z = Math.sin(this.forward_angle + skid);
@@ -55,7 +55,7 @@ var tick = function() {
     if (this.car_one != null) {
 
       var farForward = this.foward.clone().multiplyScalar(100.0); //how far in front
-      var farBack = this.foward.clone().negate().multiplyScalar(50.0); //how far in back
+      var farBack = this.foward.clone().negate().multiplyScalar(150.0); //how far in back
 
       var reallyFarOut = this.car_one.position.clone().add(farForward);
       var reallyFarBack = this.car_one.position.clone().add(farBack);
@@ -64,7 +64,7 @@ var tick = function() {
       this.car_one.lookAt(whereCarIsPointing);
 
       this.camera.lookAt(reallyFarOut);
-      this.camera.position.set(0 + reallyFarBack.x, 10.0, 0 + reallyFarBack.z);
+      this.camera.position.set(0 + reallyFarBack.x, 20.0, 0 + reallyFarBack.z);
     }
 
     this.camera.updateProjectionMatrix();
@@ -82,14 +82,14 @@ var onPointerDown = function(e) {
   this.pointers = e.getPointerList();
   for(var i = 0; i<this.pointers.length; i++){
     var pointer = this.pointers[i]; 
-    if((this.leftPointerID<0)) // && (pointer.x<this.wsa.windowHalfX))
+    if((this.leftPointerID < 0)) // && (pointer.x<this.wsa.windowHalfX))
     {
       this.leftPointerID = pointer.identifier; 
       this.leftPointerStartPos.set(pointer.x, pointer.y);  
       this.leftPointerPos.copy(this.leftPointerStartPos); 
       //this.leftVector.set(0,0); 
       continue;     
-      } else {
+    } else {
     } 
   }
 }
