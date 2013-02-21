@@ -7,13 +7,14 @@ var animate = function() {
     this.renderer.render(this.skyBoxScene, this.skyBoxCamera);
     this.renderer.render(this.scene, this.camera);
 
-    this.stats.update();
+    //this.stats.update();
     this.dirty = false;
   }
 }
 
 var tick = function() {
-  var tm = (1000 / 33);
+  var tm = (1000 / this.fps);
+
 
   var now = Date.now();
   var dt = (now - this.then) / 1000;
@@ -128,7 +129,7 @@ var createCarFromGeometry = function(geometry) {
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 2.33;
+  var subDivide = 2.66;
   var r = {
     windowHalfX: Math.floor(window.innerWidth / subDivide),
     windowHalfY: Math.floor(window.innerHeight / subDivide),
@@ -168,8 +169,8 @@ var createScene = function() {
 };
 
 var createContainer = function() {
-  var cntr = document.createElement('div');
-  cntr.id = "canvas-container";
+  var cntr = document.getElementById('canvas-container');
+  //cntr.id = "canvas-container";
 
   return cntr;
 };
@@ -601,12 +602,37 @@ var createPointLight = function() {
   return pl;
 };
 
-var run = function(body) {
+var main = function(body) {
+
+  //speedometer = new Speedometer ('speedometer', {theme: 'default'});
+  //speedometer.draw ();
 
   var wsa = windowSizeAndAspect();
 
   var container = createContainer();
   body.appendChild(container);
+
+  /*
+  if (container.requestFullscreen) {
+    container.requestFullscreen();
+  } else if (container.mozRequestFullScreen) {
+    container.mozRequestFullScreen();
+  } else if (container.webkitRequestFullscreen) {
+    container.webkitRequestFullscreen();
+  }
+  */
+
+  var fullscreenButton = document.getElementById("fullscreen-button");
+
+  fullscreenButton.addEventListener('click', function(ev) {
+    if (screenfull.enabled) {
+      screenfull.onchange = function() {
+        //console.log('Am I fullscreen? ' + screenfull.isFullscreen ? 'Yes' : 'No');
+      };
+      screenfull.toggle(container);
+    }
+  }, false);
+
 
   var camera = createCamera(wsa, 1000);
   var scene = createScene();
@@ -618,7 +644,7 @@ var run = function(body) {
   scene.add(pointLight);
 
   var stats = createStats();
-  container.appendChild(stats.domElement);
+  //container.appendChild(stats.domElement);
 
   var raceTrack = createRaceTrack(scene);
   scene.add(raceTrack);
@@ -650,6 +676,7 @@ var run = function(body) {
     scene.add(car_one);
 
     var thingy = {
+      fps: 31.0,
       then: Date.now(),
       st: 0,
       foward: new THREE.Vector3(0, 0, 0),

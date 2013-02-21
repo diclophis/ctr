@@ -11,8 +11,7 @@
         padding: 0;
         overflow: hidden;
       }
-
-      canvas {
+      canvas, svg {
         image-rendering: optimizeSpeed;
         image-rendering: -moz-crisp-edges;
         image-rendering: -webkit-optimize-contrast;
@@ -24,6 +23,28 @@
         -webkit-user-select: none;
         -webkit-tap-highlight-color: rgba(0,0,0,0); 
       }
+      #speedometer, #dial {
+        pointer-events: none;
+        position: absolute;
+        bottom: 0; left: 0;
+        height: 33%;
+      }
+      #dial {
+        animation: speedup 0.5s infinite alternate;
+      }
+      #fullscreen-button {
+        position: absolute; top: 0; left: 0;
+        background-color: red;
+        width: 10%; height: 10%;
+      }
+      @keyframes speedup {
+        0% {
+          transform: rotateZ(0deg);
+        }
+        100% {
+          transform: rotateZ(180deg);
+        }
+      }
     </style>
     <script src="javascripts/sink.js"></script>
     <script src="javascripts/pointer.min.js"></script>
@@ -32,11 +53,12 @@
     <script src="javascripts/ColladaLoader.js"></script>
     <script src="javascripts/helvetiker_regular.typeface.js"></script>
     <script src="javascripts/stats.js"></script>
+    <script src="javascripts/screenfull.min.js"></script>
     <script src="javascripts/ctr.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         try {
-          run(document.body);
+          main(document.body);
         } catch(e) {
           alert(e);
         }
@@ -44,5 +66,10 @@
     </script>
   </head>
   <body>
+    <div id="canvas-container">
+      <div id="fullscreen-button"></div>
+      <img id="speedometer" src="speedometer.svg"/>
+      <img id="dial" src="dial.svg"/>
+    </div>
   </body>
 </html>
