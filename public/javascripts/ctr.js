@@ -1,124 +1,61 @@
-var paused = false;
-
-var animate = function() {
-  requestAnimationFrame(animate.bind(this));
-  tick.apply(this);
-  if (this.dirty) { 
-    this.renderer.clear(false, true, false);
-    this.renderer.render(this.skyBoxScene, this.skyBoxCamera);
-    this.renderer.render(this.scene, this.camera);
-
-    //this.stats.update();
-    this.dirty = false;
-  }
-}
-
 var tick = function() {
-  var tm = (1000 / this.fps);
+  requestAnimationFrame(tick.bind(this));
 
-  var now = Date.now();
-  //var dt = (now - this.then) / 1000;
-  var dt = tm * 0.001;
-  this.then = now;
+  var dt = createDeltaTime.apply(this);
 
-  //if (dt < (tm * 1.1)) {
-
-    if (this.paused == false) {
-      this.forward_angle += ((this.leftVector.x * 0.00345) * dt);
-      if (this.speedUp) {
-        this.forward_speed += ((60) * dt);
-      } else {
-        this.leftVector.x -= ((2.0 * this.leftVector.x) * dt);
-        this.forward_speed -= ((200) * dt);
-      }
-      if (this.forward_speed < 0) {
-        this.forward_speed = 0;
-      }
-      if (this.forward_speed > 350) {
-        this.forward_speed = 350;
-      }
-      this.st += dt;
-    }
-
-    var skid = (this.leftVector.x * 0.0001 * (this.forward_speed * 0.1));
-    var drift = this.foward.clone();
-    drift.x = Math.cos(this.forward_angle + skid);
-    drift.z = Math.sin(this.forward_angle + skid);
-    this.foward.x = Math.cos(this.forward_angle);
-    this.foward.z = Math.sin(this.forward_angle);
-
-    if (this.paused == false) {
-      if (this.car_one != null) {
-        moveObjectInDirectionAtSpeed(0, dt, this.car_one, this.foward, this.forward_speed);
-        followObjectWithObjectAtSpeed(0, dt, this.car_one, this.camera, this.forward_speed);
-      }
-    }
-
-    if (this.car_one != null) {
-
-      var farForward = this.foward.clone().multiplyScalar(100.0); //how far in front
-      var farBack = this.foward.clone().negate().multiplyScalar(150.0); //how far in back
-
-      var reallyFarOut = this.car_one.position.clone().add(farForward);
-      var reallyFarBack = this.car_one.position.clone().add(farBack);
-
-      var whereCarIsPointing = this.car_one.position.clone().add(drift);
-      this.car_one.lookAt(whereCarIsPointing);
-
-      this.camera.lookAt(reallyFarOut);
-      this.camera.position.set(0 + reallyFarBack.x, 20.0, 0 + reallyFarBack.z);
-    }
-
-    this.camera.updateProjectionMatrix();
-    this.skyBoxCamera.rotation.copy(this.camera.rotation);
-
-    this.dirty = true;
-  //}
-
-  //setTimeout(tick.bind(this), tm);
-
-};
-
-var onPointerDown = function(e) {
-  this.speedUp = true;
-  this.pointers = e.getPointerList();
-  for(var i = 0; i<this.pointers.length; i++){
-    var pointer = this.pointers[i]; 
-    if((this.leftPointerID < 0)) // && (pointer.x<this.wsa.windowHalfX))
-    {
-      this.leftPointerID = pointer.identifier; 
-      this.leftPointerStartPos.set(pointer.x, pointer.y);  
-      this.leftPointerPos.copy(this.leftPointerStartPos); 
-      //this.leftVector.set(0,0); 
-      continue;     
+  if (this.paused == false) {
+    this.forward_angle += ((this.leftVector.x * 0.00345) * dt);
+    if (this.speedUp) {
+      this.forward_speed += ((60) * dt);
     } else {
-    } 
+      this.leftVector.x -= ((2.0 * this.leftVector.x) * dt);
+      this.forward_speed -= ((200) * dt);
+    }
+    if (this.forward_speed < 0) {
+      this.forward_speed = 0;
+    }
+    if (this.forward_speed > 350) {
+      this.forward_speed = 350;
+    }
+    this.st += dt;
   }
-}
 
-var onPointerMove = function(e) {
-  this.pointers = e.getPointerList();
-  for (var i = 0; i<this.pointers.length; i++){
-    var pointer = this.pointers[i]; 
-    if (this.leftPointerID == pointer.identifier) {
-      this.leftPointerPos.set(pointer.x, pointer.y); 
-      this.leftVector.copy(this.leftPointerPos); 
-      this.leftVector.sub(this.leftPointerStartPos);  
-      break;    
-    }   
-  }
-} 
+  var skid = (this.leftVector.x * 0.0001 * (this.forward_speed * 0.1));
+  var drift = this.foward.clone();
+  drift.x = Math.cos(this.forward_angle + skid);
+  drift.z = Math.sin(this.forward_angle + skid);
+  this.foward.x = Math.cos(this.forward_angle);
+  this.foward.z = Math.sin(this.forward_angle);
 
-var onPointerUp = function(e) { 
-  this.pointers = e.getPointerList(); 
-  if (this.pointers.length == 0) {
-    this.leftPointerID = -1; 
-    //if (e.pointerType == PointerTypes.pointer) {
-      //this.leftVector.set(0,0); 
-    //}
+  if (this.paused == false) {
+    if (this.car_one != null) {
+      moveObjectInDirectionAtSpeed(0, dt, this.car_one, this.foward, this.forward_speed);
+      followObjectWithObjectAtSpeed(0, dt, this.car_one, this.camera, this.forward_speed);
+    }
   }
-  this.speedUp = false;
-}
+
+  if (this.car_one != null) {
+
+    var farForward = this.foward.clone().multiplyScalar(100.0); //how far in front
+    var farBack = this.foward.clone().negate().multiplyScalar(150.0); //how far in back
+
+    var reallyFarOut = this.car_one.position.clone().add(farForward);
+    var reallyFarBack = this.car_one.position.clone().add(farBack);
+
+    var whereCarIsPointing = this.car_one.position.clone().add(drift);
+    this.car_one.lookAt(whereCarIsPointing);
+
+    this.camera.lookAt(reallyFarOut);
+    this.camera.position.set(0 + reallyFarBack.x, 20.0, 0 + reallyFarBack.z);
+  }
+
+  this.camera.updateProjectionMatrix();
+  this.skyBoxCamera.rotation.copy(this.camera.rotation);
+
+  this.renderer.clear(false, true, false);
+  this.renderer.render(this.skyBoxScene, this.skyBoxCamera);
+  this.renderer.render(this.scene, this.camera);
+};
 
 var createCarFromGeometry = function(geometry) {
   //var car = THREE.SceneUtils.cloneObject(geometry.scene);
@@ -129,57 +66,6 @@ var createCarFromGeometry = function(geometry) {
   car.children[0].material = new THREE.MeshLambertMaterial({color: 0xffaa00 });
   return car;
 }
-
-var windowSizeAndAspect = function() {
-  var subDivide = 1; //2.66;
-  var r = {
-    windowHalfX: Math.floor(window.innerWidth / subDivide),
-    windowHalfY: Math.floor(window.innerHeight / subDivide),
-    aspect: window.innerWidth / window.innerHeight,
-    x: Math.floor(window.innerWidth / subDivide),
-    y: Math.floor(window.innerHeight / subDivide)
-  };
-  return r;
-};
-
-var onWindowResize = function() {
-  this.container.className = "hidden";
-  setTimeout(function(game) {
-    var wsa = windowSizeAndAspect();
-    game.camera.aspect = wsa.aspect;
-    game.camera.updateProjectionMatrix();
-    game.skyBoxCamera.aspect = wsa.aspect;
-    game.skyBoxCamera.updateProjectionMatrix();
-    game.renderer.setSize(wsa.x, wsa.y);
-    game.container.className = "";
-  }, 1000, this);
-};
-
-
-var createStats = function() {
-  var sts = new Stats();
-  sts.domElement.style.position = 'absolute';
-  sts.domElement.style.top = '0px';
-  sts.domElement.style.zIndex = 100;
-  return sts;
-};
-
-var createCamera = function(wsa, lookFar) {
-  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, lookFar);
-  return cmra;
-};
-
-var createScene = function() {
-  scne = new THREE.Scene();
-  return scne;
-};
-
-var createContainer = function() {
-  var cntr = document.getElementById('canvas-container');
-  //cntr.id = "canvas-container";
-
-  return cntr;
-};
 
 // logic of racing game
 // http://www.youtube.com/watch?v=NUU_F9TvXco
@@ -601,37 +487,12 @@ var turnCarRight = function(st, dt, car) {
 var turnCarLeft = function(st, dt, car) {
 };
 
-var createDirectionalLight = function() {
-  dl = new THREE.DirectionalLight( 0xffffff );
-  dl.position.set(0.0, 1.0, 0.0);
-  return dl;
-};
-
-var createPointLight = function() {
-  pl = new THREE.PointLight(0xffffff, 1.0, 30.0);
-  pl.position.set(0, 10, 0);
-  return pl;
-};
-
 var main = function(body) {
-
-  //speedometer = new Speedometer ('speedometer', {theme: 'default'});
-  //speedometer.draw ();
 
   var wsa = windowSizeAndAspect();
 
   var container = createContainer();
   body.appendChild(container);
-
-  /*
-  if (container.requestFullscreen) {
-    container.requestFullscreen();
-  } else if (container.mozRequestFullScreen) {
-    container.mozRequestFullScreen();
-  } else if (container.webkitRequestFullscreen) {
-    container.webkitRequestFullscreen();
-  }
-  */
 
   var fullscreenButton = document.getElementById("fullscreen-button");
 
@@ -654,9 +515,6 @@ var main = function(body) {
   var pointLight = createPointLight();
   scene.add(pointLight);
 
-  var stats = createStats();
-  //container.appendChild(stats.domElement);
-
   var raceTrack = createRaceTrack(scene);
   scene.add(raceTrack);
 
@@ -675,7 +533,6 @@ var main = function(body) {
   });
 
   //renderer.setFaceCulling("back");
-  console.log(wsa);
   renderer.setSize(wsa.x, wsa.y);
   renderer.autoClear = false;
   container.appendChild(renderer.domElement);
@@ -710,27 +567,14 @@ var main = function(body) {
       forward_angle: 0,
       renderer: renderer,
       scene: scene,
-      stats: stats,
       dirty: false,
       container: container,
     };
 
-    // event listeners
     renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
     renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
     renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
     window.addEventListener('resize', onWindowResize.bind(thingy), false);
-    animate.apply(thingy);
     tick.apply(thingy);
   });
 };
-
-/*
-var createShaderMaterial = function() {
-  var material = new THREE.ShaderMaterial( {
-    uniforms: uniforms1,
-    vertexShader: document.getElementById('vertexShader' ).textContent,
-    fragmentShader: document.getElementById('fragment_shader4').textContent
-  });
-};
-*/
