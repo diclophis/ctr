@@ -5046,6 +5046,7 @@ THREE.extend( THREE.Frustum.prototype, {
 
 			var matrix = object.matrixWorld;
 			var planes = this.planes;
+      object.geometry.computeBoundingSphere();
 			var negRadius = - object.geometry.boundingSphere.radius * matrix.getMaxScaleOnAxis();
 
 			center.getPositionFromMatrix( matrix );
@@ -7912,7 +7913,6 @@ THREE.Geometry.prototype = {
 			this.boundingSphere = new THREE.Sphere();
 
 		}
-
 		this.boundingSphere.setFromCenterAndPoints( this.boundingSphere.center, this.vertices );
 
 	},
