@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
-  //try {
+  try {
     main(document.body);
-  //} catch(e) {
-  //  alert(e);
-  //}
+  } catch(e) {
+    alert(e);
+  }
 });
 
 var onPointerDown = function(e) {
@@ -28,6 +28,7 @@ var onPointerMove = function(e) {
   for (var i = 0; i<this.pointers.length; i++){
     var pointer = this.pointers[i]; 
     if (this.leftPointerID == pointer.identifier) {
+      alert("wtf");
       this.leftPointerPos.set(pointer.x, pointer.y); 
       this.leftVector.copy(this.leftPointerPos); 
       this.leftVector.sub(this.leftPointerStartPos);  
@@ -37,18 +38,19 @@ var onPointerMove = function(e) {
 } 
 
 var onPointerUp = function(e) { 
+      alert("wtf2");
   this.pointers = e.getPointerList(); 
   if (this.pointers.length == 0) {
     this.leftPointerID = -1; 
     //if (e.pointerType == PointerTypes.pointer) {
-      //this.leftVector.set(0,0); 
     //}
+    //this.leftVector.set(0,0); 
   }
   this.speedUp = false;
 }
 
 var windowSizeAndAspect = function() {
-  var subDivide = 1; //2.66;
+  var subDivide = 1.0;
   var r = {
     windowHalfX: Math.floor(window.innerWidth / subDivide),
     windowHalfY: Math.floor(window.innerHeight / subDivide),
