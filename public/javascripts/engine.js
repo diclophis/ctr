@@ -62,8 +62,10 @@ var windowSizeAndAspect = function() {
 };
 
 var onWindowResize = function() {
+  clearTimeout(this.resizeTimeout);
   this.container.className = "hidden";
-  setTimeout(function(game) {
+  this.paused = true;
+  this.resizeTimeout = setTimeout(function(game) {
     var wsa = windowSizeAndAspect();
     game.wsa = wsa;
     game.camera.aspect = wsa.aspect;
@@ -74,7 +76,8 @@ var onWindowResize = function() {
     game.skyBoxCamera.updateProjectionMatrix();
     game.renderer.setSize(wsa.x, wsa.y);
     game.container.className = "";
-  }, 1000, this);
+    game.paused = false;
+  }, 2000, this);
 };
 
 var createCamera = function(wsa, lookFar, fov) {
@@ -126,9 +129,12 @@ var createDeltaTime = function() {
   return dt;
 };
 
-var createSkyBox = function(skyMaterial) {
+var createSkyBox = function(skyMaterial, subdivide) {
+  if (typeof(subdivide) === "undefined") {
+    subdivide = 2;
+  }
   var M = 999 * 1;
-  var skyGeometry = new THREE.CubeGeometry(M, M, M, 2, 2, 2, null, true);
+  var skyGeometry = new THREE.CubeGeometry(M, M, M, subdivide, subdivide, subdivide, null, true);
   var skyboxMesh  = new THREE.Mesh(skyGeometry, skyMaterial);
   var skyboxObject = new THREE.Object3D();
   skyboxObject.add(skyboxMesh);
@@ -157,9 +163,9 @@ var createTextureCubeMaterial = function() {
   return skyMaterial;
 };
 
-var createMeshBasicWireframeMaterial = function() {
+var createMeshBasicWireframeMaterial = function(wireframe) {
   //var mtl = new THREE.MeshBasicMaterial({color: 0x3030ff, side: THREE.BackSide, wireframe: true});
-  var mtl = new THREE.MeshBasicMaterial({side: THREE.BackSide, wireframe: true});
+  var mtl = new THREE.MeshBasicMaterial({side: THREE.DoubleSide, wireframe: wireframe});
   mtl.color.setHex( Math.random() * 0xffffff );
   return mtl;
 };
