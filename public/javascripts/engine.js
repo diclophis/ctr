@@ -1,3 +1,11 @@
+document.addEventListener("DOMContentLoaded", function () {
+  //try {
+    main(document.body);
+  //} catch(e) {
+  //  alert(e);
+  //}
+});
+
 var onPointerDown = function(e) {
   this.speedUp = true;
   this.pointers = e.getPointerList();
@@ -46,7 +54,9 @@ var windowSizeAndAspect = function() {
     windowHalfY: Math.floor(window.innerHeight / subDivide),
     aspect: window.innerWidth / window.innerHeight,
     x: Math.floor(window.innerWidth / subDivide),
-    y: Math.floor(window.innerHeight / subDivide)
+    y: Math.floor(window.innerHeight / subDivide),
+    ax: Math.floor(window.innerWidth / subDivide) * window.devicePixelRatio,
+    ay: Math.floor(window.innerHeight / subDivide) * window.devicePixelRatio
   };
   return r;
 };
@@ -55,8 +65,11 @@ var onWindowResize = function() {
   this.container.className = "hidden";
   setTimeout(function(game) {
     var wsa = windowSizeAndAspect();
+    game.wsa = wsa;
     game.camera.aspect = wsa.aspect;
     game.camera.updateProjectionMatrix();
+    game.debugCamera.aspect = wsa.aspect;
+    game.debugCamera.updateProjectionMatrix();
     game.skyBoxCamera.aspect = wsa.aspect;
     game.skyBoxCamera.updateProjectionMatrix();
     game.renderer.setSize(wsa.x, wsa.y);
@@ -64,8 +77,11 @@ var onWindowResize = function() {
   }, 1000, this);
 };
 
-var createCamera = function(wsa, lookFar) {
-  var cmra = new THREE.PerspectiveCamera(25, wsa.x / wsa.y, 1, lookFar);
+var createCamera = function(wsa, lookFar, fov) {
+  if (typeof(fov) === "undefined") {
+    fov = 25;
+  }
+  var cmra = new THREE.PerspectiveCamera(fov, wsa.x / wsa.y, 1, lookFar);
   return cmra;
 };
 
@@ -92,6 +108,7 @@ var createPointLight = function() {
 };
 
 var createDeltaTime = function() {
+  /*
   var tm = (1000 / this.fps);
   var now = Date.now();
   var dt = (now - this.then) / 1000;
@@ -100,13 +117,49 @@ var createDeltaTime = function() {
   //if (this.paused == false) {
   this.st += dt;
   //}
+  */
+  var now = new Date().getTime();
+  var dt = (now - this.then);
+  this.then = now;
+  this.st += dt;
+  //console.log(dt);
   return dt;
 };
 
-document.addEventListener("DOMContentLoaded", function () {
-  try {
-    main(document.body);
-  } catch(e) {
-    alert(e);
-  }
-});
+var createSkyBox = function(skyMaterial) {
+  var M = 999 * 1;
+  var skyGeometry = new THREE.CubeGeometry(M, M, M, 2, 2, 2, null, true);
+  var skyboxMesh  = new THREE.Mesh(skyGeometry, skyMaterial);
+  var skyboxObject = new THREE.Object3D();
+  skyboxObject.add(skyboxMesh);
+  return skyboxObject;
+};
+
+var createTextureCubeMaterial = function() {
+  // there is a world with blue sky
+  // http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/
+  var urlPrefix = "SwedishRoyalCastle/";
+  var urls = [ urlPrefix + "px.jpg", urlPrefix + "nx.jpg",
+               urlPrefix + "py.jpg", urlPrefix + "ny.jpg",
+               urlPrefix + "pz.jpg", urlPrefix + "nz.jpg" ];
+  var textureCube = THREE.ImageUtils.loadTextureCube(urls);
+
+  var shader  = THREE.ShaderLib["cube"];
+  shader.uniforms["tCube"].value = textureCube;
+  var skyMaterial = new THREE.ShaderMaterial({
+    fragmentShader  : shader.fragmentShader,
+    vertexShader  : shader.vertexShader,
+    uniforms  : shader.uniforms,
+    depthWrite: false,
+    side: THREE.BackSide
+  });
+
+  return skyMaterial;
+};
+
+var createMeshBasicWireframeMaterial = function() {
+  //var mtl = new THREE.MeshBasicMaterial({color: 0x3030ff, side: THREE.BackSide, wireframe: true});
+  var mtl = new THREE.MeshBasicMaterial({side: THREE.BackSide, wireframe: true});
+  mtl.color.setHex( Math.random() * 0xffffff );
+  return mtl;
+};

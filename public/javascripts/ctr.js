@@ -314,7 +314,7 @@ var createRaceTrack = function(scene) {
 
   var removed = trackGeometry.mergeVertices();
 
-  console.log(removed);
+  //console.log(removed);
 
   material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
 
@@ -358,37 +358,6 @@ var createTerrain = function() {
   */
 };
 
-var createSkyBox = function() {
-  // there is a world with blue sky
-
-  // http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/
-  var urlPrefix = "SwedishRoyalCastle/";
-  var urls = [ urlPrefix + "px.jpg", urlPrefix + "nx.jpg",
-               urlPrefix + "py.jpg", urlPrefix + "ny.jpg",
-               urlPrefix + "pz.jpg", urlPrefix + "nz.jpg" ];
-  var textureCube = THREE.ImageUtils.loadTextureCube(urls);
-
-  var shader  = THREE.ShaderLib["cube"];
-  shader.uniforms["tCube"].value = textureCube;
-  var skyMaterial = new THREE.ShaderMaterial({
-    fragmentShader  : shader.fragmentShader,
-    vertexShader  : shader.vertexShader,
-    uniforms  : shader.uniforms,
-    depthWrite: false,
-    side: THREE.BackSide
-  });
-
-  var M = 999 * 1;
-  var skyGeometry = new THREE.CubeGeometry(M, M, M, 2, 2, 2, null, true);
-  //var skyMaterial = new THREE.MeshBasicMaterial({color: 0x3030ff, side: THREE.BackSide, wireframe: true});
-  var skyboxMesh  = new THREE.Mesh(skyGeometry, skyMaterial);
-
-  var skyboxObject = new THREE.Object3D();
-  skyboxObject.add(skyboxMesh);
-
-  return skyboxObject;
-
-};
 
 var raceForPolePosition = function() {
   // reset car to the Start Point
@@ -520,7 +489,8 @@ var main = function(body) {
 
   var skyBoxCamera = createCamera(wsa, 1000);
   var skyBoxScene = createScene();
-  var skyBox = createSkyBox();
+  var skyBoxMaterial = createTextureCubeMaterial();
+  var skyBox = createSkyBox(skyBoxMaterial);
   skyBoxScene.add(skyBox);
 
   //var renderer = new THREE.WebGLRenderer({
