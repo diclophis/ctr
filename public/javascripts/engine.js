@@ -44,11 +44,13 @@ var onPointerUp = function(e) {
     //}
     //this.leftVector.set(0,0); 
   }
-  this.speedUp = false;
+  if (this.resetTimer > this.resetTimeout) {
+    this.speedUp = false;
+  }
 }
 
-var windowSizeAndAspect = function() {
-  var subDivide = 2.0;
+var windowSizeAndAspect = function(subDivide) {
+  //var subDivide = this.subdivide;
   var r = {
     windowHalfX: Math.floor(window.innerWidth / subDivide),
     windowHalfY: Math.floor(window.innerHeight / subDivide),
@@ -66,7 +68,7 @@ var onWindowResize = function() {
   this.container.className = "hidden";
   this.paused = true;
   this.resizeTimeout = setTimeout(function(game) {
-    var wsa = windowSizeAndAspect();
+    var wsa = windowSizeAndAspect(game.subdivide);
     game.wsa = wsa;
     game.camera.aspect = wsa.aspect;
     game.camera.updateProjectionMatrix();
