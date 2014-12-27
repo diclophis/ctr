@@ -1,26 +1,44 @@
 var tick = function() {
   requestAnimationFrame(tick.bind(this));
 
-  var dt = createDeltaTime.apply(this);
+  var dt = createDeltaTime.apply(this) / 1000;
+  //console.log(dt);
 
   if (this.paused == false) {
-    this.forward_angle += ((this.leftVector.x * 0.00345) * dt);
+    var inc = ((((this.leftVector.x * 1.0)) / this.wsa.windowHalfX) * 4.0 * dt) * (this.forward_speed / 500.0);
+
+    this.forward_angle += inc;
+
+    //if (Math.abs(this.forward_angle) > 0.5) {
+    //  this.forward_angle -= inc;
+    //}
     if (this.speedUp) {
-      this.forward_speed += ((60) * dt);
+      this.forward_speed += ((100) * dt);
     } else {
-      this.leftVector.x -= ((2.0 * this.leftVector.x) * dt);
+      /*
+      var backToZero = (((this.forward_speed) / 500.0) * (1.0) * dt) * this.wsa.windowHalfX;
+      if (this.leftVector.x > (backToZero)) {
+        //console.log("make it smaller", this.forward_angle, this.leftVector.x);
+        this.leftVector.x -= (backToZero);
+      } else if (this.leftVector.x < -backToZero) {
+        //console.log("make it bigger", this.forward_angle, this.leftVector.x);
+        this.leftVector.x += (backToZero);
+      }
+      */
+
       this.forward_speed -= ((200) * dt);
     }
     if (this.forward_speed < 0) {
       this.forward_speed = 0;
     }
-    if (this.forward_speed > 350) {
-      this.forward_speed = 350;
+    if (this.forward_speed > 500) {
+      this.forward_speed = 500;
     }
+    //console.log(this.forward_angle, this.leftVector.x, this.forward_speed);
     this.st += dt;
   }
 
-  var skid = (this.leftVector.x * 0.0001 * (this.forward_speed * 0.1));
+  var skid = (this.leftVector.x * 0.5 * (this.forward_speed * 0.000001));
   var drift = this.foward.clone();
   drift.x = Math.cos(this.forward_angle + skid);
   drift.z = Math.sin(this.forward_angle + skid);
@@ -30,29 +48,35 @@ var tick = function() {
   if (this.paused == false) {
     if (this.car_one != null) {
       moveObjectInDirectionAtSpeed(0, dt, this.car_one, this.foward, this.forward_speed);
-      followObjectWithObjectAtSpeed(0, dt, this.car_one, this.camera, this.forward_speed);
+      //moveObjectInDirectionAtSpeed(0, dt, this.camera, this.foward, this.forward_speed);
+      followObjectWithObjectAtSpeed(0, dt, this.car_one, this.camera, this.forward_speed * 0.999);
     }
   }
 
   if (this.car_one != null) {
+    var farForward = this.foward.clone().multiplyScalar(100.0 + (0.01 * this.forward_speed)); //how far in front
+    var farBack = this.foward.clone().negate().multiplyScalar(400.0); //how far in back
 
-    var farForward = this.foward.clone().multiplyScalar(100.0); //how far in front
-    var farBack = this.foward.clone().negate().multiplyScalar(150.0); //how far in back
-
-    var reallyFarOut = this.car_one.position.clone().add(farForward);
     var reallyFarBack = this.car_one.position.clone().add(farBack);
 
     var whereCarIsPointing = this.car_one.position.clone().add(drift);
     this.car_one.lookAt(whereCarIsPointing);
 
-    this.camera.lookAt(reallyFarOut);
-    this.camera.position.set(0 + reallyFarBack.x, 20.0, 0 + reallyFarBack.z);
+    if (this.dirty) {
+      this.dirty = false;
+      //var reallyFarOut = this.car_one.position.clone().add(farForward).multiplyScalar(10.0);
+      //this.camera.lookAt(reallyFarOut);
+      this.camera.position.set(0 + reallyFarBack.x, 80.0, 0 + reallyFarBack.z);
+    } else {
+      var reallyFarOut = this.car_one.position.clone().add(farForward);
+      this.camera.lookAt(reallyFarOut);
+    }
   }
 
   this.camera.updateProjectionMatrix();
   this.skyBoxCamera.rotation.copy(this.camera.rotation);
 
-  this.renderer.clear(false, true, false);
+  this.renderer.clear(true, true, true);
   this.renderer.render(this.skyBoxScene, this.skyBoxCamera);
   this.renderer.render(this.scene, this.camera);
 };
@@ -252,18 +276,21 @@ var createRaceTrack = function(scene) {
   var roundedRectShape = new THREE.Shape();
   roundedRect(roundedRectShape, 0, 0, 5000, 5000, 500);
 
-  var tightness = 10;
-  var quality = 1000;
+  var tightness = 4;
+  var quality = 100;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
-  var m = new THREE.Matrix4();
   var gamma = Math.PI/2;
-  m.rotateX(gamma);
+  var m = new THREE.Matrix4().makeRotationX(gamma);
+  //new THREE.Matrix4();
+  //m.rotateX(gamma);
   foo.applyMatrix(m);
 
   if (true) {
     var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00, wireframe: false});
+    //var textMat = new THREE.MeshBasicMaterial( { wireframe: true } );
+
     for (var i=0; i<foo.vertices.length; i++) {
       var radius = 5;
       var trackPointGeo = new THREE.SphereGeometry(radius, 3, 3); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
@@ -281,7 +308,7 @@ var createRaceTrack = function(scene) {
 
   //console.log(spine);
   //for (var i=0; i<spine.points.length; i++) {
-  //  spine.points[i].y = Math.sin(i) * 10.0;
+  //  spine.points[i].y = Math.sin(i * 10000.0) * 1000.0;
   //}
 
   //var s = spine.getPoints(quality);
@@ -316,7 +343,10 @@ var createRaceTrack = function(scene) {
 
   //console.log(removed);
 
-  material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
+  //material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
+  material = new THREE.MeshBasicMaterial( { wireframe: true } );
+
+  //debugger;
 
   var mesh = new THREE.Mesh(trackGeometry, material);
 
@@ -356,6 +386,28 @@ var createTerrain = function() {
   // return the tQuery
   return tQuery(mesh);
   */
+
+  var cube = new THREE.BoxGeometry(4, 4, 4);
+  var cube_bsp = new ThreeBSP( cube );
+
+  var sphere = new THREE.SphereGeometry(3, 16, 16);
+  var sphere_bsp = new ThreeBSP( sphere, {offset: {x: 1, y:2, z: 1}} );
+
+  //console.time('operation');
+  var union = cube_bsp.subtract( sphere_bsp );
+  //console.timeEnd('operation');
+
+  //console.time('mesh');
+  var mesh = new THREE.Mesh(union.toGeometry(), new THREE.MeshNormalMaterial);
+  //console.timeEnd('mesh');
+
+  mesh.geometry.computeFaceNormals(); // highly recommended...
+
+  terrainObject = new THREE.Object3D();
+  terrainObject.add(mesh);
+  terrainObject.scale.set(20, 20, 20);
+
+  return terrainObject;
 };
 
 
@@ -458,24 +510,24 @@ var turnCarLeft = function(st, dt, car) {
 
 var main = function(body) {
 
-  var wsa = windowSizeAndAspect();
+  var wsa = windowSizeAndAspect(1.0);
 
   var container = createContainer();
   body.appendChild(container);
 
-  var fullscreenButton = document.getElementById("fullscreen-button");
+  //var fullscreenButton = document.getElementById("fullscreen-button");
 
-  fullscreenButton.addEventListener('click', function(ev) {
-    if (screenfull.enabled) {
-      screenfull.onchange = function() {
-        //console.log('Am I fullscreen? ' + screenfull.isFullscreen ? 'Yes' : 'No');
-      };
-      screenfull.toggle(container);
-    }
-  }, false);
+  //fullscreenButton.addEventListener('click', function(ev) {
+  //  if (screenfull.enabled) {
+  //    screenfull.onchange = function() {
+  //      //console.log('Am I fullscreen? ' + screenfull.isFullscreen ? 'Yes' : 'No');
+  //    };
+  //    screenfull.toggle(container);
+  //  }
+  //}, false);
 
 
-  var camera = createCamera(wsa, 2000);
+  var camera = createCamera(wsa, 10000);
   var scene = createScene();
 
   var directionalLight = createDirectionalLight();
@@ -493,6 +545,9 @@ var main = function(body) {
   var skyBox = createSkyBox(skyBoxMaterial);
   skyBoxScene.add(skyBox);
 
+  var terrain = createTerrain();
+  scene.add(terrain);
+
   //var renderer = new THREE.WebGLRenderer({
   //  precision: "lowp",
   //  alpha: false,
@@ -502,17 +557,19 @@ var main = function(body) {
   var renderer = new THREE.WebGLRenderer({
   });
 
-  //renderer.setFaceCulling("back");
+  //renderer.setFaceCulling("front");
   renderer.setSize(wsa.x, wsa.y);
   renderer.autoClear = false;
   container.appendChild(renderer.domElement);
 
   var loader = new THREE.ColladaLoader();
+
   loader.load("F1.dae", function(geometry) {
 
     var car_one = createCarFromGeometry(geometry);
     car_one.position.set(31, 1.9, 97);
     scene.add(car_one);
+
 
     var thingy = {
       fps: 35.0,
@@ -537,9 +594,10 @@ var main = function(body) {
       forward_angle: 0,
       renderer: renderer,
       scene: scene,
-      dirty: false,
+      dirty: true,
       container: container,
     };
+    
 
     renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
     renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);

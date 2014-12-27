@@ -44,9 +44,9 @@ var onPointerUp = function(e) {
     //}
     //this.leftVector.set(0,0); 
   }
-  if (this.resetTimer > this.resetTimeout) {
+  //if (this.resetTimer > this.resetTimeout) {
     this.speedUp = false;
-  }
+  //}
 }
 
 var windowSizeAndAspect = function(subDivide) {
@@ -72,8 +72,8 @@ var onWindowResize = function() {
     game.wsa = wsa;
     game.camera.aspect = wsa.aspect;
     game.camera.updateProjectionMatrix();
-    game.debugCamera.aspect = wsa.aspect;
-    game.debugCamera.updateProjectionMatrix();
+    //game.debugCamera.aspect = wsa.aspect;
+    //game.debugCamera.updateProjectionMatrix();
     game.skyBoxCamera.aspect = wsa.aspect;
     game.skyBoxCamera.updateProjectionMatrix();
     game.renderer.setSize(wsa.x, wsa.y);
@@ -136,7 +136,7 @@ var createSkyBox = function(skyMaterial, subdivide) {
     subdivide = 2;
   }
   var M = 999 * 1;
-  var skyGeometry = new THREE.CubeGeometry(M, M, M, subdivide, subdivide, subdivide, null, true);
+  var skyGeometry = new THREE.BoxGeometry(M, M, M, subdivide, subdivide, subdivide, null, true);
   var skyboxMesh  = new THREE.Mesh(skyGeometry, skyMaterial);
   var skyboxObject = new THREE.Object3D();
   skyboxObject.add(skyboxMesh);
