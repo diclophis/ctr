@@ -276,10 +276,10 @@ var createRaceTrack = function(scene) {
   trackObject.position.y = 0;
 
   var roundedRectShape = new THREE.Shape();
-  roundedRect(roundedRectShape, 0, 0, 5000, 5000, 500);
+  roundedRect(roundedRectShape, 0, 0, 1000, 1000, 1);
 
   var tightness = 4;
-  var quality = 100;
+  var quality = 50;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
@@ -357,7 +357,7 @@ var createRaceTrack = function(scene) {
   for (var i=0; i<trackGeometry.vertices.length; i++) {
     var trackVertice = trackGeometry.vertices[i];
     //if (trackVertice.y >= 0) {
-      var csg = createDebugCsg();
+      var csg = ((i % 2) === 0) ? createDebugCsg() : createCrossCsg();
       csg.position.set(trackVertice.x, trackVertice.y, trackVertice.z);
       //csg.rotateY(Math.random() * 10.0);
       //getTangentAt
@@ -381,6 +381,8 @@ var createRaceTrack = function(scene) {
 
     //}
   }
+
+  trackObject.specialSpineCurve = spineCurvePath;
 
   return trackObject;
 };
@@ -440,6 +442,35 @@ var createDebugCsg = function() {
   terrainObject = new THREE.Object3D();
   terrainObject.add(mesh);
   terrainObject.scale.set(5, 5, 5);
+
+  return terrainObject;
+};
+
+var createCrossCsg = function() {
+  var crossWidth = 100;
+  var colHeight = 50;
+
+  var cross = new THREE.BoxGeometry(crossWidth, 4, 4);
+  var crossPos = new THREE.Matrix4().makeTranslation(-(crossWidth / 2) + 2, 0, 0);
+  cross.applyMatrix(crossPos);
+  
+  var col = new THREE.BoxGeometry(4, colHeight, 4);
+  var colPos = new THREE.Matrix4().makeTranslation(0, -(colHeight / 2), 0);
+  col.applyMatrix(colPos);
+
+  var cross_bsp = new ThreeBSP(cross);
+  var col_bsp = new ThreeBSP(col);
+
+  var union = cross_bsp.union(col_bsp);
+
+  var mesh = new THREE.Mesh(union.toGeometry(), new THREE.MeshNormalMaterial);
+  mesh.position.set(0, 0, 0);
+
+  mesh.geometry.computeFaceNormals(); // highly recommended...
+
+  terrainObject = new THREE.Object3D();
+  terrainObject.add(mesh);
+  terrainObject.scale.set(1, 1, 1);
 
   return terrainObject;
 };
@@ -603,10 +634,29 @@ var main = function(body) {
 
   var loader = new THREE.ColladaLoader();
 
+  var foo = "cheese";
+
   loader.load("F1.dae", function(geometry) {
 
     var car_one = createCarFromGeometry(geometry);
-    car_one.position.set(31, 1.9, 97);
+    var ppp = (raceTrack.specialSpineCurve.getPoint(0));
+    //debugger;
+    console.log(ppp);
+    //car_one.position.set(31, 1.9, 97);
+    car_one.position.set(ppp.x, ppp.y, ppp.z);
+
+      var tangent = (raceTrack.specialSpineCurve.getTangent(0));
+      //debugger;
+      //console.log(tangent);
+      //var u = new THREE.Euler(tangent);
+      //var ux = (new THREE.Matrix4()).makeRotionFromEuler(u);
+      //csg.setRotationFromEuler(u);
+      //debugger;
+      tangent.y = 0.0;
+      //var roy = ((new THREE.Vector3(0, 0, -1)).angleTo(tangent));
+      var roy = Math.atan2(tangent.x, tangent.z);
+      //tangent.dot(tangent));
+      //car_one.rotateY(roy);
     scene.add(car_one);
 
 
@@ -630,7 +680,7 @@ var main = function(body) {
       scene: scene,
       speedUp: false,
       paused: false,
-      forward_angle: 0,
+      forward_angle: roy,
       renderer: renderer,
       scene: scene,
       dirty: true,
