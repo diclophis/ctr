@@ -9899,7 +9899,11 @@ THREE.Geometry.prototype = {
 	 * and faces' vertices are updated.
 	 */
 
-	mergeVertices: function () {
+	mergeVertices: function (removeBelowZero) {
+
+    if (typeof(removeBelowZero) === 'undefined') {
+      removeBelowZero = false;
+    }
 
 		var verticesMap = {}; // Hashmap for looking up vertice by position coordinates (and making sure they are unique)
 		var unique = [], changes = [];
@@ -9915,14 +9919,28 @@ THREE.Geometry.prototype = {
 			v = this.vertices[ i ];
 			key = Math.round( v.x * precision ) + '_' + Math.round( v.y * precision ) + '_' + Math.round( v.z * precision );
 
+      var isBelowZero = ((removeBelowZero && (v.y < 0.0)));
+
+      if (isBelowZero) {
+        //verticesMap[ key ] = i;
+        //console.log("wtf!");
+      }
+
 			if ( verticesMap[ key ] === undefined ) {
 
 				verticesMap[ key ] = i;
-				unique.push( this.vertices[ i ] );
-				changes[ i ] = unique.length - 1;
+
+        //if (isBelowZero) {
+        //  //changes[ i ] = unique.length; //changes[ verticesMap[ key ] ];
+        //  //changes[i] = i;
+        //  changes[ i ] = unique.length - 1;
+        //} else {
+          unique.push( this.vertices[ i ] );
+          changes[ i ] = unique.length - 1;
+        //}
 
 			} else {
-
+        
 				//console.log('Duplicate vertex found. ', i, ' could be using ', verticesMap[key]);
 				changes[ i ] = changes[ verticesMap[ key ] ];
 
@@ -9958,8 +9976,9 @@ THREE.Geometry.prototype = {
 
 				}
 			}
-
 		}
+
+    //console.log(faceIndicesToRemove.length);
 
 		for ( i = faceIndicesToRemove.length - 1; i >= 0; i -- ) {
 			var idx = faceIndicesToRemove[ i ];

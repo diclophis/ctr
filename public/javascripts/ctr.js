@@ -1,5 +1,7 @@
 var tick = function() {
-  requestAnimationFrame(tick.bind(this));
+  if (!this.paused) {
+    requestAnimationFrame(tick.bind(this));
+  }
 
   var dt = createDeltaTime.apply(this) / 1000;
   //console.log(dt);
@@ -328,7 +330,7 @@ var createRaceTrack = function(scene) {
   extrudeSettings.material = 1;
 
   var rectLength = 40.0;
-  var rectWidth = 0.1;
+  var rectWidth = 0.000001;
   var rectShape = new THREE.Shape();
 
   rectShape.moveTo(0, -rectLength);
@@ -338,10 +340,10 @@ var createRaceTrack = function(scene) {
   rectShape.lineTo(0, -rectLength);
 
   var trackGeometry = rectShape.extrude(extrudeSettings);
+  var removed = trackGeometry.mergeVertices(true);
+  trackGeometry.computeFaceNormals();
 
-  var removed = trackGeometry.mergeVertices();
-
-  //console.log(removed);
+  console.log(removed);
 
   //material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
   material = new THREE.MeshBasicMaterial( { wireframe: true } );
@@ -351,6 +353,34 @@ var createRaceTrack = function(scene) {
   var mesh = new THREE.Mesh(trackGeometry, material);
 
   trackObject.add(mesh);
+
+  for (var i=0; i<trackGeometry.vertices.length; i++) {
+    var trackVertice = trackGeometry.vertices[i];
+    //if (trackVertice.y >= 0) {
+      var csg = createDebugCsg();
+      csg.position.set(trackVertice.x, trackVertice.y, trackVertice.z);
+      //csg.rotateY(Math.random() * 10.0);
+      //getTangentAt
+      //spineCurvePath;
+      //debugger;
+      var tangent = (spineCurvePath.getTangent((i) / (trackGeometry.vertices.length)));
+      //debugger;
+      //console.log(tangent);
+      //var u = new THREE.Euler(tangent);
+      //var ux = (new THREE.Matrix4()).makeRotionFromEuler(u);
+      //csg.setRotationFromEuler(u);
+      //debugger;
+      tangent.y = 0.0;
+      //var roy = ((new THREE.Vector3(0, 0, -1)).angleTo(tangent));
+      var roy = Math.atan2(tangent.x, tangent.z);
+      //tangent.dot(tangent));
+      csg.rotateY(roy);
+      trackObject.add(csg);
+
+
+
+    //}
+  }
 
   return trackObject;
 };
@@ -386,7 +416,11 @@ var createTerrain = function() {
   // return the tQuery
   return tQuery(mesh);
   */
+  return null;
 
+};
+
+var createDebugCsg = function() {
   var cube = new THREE.BoxGeometry(4, 4, 4);
   var cube_bsp = new ThreeBSP( cube );
 
@@ -405,7 +439,7 @@ var createTerrain = function() {
 
   terrainObject = new THREE.Object3D();
   terrainObject.add(mesh);
-  terrainObject.scale.set(20, 20, 20);
+  terrainObject.scale.set(5, 5, 5);
 
   return terrainObject;
 };
@@ -508,6 +542,11 @@ var turnCarRight = function(st, dt, car) {
 var turnCarLeft = function(st, dt, car) {
 };
 
+var onError = function(e) {
+  console.log(e);
+  this.paused = true;
+};
+
 var main = function(body) {
 
   var wsa = windowSizeAndAspect(1.0);
@@ -545,8 +584,8 @@ var main = function(body) {
   var skyBox = createSkyBox(skyBoxMaterial);
   skyBoxScene.add(skyBox);
 
-  var terrain = createTerrain();
-  scene.add(terrain);
+  //var terrain = createTerrain();
+  //scene.add(terrain);
 
   //var renderer = new THREE.WebGLRenderer({
   //  precision: "lowp",
@@ -602,7 +641,8 @@ var main = function(body) {
     renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
     renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
     renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
-    window.addEventListener('resize', onWindowResize.bind(thingy), false);
+    //window.addEventListener('resize', onWindowResize.bind(thingy), false);
+    window.addEventListener('error', onError.bind(thingy), false);
     tick.apply(thingy);
   });
 };

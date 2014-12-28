@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
-  try {
+  //try {
     main(document.body);
-  } catch(e) {
-    alert(e);
-  }
+  //} catch(e) {
+  //  alert(e);
+  //}
 });
 
 var onPointerDown = function(e) {
