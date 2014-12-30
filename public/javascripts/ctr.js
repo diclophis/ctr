@@ -1,4 +1,8 @@
 var tick = function() {
+this.controls.update();
+
+  var cameraHeight = 80;
+
   if (!this.paused) {
     requestAnimationFrame(tick.bind(this));
   }
@@ -7,7 +11,7 @@ var tick = function() {
   //console.log(dt);
 
   if (this.paused == false) {
-    var inc = ((((this.leftVector.x * 1.0)) / this.wsa.windowHalfX) * 4.0 * dt) * (this.forward_speed / 500.0);
+    var inc = ((((this.leftVector.x * 3.0)) / this.wsa.windowHalfX) * 4.0 * dt) * (this.forward_speed / 500.0);
 
     this.forward_angle += inc;
 
@@ -68,10 +72,12 @@ var tick = function() {
       this.dirty = false;
       //var reallyFarOut = this.car_one.position.clone().add(farForward).multiplyScalar(10.0);
       //this.camera.lookAt(reallyFarOut);
-      this.camera.position.set(0 + reallyFarBack.x, 80.0, 0 + reallyFarBack.z);
-    } else {
       var reallyFarOut = this.car_one.position.clone().add(farForward);
       this.camera.lookAt(reallyFarOut);
+      this.camera.position.set(0 + reallyFarBack.x, cameraHeight, 0 + reallyFarBack.z);
+    } else {
+      //var reallyFarOut = this.car_one.position.clone().add(farForward);
+      //this.camera.lookAt(reallyFarOut);
     }
   }
 
@@ -264,67 +270,73 @@ var createRaceTrack = function(scene) {
   // inner ring is white/yellow 70%
   // outer ring is red white 50/50
 
+  /*
   function roundedRect(ctx, x, y, width, height, radius) {
     ctx.moveTo( x, y + radius );
     ctx.lineTo( x, y + height - radius );
     ctx.lineTo( x + width - radius, y + height) ;
     ctx.lineTo( x + width, y + radius );
+    //ctx.quadraticCurveTo( x, y, x, y + radius );
     ctx.quadraticCurveTo( x, y, x, y + radius );
   }
+  */
+
+    function roundedRect( ctx, x, y, width, height, radius ){
+      ctx.moveTo( x, y + radius );
+      ctx.lineTo( x, y + height - radius );
+      ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
+      ctx.lineTo( x + width - radius, y + height) ;
+      ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
+      ctx.lineTo( x + width, y + radius );
+      ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
+      ctx.lineTo( x + radius, y );
+      ctx.quadraticCurveTo( x, y, x, y + radius );
+    }
+
 
   trackObject = new THREE.Object3D();
   trackObject.position.y = 0;
 
   var roundedRectShape = new THREE.Shape();
-  roundedRect(roundedRectShape, 0, 0, 1000, 1000, 1);
+  roundedRect(roundedRectShape, 0, 0, 1500, 1500, 100);
 
-  var tightness = 4;
-  var quality = 50;
+  var tightness = 128;
+  var tightnessTwo = 128;
+  var extrudeQuality = (4 * 8) + 4;
+  //var quality2 = 64;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
 
   var gamma = Math.PI/2;
   var m = new THREE.Matrix4().makeRotationX(gamma);
-  //new THREE.Matrix4();
-  //m.rotateX(gamma);
   foo.applyMatrix(m);
 
   if (true) {
     var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00, wireframe: false});
     //var textMat = new THREE.MeshBasicMaterial( { wireframe: true } );
 
-    for (var i=0; i<foo.vertices.length; i++) {
+    for (var i=0; i<foo.vertices.length; i+=1) {
       var radius = 5;
-      var trackPointGeo = new THREE.SphereGeometry(radius, 3, 3); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
+      var trackPointGeo = new THREE.SphereGeometry(radius, 2, 2); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
       var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
       trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 5, foo.vertices[i].z);
       trackObject.add(trackPointMesh);
     }
   }
 
-  /*
-  console.log(foo.vertices.length);
-  */
-
   var spine = new THREE.ClosedSplineCurve3(foo.vertices);
 
-  //console.log(spine);
-  //for (var i=0; i<spine.points.length; i++) {
-  //  spine.points[i].y = Math.sin(i * 10000.0) * 1000.0;
-  //}
-
-  //var s = spine.getPoints(quality);
   var g = new THREE.Geometry();
 
   var spineCurvePath = new THREE.CurvePath();
   spineCurvePath.add(spine);
-  var spineGeom = spineCurvePath.createSpacedPointsGeometry(quality);
+  var spineGeom = spineCurvePath.createSpacedPointsGeometry(tightnessTwo);
   
   var lineObject = new THREE.Line(spineGeom);
   lineObject.position.y += 5;
   trackObject.add(lineObject);
 
-  var extrudeSettings = { steps: quality };
+  var extrudeSettings = { steps: extrudeQuality };
   extrudeSettings.extrudePath = spineCurvePath;
   extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
   extrudeSettings.material = 1;
@@ -353,33 +365,70 @@ var createRaceTrack = function(scene) {
   var mesh = new THREE.Mesh(trackGeometry, material);
 
   trackObject.add(mesh);
+  
+  //var sphereCaster = new THREE.Sphere();
+  var lastTrackV = null;
 
-  for (var i=0; i<trackGeometry.vertices.length; i++) {
+  for (var i=0; i<(trackGeometry.vertices.length - 2); i++) {
     var trackVertice = trackGeometry.vertices[i];
     //if (trackVertice.y >= 0) {
-      var csg = ((i % 2) === 0) ? createDebugCsg() : createCrossCsg();
+      //var csg = ((i % 2) === 0) ? createAlongCsg() : createCrossCsg();
+    if (((i + 1) % 2) == 0) {
+      
+      var csg = createCrossCsg();
+
       csg.position.set(trackVertice.x, trackVertice.y, trackVertice.z);
+      
+      //sphereCaster.set(new THREE.Vector3(trackVertice.x, trackVertice.y, trackVertice.z), 1.0);
+
+      var foov = new THREE.Vector3().subVectors(trackVertice, lastTrackV);
+
+
+
+      //for (var j=0; j<(spineGeom.vertices.length); j++) {
+      //  console.log(j);
+      //}
+
       //csg.rotateY(Math.random() * 10.0);
       //getTangentAt
       //spineCurvePath;
       //debugger;
-      var tangent = (spineCurvePath.getTangent((i) / (trackGeometry.vertices.length)));
+
+      /*
+      var tangent = spineCurvePath.getTangent(
+        (
+          ((
+            (i / (trackGeometry.vertices.length - 2)) * 
+            (spineGeom.vertices.length)
+          )) /
+          spineGeom.vertices.length
+        )
+      );
+      */
+
+      //+ ((1.0) * (1.0 / trackGeometry.vertices.length))));
       //debugger;
       //console.log(tangent);
       //var u = new THREE.Euler(tangent);
       //var ux = (new THREE.Matrix4()).makeRotionFromEuler(u);
       //csg.setRotationFromEuler(u);
       //debugger;
-      tangent.y = 0.0;
+      //tangent.y = 0.0;
+      var roy = 0;
       //var roy = ((new THREE.Vector3(0, 0, -1)).angleTo(tangent));
-      var roy = Math.atan2(tangent.x, tangent.z);
+      //var roy = Math.atan2(tangent.x, tangent.z);
+      roy = Math.atan2(foov.x, foov.z);
       //tangent.dot(tangent));
-      csg.rotateY(roy);
+
+      csg.rotateY(roy + (-0.25 * Math.PI * 2.0));
       trackObject.add(csg);
+    }
 
+    if (i > 6) {
+      //break;
+    }
 
-
-    //}
+    lastTrackV = trackVertice;
   }
 
   trackObject.specialSpineCurve = spineCurvePath;
@@ -447,12 +496,17 @@ var createDebugCsg = function() {
 };
 
 var createCrossCsg = function() {
-  var crossWidth = 100;
+  var crossWidth = 140;
+  var downLength = 50;
   var colHeight = 50;
 
   var cross = new THREE.BoxGeometry(crossWidth, 4, 4);
-  var crossPos = new THREE.Matrix4().makeTranslation(-(crossWidth / 2) + 2, 0, 0);
+  var crossPos = new THREE.Matrix4().makeTranslation(-(crossWidth / (3.5)), 0, 0);
   cross.applyMatrix(crossPos);
+
+  var down = new THREE.BoxGeometry(4, 4, downLength);
+  var downPos = new THREE.Matrix4().makeTranslation(0, 0, 0);
+  down.applyMatrix(downPos);
   
   var col = new THREE.BoxGeometry(4, colHeight, 4);
   var colPos = new THREE.Matrix4().makeTranslation(0, -(colHeight / 2), 0);
@@ -460,16 +514,47 @@ var createCrossCsg = function() {
 
   var cross_bsp = new ThreeBSP(cross);
   var col_bsp = new ThreeBSP(col);
+  var down_bsp = new ThreeBSP(down);
 
   var union = cross_bsp.union(col_bsp);
+  union = union.union(down_bsp);
 
-  var mesh = new THREE.Mesh(union.toGeometry(), new THREE.MeshNormalMaterial);
+  var mesh = new THREE.Mesh(union.toGeometry(), new THREE.MeshNormalMaterial({wireframe: false}));
   mesh.position.set(0, 0, 0);
 
   mesh.geometry.computeFaceNormals(); // highly recommended...
 
   terrainObject = new THREE.Object3D();
   terrainObject.add(mesh);
+  terrainObject.scale.set(1, 1, 1);
+
+  return terrainObject;
+};
+
+var createAlongCsg = function() {
+  var alongLength = 180;
+  var colHeight = 50;
+
+  var along = new THREE.BoxGeometry(4, 4, alongLength);
+  var alongPos = new THREE.Matrix4().makeTranslation(0, 0, 0);
+  along.applyMatrix(alongPos);
+  
+  var col = new THREE.BoxGeometry(4, colHeight, 4);
+  var colPos = new THREE.Matrix4().makeTranslation(0, -(colHeight / 2), 0);
+  col.applyMatrix(colPos);
+
+  var along_bsp = new ThreeBSP(along);
+  var col_bsp = new ThreeBSP(col);
+
+  var union = along_bsp.union(col_bsp);
+
+  var mesh = new THREE.Mesh(union.toGeometry(), new THREE.MeshNormalMaterial({wireframe: false}));
+  mesh.position.set(0, 0, 0);
+
+  mesh.geometry.computeFaceNormals(); // highly recommended...
+
+  terrainObject = new THREE.Object3D();
+  //terrainObject.add(mesh);
   terrainObject.scale.set(1, 1, 1);
 
   return terrainObject;
@@ -686,13 +771,33 @@ var main = function(body) {
       dirty: true,
       container: container,
     };
+
+        thingy.controls = new THREE.TrackballControls(camera);
+
+        thingy.controls.rotateSpeed = 1.0;
+        thingy.controls.zoomSpeed = 1.2;
+        thingy.controls.panSpeed = 0.8;
+
+        thingy.controls.noZoom = false;
+        thingy.controls.noPan = false;
+
+        thingy.controls.staticMoving = true;
+        thingy.controls.dynamicDampingFactor = 0.3;
+
+        thingy.controls.keys = [ 65, 83, 68 ];
+
+        //thingy.controls.addEventListener( 'change', render );
+
     
 
-    renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
-    renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
-    renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
+    //renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
+    //renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
+    //renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
+
     //window.addEventListener('resize', onWindowResize.bind(thingy), false);
+
     window.addEventListener('error', onError.bind(thingy), false);
+
     tick.apply(thingy);
   });
 };

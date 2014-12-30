@@ -86,7 +86,12 @@ var createCamera = function(wsa, lookFar, fov) {
   if (typeof(fov) === "undefined") {
     fov = 25;
   }
-  var cmra = new THREE.PerspectiveCamera(fov, wsa.x / wsa.y, 1, lookFar);
+  var cmra = null;
+  //if (lookFar == 10001) {
+    cmra = new THREE.PerspectiveCamera(fov, wsa.x / wsa.y, 1, lookFar);
+  //} else {
+  //  cmra = new THREE.OrthographicCamera(wsa.x / - 2, wsa.x / 2, wsa.y / 2, wsa.y / - 2, 0, 1000);
+  //}
   return cmra;
 };
 
