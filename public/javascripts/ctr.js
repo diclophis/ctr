@@ -310,9 +310,9 @@ var createRaceTrack = function(scene) {
   var gamma = Math.PI/2;
   var m = new THREE.Matrix4().makeRotationX(gamma);
   foo.applyMatrix(m);
+  var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00, wireframe: false});
 
   if (true) {
-    var textMat = new THREE.MeshBasicMaterial({color: 0xffaa00, wireframe: false});
     //var textMat = new THREE.MeshBasicMaterial( { wireframe: true } );
 
     for (var i=0; i<foo.vertices.length; i+=1) {
@@ -338,9 +338,10 @@ var createRaceTrack = function(scene) {
 
   var extrudeSettings = { steps: extrudeQuality };
   extrudeSettings.extrudePath = spineCurvePath;
-  extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
-  extrudeSettings.material = 1;
+  //extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
+  //extrudeSettings.material = 1;
 
+  // lower qual
   var rectLength = 40.0;
   var rectWidth = 0.000001;
   var rectShape = new THREE.Shape();
@@ -355,77 +356,57 @@ var createRaceTrack = function(scene) {
   var removed = trackGeometry.mergeVertices(true);
   trackGeometry.computeFaceNormals();
 
-  console.log(removed);
-
   //material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
   material = new THREE.MeshBasicMaterial( { wireframe: true } );
-
-  //debugger;
-
   var mesh = new THREE.Mesh(trackGeometry, material);
+  //trackObject.add(mesh);
 
-  trackObject.add(mesh);
-  
-  //var sphereCaster = new THREE.Sphere();
+  rectLength = 40.0;
+  rectWidth = 2.00000;
+  rectShape = new THREE.Shape();
+
+  rectShape.moveTo(0, -rectLength);
+
+  //across top
+  rectShape.lineTo(0, rectLength);
+
+  //down right side
+  rectShape.lineTo(rectWidth, rectLength);
+
+  //left on bottom
+  rectShape.lineTo(rectWidth, -rectLength);
+
+  // up left side
+  rectShape.lineTo(0, -rectLength);
+
+  extrudeSettings.steps = extrudeQuality * 4;
+
+  var trackGeometry2 = rectShape.extrude(extrudeSettings);
+  var removed = trackGeometry2.mergeVertices(true);
+  console.log(removed);
+  trackGeometry2.computeFaceNormals();
+
+  //material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
+  //var material2 = new THREE.MeshBasicMaterial( { wireframe: true } );
+  var nomMat = new THREE.MeshNormalMaterial({wireframe: false});
+  var mesh2 = new THREE.Mesh(trackGeometry2, nomMat);
+  mesh2.position.set(mesh2.position.x, mesh2.position.y + 2.0, mesh2.position.z);
+  trackObject.add(mesh2);
+
+ 
+  // do supports/bottom trusses
   var lastTrackV = null;
 
   for (var i=0; i<(trackGeometry.vertices.length - 2); i++) {
     var trackVertice = trackGeometry.vertices[i];
-    //if (trackVertice.y >= 0) {
-      //var csg = ((i % 2) === 0) ? createAlongCsg() : createCrossCsg();
     if (((i + 1) % 2) == 0) {
-      
-      var csg = createCrossCsg();
-
+      var csg = createCrossCsg(nomMat);
       csg.position.set(trackVertice.x, trackVertice.y, trackVertice.z);
-      
-      //sphereCaster.set(new THREE.Vector3(trackVertice.x, trackVertice.y, trackVertice.z), 1.0);
-
       var foov = new THREE.Vector3().subVectors(trackVertice, lastTrackV);
-
-
-
-      //for (var j=0; j<(spineGeom.vertices.length); j++) {
-      //  console.log(j);
-      //}
-
-      //csg.rotateY(Math.random() * 10.0);
-      //getTangentAt
-      //spineCurvePath;
-      //debugger;
-
-      /*
-      var tangent = spineCurvePath.getTangent(
-        (
-          ((
-            (i / (trackGeometry.vertices.length - 2)) * 
-            (spineGeom.vertices.length)
-          )) /
-          spineGeom.vertices.length
-        )
-      );
-      */
-
-      //+ ((1.0) * (1.0 / trackGeometry.vertices.length))));
-      //debugger;
-      //console.log(tangent);
-      //var u = new THREE.Euler(tangent);
-      //var ux = (new THREE.Matrix4()).makeRotionFromEuler(u);
-      //csg.setRotationFromEuler(u);
-      //debugger;
-      //tangent.y = 0.0;
       var roy = 0;
-      //var roy = ((new THREE.Vector3(0, 0, -1)).angleTo(tangent));
-      //var roy = Math.atan2(tangent.x, tangent.z);
       roy = Math.atan2(foov.x, foov.z);
-      //tangent.dot(tangent));
-
       csg.rotateY(roy + (-0.25 * Math.PI * 2.0));
       trackObject.add(csg);
-    }
-
-    if (i > 6) {
-      //break;
     }
 
     lastTrackV = trackVertice;
@@ -471,7 +452,7 @@ var createTerrain = function() {
 
 };
 
-var createDebugCsg = function() {
+var createDebugCsg = function(mat) {
   var cube = new THREE.BoxGeometry(4, 4, 4);
   var cube_bsp = new ThreeBSP( cube );
 
@@ -483,7 +464,7 @@ var createDebugCsg = function() {
   //console.timeEnd('operation');
 
   //console.time('mesh');
-  var mesh = new THREE.Mesh(union.toGeometry(), new THREE.MeshNormalMaterial);
+  var mesh = new THREE.Mesh(union.toGeometry(), mat);
   //console.timeEnd('mesh');
 
   mesh.geometry.computeFaceNormals(); // highly recommended...
@@ -495,7 +476,7 @@ var createDebugCsg = function() {
   return terrainObject;
 };
 
-var createCrossCsg = function() {
+var createCrossCsg = function(mat) {
   var crossWidth = 140;
   var downLength = 50;
   var colHeight = 50;
@@ -519,7 +500,7 @@ var createCrossCsg = function() {
   var union = cross_bsp.union(col_bsp);
   union = union.union(down_bsp);
 
-  var mesh = new THREE.Mesh(union.toGeometry(), new THREE.MeshNormalMaterial({wireframe: false}));
+  var mesh = new THREE.Mesh(union.toGeometry(), mat);
   mesh.position.set(0, 0, 0);
 
   mesh.geometry.computeFaceNormals(); // highly recommended...
@@ -531,7 +512,7 @@ var createCrossCsg = function() {
   return terrainObject;
 };
 
-var createAlongCsg = function() {
+var createAlongCsg = function(mat) {
   var alongLength = 180;
   var colHeight = 50;
 
@@ -548,7 +529,7 @@ var createAlongCsg = function() {
 
   var union = along_bsp.union(col_bsp);
 
-  var mesh = new THREE.Mesh(union.toGeometry(), new THREE.MeshNormalMaterial({wireframe: false}));
+  var mesh = new THREE.Mesh(union.toGeometry(), mat); //new THREE.MeshNormalMaterial({wireframe: false}));
   mesh.position.set(0, 0, 0);
 
   mesh.geometry.computeFaceNormals(); // highly recommended...
