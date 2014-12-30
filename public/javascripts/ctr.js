@@ -387,7 +387,7 @@ var createRaceTrack = function(scene) {
 
   //material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
   //var material2 = new THREE.MeshBasicMaterial( { wireframe: true } );
-  var nomMat = new THREE.MeshNormalMaterial({wireframe: false});
+  var nomMat = new THREE.MeshNormalMaterial({wireframe: true});
   var mesh2 = new THREE.Mesh(trackGeometry2, nomMat);
   mesh2.position.set(mesh2.position.x, mesh2.position.y + 2.0, mesh2.position.z);
   trackObject.add(mesh2);
@@ -488,26 +488,35 @@ var createCrossCsg = function(mat) {
   cross.applyMatrix(crossPos);
 
   var down = new THREE.BoxGeometry(4, 4, downLength);
-  var downPos = new THREE.Matrix4().makeTranslation(0, 0, 0);
+  var downPos = new THREE.Matrix4().makeTranslation(0, 0, -downLength / 2.0);
   down.applyMatrix(downPos);
   
   var col = new THREE.BoxGeometry(4, colHeight, 4);
   var colPos = new THREE.Matrix4().makeTranslation(0, -(colHeight / 2), 0);
   col.applyMatrix(colPos);
 
-  var cross_bsp = new ThreeBSP(cross);
-  var col_bsp = new ThreeBSP(col);
-  var down_bsp = new ThreeBSP(down);
+  var col2 = new THREE.BoxGeometry(4, colHeight, 4);
+  colPos = new THREE.Matrix4().makeTranslation(-crossWidth, -(colHeight / 2), 0);
+  col2.applyMatrix(colPos);
 
-  var union = cross_bsp.union(col_bsp);
-  union = union.union(down_bsp);
+  //var cross_bsp = new ThreeBSP(cross);
+  //var col_bsp = new ThreeBSP(col);
+  //var down_bsp = new ThreeBSP(down);
+  //var union = cross_bsp.union(col_bsp);
+  //union = union.union(down_bsp);
+  //col_bsp = new ThreeBSP(col);
+  //union = union.union(col_bsp);
+  //union.toGeometry()
 
-  colPos = new THREE.Matrix4().makeTranslation(-crossWidth, 0, 0);
-  col.applyMatrix(colPos);
-  col_bsp = new ThreeBSP(col);
-  union = union.union(col_bsp);
+  var geometry = new THREE.Geometry();
 
-  var mesh = new THREE.Mesh(union.toGeometry(), mat);
+  geometry.merge(cross);
+  geometry.merge(down);
+  geometry.merge(col);
+  geometry.merge(col2);
+
+
+  var mesh = new THREE.Mesh(geometry, mat);
   mesh.position.set(0, 0, 0);
 
   mesh.geometry.computeFaceNormals(); // highly recommended...
@@ -714,7 +723,7 @@ var main = function(body) {
     var car_one = createCarFromGeometry(geometry);
     var ppp = (raceTrack.specialSpineCurve.getPoint(0));
     //debugger;
-    console.log(ppp);
+    //console.log(ppp);
     //car_one.position.set(31, 1.9, 97);
     car_one.position.set(ppp.x, ppp.y, ppp.z);
 
