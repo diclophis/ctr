@@ -298,11 +298,11 @@ var createRaceTrack = function(scene) {
   trackObject.position.y = 0;
 
   var roundedRectShape = new THREE.Shape();
-  roundedRect(roundedRectShape, 0, 0, 1500, 1500, 500);
+  roundedRect(roundedRectShape, 0, 0, 2500, 2500, 320);
 
   var tightness = 128;
   var tightnessTwo = 128;
-  var extrudeQuality = (4 * 8) + 4;
+  var extrudeQuality = (4 * 4);
   //var quality2 = 64;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
@@ -336,13 +336,13 @@ var createRaceTrack = function(scene) {
   lineObject.position.y += 5;
   trackObject.add(lineObject);
 
-  var extrudeSettings = { steps: extrudeQuality };
+  var extrudeSettings = {steps: extrudeQuality};
   extrudeSettings.extrudePath = spineCurvePath;
   //extrudeSettings.UVGenerator = new THREE.UVsUtils.CylinderUVGenerator();
   //extrudeSettings.material = 1;
 
   // lower qual
-  var rectLength = 40.0;
+  var rectLength = 60.0;
   var rectWidth = 0.000001;
   var rectShape = new THREE.Shape();
 
@@ -360,7 +360,7 @@ var createRaceTrack = function(scene) {
   material = new THREE.MeshBasicMaterial( { wireframe: true } );
   var mesh = new THREE.Mesh(trackGeometry, material);
 
-  rectLength = 40.0;
+  //rectLength = 40.0;
   rectWidth = 2.00000;
   rectShape = new THREE.Shape();
 
@@ -479,12 +479,12 @@ var createDebugCsg = function(mat) {
 };
 
 var createCrossCsg = function(mat) {
-  var crossWidth = 140;
+  var crossWidth = 120;
   var downLength = 50;
   var colHeight = 50;
 
   var cross = new THREE.BoxGeometry(crossWidth, 4, 4);
-  var crossPos = new THREE.Matrix4().makeTranslation(-(crossWidth / (3.5)), 0, 0);
+  var crossPos = new THREE.Matrix4().makeTranslation(-crossWidth / 2, 0, 0);
   cross.applyMatrix(crossPos);
 
   var down = new THREE.BoxGeometry(4, 4, downLength);
@@ -501,6 +501,11 @@ var createCrossCsg = function(mat) {
 
   var union = cross_bsp.union(col_bsp);
   union = union.union(down_bsp);
+
+  colPos = new THREE.Matrix4().makeTranslation(-crossWidth, 0, 0);
+  col.applyMatrix(colPos);
+  col_bsp = new ThreeBSP(col);
+  union = union.union(col_bsp);
 
   var mesh = new THREE.Mesh(union.toGeometry(), mat);
   mesh.position.set(0, 0, 0);
@@ -765,7 +770,7 @@ var main = function(body) {
         thingy.controls.noPan = false;
 
         thingy.controls.staticMoving = true;
-        thingy.controls.dynamicDampingFactor = 0.3;
+        //thingy.controls.dynamicDampingFactor = 0.3;
 
         thingy.controls.keys = [ 65, 83, 68 ];
 
