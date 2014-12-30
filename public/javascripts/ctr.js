@@ -298,7 +298,7 @@ var createRaceTrack = function(scene) {
   trackObject.position.y = 0;
 
   var roundedRectShape = new THREE.Shape();
-  roundedRect(roundedRectShape, 0, 0, 1500, 1500, 100);
+  roundedRect(roundedRectShape, 0, 0, 1500, 1500, 500);
 
   var tightness = 128;
   var tightnessTwo = 128;
@@ -359,7 +359,6 @@ var createRaceTrack = function(scene) {
   //material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
   material = new THREE.MeshBasicMaterial( { wireframe: true } );
   var mesh = new THREE.Mesh(trackGeometry, material);
-  //trackObject.add(mesh);
 
   rectLength = 40.0;
   rectWidth = 2.00000;
@@ -392,6 +391,9 @@ var createRaceTrack = function(scene) {
   var mesh2 = new THREE.Mesh(trackGeometry2, nomMat);
   mesh2.position.set(mesh2.position.x, mesh2.position.y + 2.0, mesh2.position.z);
   trackObject.add(mesh2);
+
+  mesh.position.set(mesh.position.x, mesh2.position.y + 2.0, mesh.position.z);
+  trackObject.add(mesh);
 
  
   // do supports/bottom trusses
