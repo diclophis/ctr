@@ -1,8 +1,10 @@
 var tick = function() {
   //this.controls.update();
-  this.controls.update(this.clock.getDelta());
+  if (this.controls) {
+    this.controls.update(this.clock.getDelta());
+  }
 
-  var cameraHeight = 80;
+  var cameraHeight = 20;
 
   if (!this.paused) {
     requestAnimationFrame(tick.bind(this));
@@ -61,6 +63,8 @@ var tick = function() {
   }
 
   if (this.car_one != null) {
+    this.car_one.position.set(this.car_one.position.x, this.car_one.position.y - (Math.sin(this.st * 0.0025) * 0.0234), this.car_one.position.z);
+
     var farForward = this.foward.clone().multiplyScalar(100.0 + (0.01 * this.forward_speed)); //how far in front
     var farBack = this.foward.clone().negate().multiplyScalar(400.0); //how far in back
 
@@ -77,8 +81,8 @@ var tick = function() {
       this.camera.lookAt(reallyFarOut);
       this.camera.position.set(0 + reallyFarBack.x, cameraHeight, 0 + reallyFarBack.z);
     } else {
-      //var reallyFarOut = this.car_one.position.clone().add(farForward);
-      //this.camera.lookAt(reallyFarOut);
+      var reallyFarOut = this.car_one.position.clone().add(farForward);
+      this.camera.lookAt(reallyFarOut);
     }
   }
 
@@ -416,7 +420,7 @@ function addGrassToScene(scene) {
   //texture.anisotropy = renderer.getMaxAnisotropy()
   // build object3d
   var ddddd = 3500;
-  var geometry  = new THREE.PlaneGeometry(ddddd, ddddd);
+  var geometry  = new THREE.PlaneBufferGeometry(ddddd * 2, ddddd * 2); //new THREE.PlaneGeometry(ddddd * 2, ddddd * 2);
   var material  = new THREE.MeshPhongMaterial({
     map : texture,
     emissive: 'green',
@@ -425,14 +429,14 @@ function addGrassToScene(scene) {
   object3d.rotateX(-Math.PI/2)
   //object3d.translateY(-45.0);
   object3d.position.y -= 45.0;
-  object3d.position.x += ddddd/3;
-  object3d.position.z += ddddd/3;
+  object3d.position.x += ddddd*2/3;
+  object3d.position.z += ddddd*2/3;
   scene.add(object3d)
   
   //////////////////////////////////////////////////////////////////////////////////
   //    comment               //
   //////////////////////////////////////////////////////////////////////////////////
-  var nTufts  = 4000;
+  var nTufts  = 2000;
   var positions = new Array(nTufts)
   for(var i = 0; i < nTufts; i++){
     var position  = new THREE.Vector3()
@@ -817,11 +821,11 @@ var main = function(body) {
 
   var loader = new THREE.ColladaLoader();
 
-  loader.load("arrow.dae", function(geometry) {
+  loader.load("drone.dae", function(geometry) {
 
     var car_one = createCarFromGeometry(geometry);
     var ppp = (raceTrack.specialSpineCurve.getPoint(0));
-    car_one.position.set(ppp.x, ppp.y, ppp.z);
+    car_one.position.set(ppp.x, ppp.y - 20.0, ppp.z);
 
     var tangent = (raceTrack.specialSpineCurve.getTangent(0));
     tangent.y = 0.0;
@@ -866,7 +870,7 @@ var main = function(body) {
       thingy.controls.staticMoving = true;
       //thingy.controls.dynamicDampingFactor = 0.3;
       thingy.controls.keys = [ 65, 83, 68 ];
-    } else if (true) {
+    } else if (false) {
       thingy.controls = new THREE.FirstPersonControls(camera, container);
       thingy.controls.movementSpeed = 750;
       thingy.controls.lookSpeed = 0.175;

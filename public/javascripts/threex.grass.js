@@ -2,9 +2,8 @@ var THREEx	= THREEx	|| {}
 
 THREEx.createGrassTufts	= function(positions){
 	// create the initial geometry
-	var geometry	= new THREE.PlaneGeometry(0.4, 0.2)
+	var geometry	= new THREE.PlaneGeometry(0.4, 0.2);
 	geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, geometry.parameters.height/2, 0 ) );
-
 
 	// Tweat the normal for better lighting
 	// - normals from http://http.developer.nvidia.com/GPUGems/gpugems_ch07.html
@@ -12,8 +11,8 @@ THREEx.createGrassTufts	= function(positions){
 	geometry.faces.forEach(function(face){
 		face.vertexNormals.forEach(function(normal){
 			normal.set(0.0,1.0,0.0).normalize()
-		})
-	})
+		});
+	});
 	
 	// create each tuft and merge their geometry for performance
 	var mergedGeo	= new THREE.Geometry();
@@ -44,7 +43,6 @@ THREEx.createGrassTufts	= function(positions){
 		}
 	}
 
-
 	// load the texture
 	var textureUrl	= THREEx.createGrassTufts.baseUrl+'grass01.png'
 	var texture	= THREE.ImageUtils.loadTexture(textureUrl)
@@ -61,5 +59,3 @@ THREEx.createGrassTufts	= function(positions){
 }
 
 THREEx.createGrassTufts.baseUrl	= "../"
-
-
