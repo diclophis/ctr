@@ -320,7 +320,7 @@ var createRaceTrack = function(scene) {
       var radius = 5;
       var trackPointGeo = new THREE.SphereGeometry(radius, 2, 2); //, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength )
       var trackPointMesh = new THREE.Mesh(trackPointGeo, textMat);
-      trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y + 5, foo.vertices[i].z);
+      trackPointMesh.position.set(foo.vertices[i].x, foo.vertices[i].y - 20, foo.vertices[i].z);
       trackObject.add(trackPointMesh);
     }
   }
@@ -332,10 +332,12 @@ var createRaceTrack = function(scene) {
   var spineCurvePath = new THREE.CurvePath();
   spineCurvePath.add(spine);
   var spineGeom = spineCurvePath.createSpacedPointsGeometry(tightnessTwo);
-  
-  var lineObject = new THREE.Line(spineGeom);
-  lineObject.position.y += 5;
-  trackObject.add(lineObject);
+ 
+  if (true) {
+    var lineObject = new THREE.Line(spineGeom);
+    lineObject.position.y -= 20;
+    trackObject.add(lineObject);
+  }
 
   var extrudeSettings = {steps: extrudeQuality};
   extrudeSettings.extrudePath = spineCurvePath;
@@ -409,33 +411,41 @@ function addGrassToScene(scene) {
   var texture = THREE.ImageUtils.loadTexture(textureUrl);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.x= 10
-  texture.repeat.y= 10
+  texture.repeat.x= 33
+  texture.repeat.y= 33
   //texture.anisotropy = renderer.getMaxAnisotropy()
   // build object3d
-  var geometry  = new THREE.PlaneGeometry(20, 20)
+  var ddddd = 3500;
+  var geometry  = new THREE.PlaneGeometry(ddddd, ddddd);
   var material  = new THREE.MeshPhongMaterial({
     map : texture,
     emissive: 'green',
   })
   var object3d  = new THREE.Mesh(geometry, material)
   object3d.rotateX(-Math.PI/2)
+  //object3d.translateY(-45.0);
+  object3d.position.y -= 45.0;
+  object3d.position.x += ddddd/3;
+  object3d.position.z += ddddd/3;
   scene.add(object3d)
-  
   
   //////////////////////////////////////////////////////////////////////////////////
   //    comment               //
   //////////////////////////////////////////////////////////////////////////////////
-  var nTufts  = 100;
+  var nTufts  = 4000;
   var positions = new Array(nTufts)
   for(var i = 0; i < nTufts; i++){
     var position  = new THREE.Vector3()
-    position.x  = (Math.random()-0.5)*20
-    position.z  = (Math.random()-0.5)*20
+    position.x  = (Math.random()-0.5)*ddddd
+    position.z  = (Math.random()-0.5)*ddddd
     positions[i]  = position
   }
   var mesh  = THREEx.createGrassTufts(positions)
+  mesh.position.y -= 45.0;
+  mesh.position.x += ddddd/3;
+  mesh.position.z += ddddd/3;
   scene.add(mesh)
+
   // load the texture
   var textureUrl    = THREEx.createGrassTufts.baseUrl+'images/grass01.png'
   var material    = mesh.material
@@ -450,11 +460,14 @@ function addGrassToScene(scene) {
   var positions = new Array(nTufts)
   for(var i = 0; i < nTufts; i++){
     var position  = new THREE.Vector3()
-    position.x  = (Math.random()-0.5)*20
-    position.z  = (Math.random()-0.5)*20
+    position.x  = (Math.random()-0.5)*ddddd
+    position.z  = (Math.random()-0.5)*ddddd
     positions[i]  = position
   }
   var mesh  = THREEx.createGrassTufts(positions)
+  mesh.position.y -= 45.0;
+  mesh.position.x += ddddd/3;
+  mesh.position.z += ddddd/3;
   scene.add(mesh)
   // load the texture
   var textureUrl    = THREEx.createGrassTufts.baseUrl+'images/grass02.png'
@@ -469,11 +482,14 @@ function addGrassToScene(scene) {
   var positions = new Array(nTufts)
   for(var i = 0; i < nTufts; i++){
     var position  = new THREE.Vector3()
-    position.x  = (Math.random()-0.5)*20
-    position.z  = (Math.random()-0.5)*20
+    position.x  = (Math.random()-0.5)*ddddd
+    position.z  = (Math.random()-0.5)*ddddd
     positions[i]  = position
   }
   var mesh  = THREEx.createGrassTufts(positions)
+  mesh.position.y -= 45.0;
+  mesh.position.x += ddddd/3;
+  mesh.position.z += ddddd/3;
   scene.add(mesh)
   // load the texture
   var material    = mesh.material
@@ -489,11 +505,14 @@ function addGrassToScene(scene) {
   var positions = new Array(nTufts)
   for(var i = 0; i < nTufts; i++){
     var position  = new THREE.Vector3()
-    position.x  = (Math.random()-0.5)*20
-    position.z  = (Math.random()-0.5)*20
+    position.x  = (Math.random()-0.5)*ddddd
+    position.z  = (Math.random()-0.5)*ddddd
     positions[i]  = position
   }
   var mesh  = THREEx.createGrassTufts(positions)
+  mesh.position.y -= 45.0;
+  mesh.position.x += ddddd/3;
+  mesh.position.z += ddddd/3;
   scene.add(mesh)
   // load the texture
   var material    = mesh.material
@@ -586,7 +605,7 @@ var createDebugCsg = function(mat) {
 
 var createCrossCsg = function(mat) {
   var crossWidth = 120;
-  var downLength = 50;
+  var downLength = 1;
   var colHeight = 50;
 
   var cross = new THREE.BoxGeometry(crossWidth, 4, 4);

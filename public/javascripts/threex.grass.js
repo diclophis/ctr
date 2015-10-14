@@ -38,6 +38,7 @@ THREEx.createGrassTufts	= function(positions){
 			var object3d	= new THREE.Mesh(geometry, material)
 			object3d.rotateY(angle+Math.PI)
 			object3d.position.copy(position)
+      object3d.scale.set(20, 60, 20);
 			object3d.updateMatrix()
 			mergedGeo.merge(object3d.geometry, object3d.matrix)
 		}
