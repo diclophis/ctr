@@ -4,7 +4,7 @@ var tick = function() {
     this.controls.update(this.clock.getDelta());
   }
 
-  var cameraHeight = 20;
+  var cameraHeight = 10;
 
   if (!this.paused) {
     requestAnimationFrame(tick.bind(this));
@@ -14,7 +14,7 @@ var tick = function() {
   //console.log(dt);
 
   if (this.paused == false) {
-    var inc = ((((this.leftVector.x * 3.0)) / this.wsa.windowHalfX) * 4.0 * dt) * (this.forward_speed / 500.0);
+    var inc = ((((this.leftVector.x * 2.25)) / this.wsa.windowHalfX) * 3.0 * dt) * (this.forward_speed / 500.0);
 
     this.forward_angle += inc;
 
@@ -47,7 +47,7 @@ var tick = function() {
     this.st += dt;
   }
 
-  var skid = (this.leftVector.x * 0.5 * (this.forward_speed * 0.000001));
+  var skid = (this.leftVector.x * 0.3 * (this.forward_speed * 0.000001));
   var drift = this.foward.clone();
   drift.x = Math.cos(this.forward_angle + skid);
   drift.z = Math.sin(this.forward_angle + skid);
@@ -63,10 +63,10 @@ var tick = function() {
   }
 
   if (this.car_one != null) {
-    this.car_one.position.set(this.car_one.position.x, this.car_one.position.y - (Math.sin(this.st * 0.0025) * 0.0234), this.car_one.position.z);
+    this.car_one.position.set(this.car_one.position.x, (this.car_one.position.y) - (Math.sin(this.st * 0.0025) * 1.0), this.car_one.position.z);
 
     var farForward = this.foward.clone().multiplyScalar(100.0 + (0.01 * this.forward_speed)); //how far in front
-    var farBack = this.foward.clone().negate().multiplyScalar(400.0); //how far in back
+    var farBack = this.foward.clone().negate().multiplyScalar(475.0); //how far in back
 
     var reallyFarBack = this.car_one.position.clone().add(farBack);
 
@@ -394,8 +394,11 @@ var createRaceTrack = function(scene) {
 
   //material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
   //var material2 = new THREE.MeshBasicMaterial( { wireframe: true } );
-  var nomMat = new THREE.MeshNormalMaterial({wireframe: true});
-  var mesh2 = new THREE.Mesh(trackGeometry2, nomMat);
+  var nomMat1 = new THREE.MeshNormalMaterial({wireframe: true});
+  var nomMat2 = new THREE.MeshBasicMaterial({color: 0xff0000});
+  var nomMat3 = new THREE.MeshDepthMaterial({wireframe: true, wireframeLinewidth: 4});
+
+  var mesh2 = new THREE.Mesh(trackGeometry2, nomMat1);
   mesh2.position.set(mesh2.position.x, mesh2.position.y + 2.0, mesh2.position.z);
   //trackObject.add(mesh2);
 
@@ -415,12 +418,12 @@ function addGrassToScene(scene) {
   var texture = THREE.ImageUtils.loadTexture(textureUrl);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.x= 33
-  texture.repeat.y= 33
+  texture.repeat.x= 22
+  texture.repeat.y= 22
   //texture.anisotropy = renderer.getMaxAnisotropy()
   // build object3d
   var ddddd = 3500;
-  var geometry  = new THREE.PlaneBufferGeometry(ddddd * 2, ddddd * 2); //new THREE.PlaneGeometry(ddddd * 2, ddddd * 2);
+  var geometry  = new THREE.PlaneBufferGeometry(ddddd * 4, ddddd * 4); //new THREE.PlaneGeometry(ddddd * 2, ddddd * 2);
   var material  = new THREE.MeshPhongMaterial({
     map : texture,
     emissive: 'green',
@@ -429,8 +432,8 @@ function addGrassToScene(scene) {
   object3d.rotateX(-Math.PI/2)
   //object3d.translateY(-45.0);
   object3d.position.y -= 45.0;
-  object3d.position.x += ddddd*2/3;
-  object3d.position.z += ddddd*2/3;
+  object3d.position.x += ddddd*4/3;
+  object3d.position.z += ddddd*4/3;
   scene.add(object3d)
   
   //////////////////////////////////////////////////////////////////////////////////
@@ -535,7 +538,7 @@ function addGrassToScene(scene) {
   for (var i=0; i<(trackGeometry.vertices.length - 2); i++) {
     var trackVertice = trackGeometry.vertices[i];
     if (((i + 1) % 2) == 0) {
-      var csg = createCrossCsg(nomMat);
+      var csg = createCrossCsg(nomMat2, nomMat3);
       csg.position.set(trackVertice.x, trackVertice.y, trackVertice.z);
       var foov = new THREE.Vector3().subVectors(trackVertice, lastTrackV);
       var roy = 0;
@@ -607,7 +610,7 @@ var createDebugCsg = function(mat) {
   return terrainObject;
 };
 
-var createCrossCsg = function(mat) {
+var createCrossCsg = function(mat1, mat2) {
   var crossWidth = 120;
   var downLength = 1;
   var colHeight = 50;
@@ -645,13 +648,17 @@ var createCrossCsg = function(mat) {
   geometry.merge(col2);
 
 
-  var mesh = new THREE.Mesh(geometry, mat);
-  mesh.position.set(0, 0, 0);
+  var mesh1 = new THREE.Mesh(geometry, mat1);
+  mesh1.position.set(0, 0, 0);
+  mesh1.geometry.computeFaceNormals(); // highly recommended...
 
-  mesh.geometry.computeFaceNormals(); // highly recommended...
+  var mesh2 = new THREE.Mesh(geometry, mat2);
+  mesh2.position.set(0, 0, 0);
+  mesh2.geometry.computeFaceNormals(); // highly recommended...
 
   terrainObject = new THREE.Object3D();
-  terrainObject.add(mesh);
+  terrainObject.add(mesh1);
+  terrainObject.add(mesh2);
   terrainObject.scale.set(1, 1, 1);
 
   return terrainObject;
@@ -825,7 +832,7 @@ var main = function(body) {
 
     var car_one = createCarFromGeometry(geometry);
     var ppp = (raceTrack.specialSpineCurve.getPoint(0));
-    car_one.position.set(ppp.x, ppp.y - 20.0, ppp.z);
+    car_one.position.set(ppp.x + 150, ppp.y + 10.0, ppp.z + 150);
 
     var tangent = (raceTrack.specialSpineCurve.getTangent(0));
     tangent.y = 0.0;
