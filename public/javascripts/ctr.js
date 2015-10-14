@@ -844,9 +844,9 @@ var main = function(body) {
 
   var skyBoxCamera = createCamera(wsa, 1000);
   var skyBoxScene = createScene();
-  var skyBoxMaterial = createTextureCubeMaterial();
+  //var skyBoxMaterial = createTextureCubeMaterial();
   //skyBoxMaterial = new THREE.MeshLambertMaterial({color: 0x00ff00});
-  var skyBox = createSkyBox(skyBoxMaterial);
+  //var skyBox = createSkyBox(skyBoxMaterial);
   //skyBoxScene.add(skyBox);
 
   var renderer = new THREE.WebGLRenderer({ antialias: true });
