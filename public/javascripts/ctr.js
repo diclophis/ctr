@@ -1,5 +1,6 @@
 var tick = function() {
-this.controls.update();
+  //this.controls.update();
+  this.controls.update(this.clock.getDelta());
 
   var cameraHeight = 80;
 
@@ -648,7 +649,6 @@ var simulatePlayerPuttingPetalToTheMetal = function() {
 };
 
 // behaviour
-
 var turnCarRight = function(st, dt, car) {
 };
 
@@ -661,23 +661,10 @@ var onError = function(e) {
 };
 
 var main = function(body) {
-
   var wsa = windowSizeAndAspect(1.0);
 
   var container = createContainer();
   body.appendChild(container);
-
-  //var fullscreenButton = document.getElementById("fullscreen-button");
-
-  //fullscreenButton.addEventListener('click', function(ev) {
-  //  if (screenfull.enabled) {
-  //    screenfull.onchange = function() {
-  //      //console.log('Am I fullscreen? ' + screenfull.isFullscreen ? 'Yes' : 'No');
-  //    };
-  //    screenfull.toggle(container);
-  //  }
-  //}, false);
-
 
   var camera = createCamera(wsa, 10000);
   var scene = createScene();
@@ -709,16 +696,13 @@ var main = function(body) {
   var renderer = new THREE.WebGLRenderer({
   });
 
-  //renderer.setFaceCulling("front");
   renderer.setSize(wsa.x, wsa.y);
   renderer.autoClear = false;
   container.appendChild(renderer.domElement);
 
   var loader = new THREE.ColladaLoader();
 
-  var foo = "cheese";
-
-  loader.load("F1.dae", function(geometry) {
+  loader.load("arrow.dae", function(geometry) {
 
     var car_one = createCarFromGeometry(geometry);
     var ppp = (raceTrack.specialSpineCurve.getPoint(0));
@@ -727,20 +711,19 @@ var main = function(body) {
     //car_one.position.set(31, 1.9, 97);
     car_one.position.set(ppp.x, ppp.y, ppp.z);
 
-      var tangent = (raceTrack.specialSpineCurve.getTangent(0));
-      //debugger;
-      //console.log(tangent);
-      //var u = new THREE.Euler(tangent);
-      //var ux = (new THREE.Matrix4()).makeRotionFromEuler(u);
-      //csg.setRotationFromEuler(u);
-      //debugger;
-      tangent.y = 0.0;
-      //var roy = ((new THREE.Vector3(0, 0, -1)).angleTo(tangent));
-      var roy = Math.atan2(tangent.x, tangent.z);
-      //tangent.dot(tangent));
-      //car_one.rotateY(roy);
+    var tangent = (raceTrack.specialSpineCurve.getTangent(0));
+    //debugger;
+    //console.log(tangent);
+    //var u = new THREE.Euler(tangent);
+    //var ux = (new THREE.Matrix4()).makeRotionFromEuler(u);
+    //csg.setRotationFromEuler(u);
+    //debugger;
+    tangent.y = 0.0;
+    //var roy = ((new THREE.Vector3(0, 0, -1)).angleTo(tangent));
+    var roy = Math.atan2(tangent.x, tangent.z);
+    //tangent.dot(tangent));
+    //car_one.rotateY(roy);
     scene.add(car_one);
-
 
     var thingy = {
       fps: 35.0,
@@ -767,30 +750,34 @@ var main = function(body) {
       scene: scene,
       dirty: true,
       container: container,
+      clock: new THREE.Clock(),
     };
 
-        thingy.controls = new THREE.TrackballControls(camera);
+    if (false) {
+      thingy.controls = new THREE.TrackballControls(camera);
+      thingy.controls.rotateSpeed = 1.0;
+      thingy.controls.zoomSpeed = 1.2;
+      thingy.controls.panSpeed = 0.8;
+      thingy.controls.noZoom = false;
+      thingy.controls.noPan = false;
+      thingy.controls.staticMoving = true;
+      //thingy.controls.dynamicDampingFactor = 0.3;
+      thingy.controls.keys = [ 65, 83, 68 ];
+    } else {
+      thingy.controls = new THREE.FirstPersonControls(camera, container);
+      thingy.controls.movementSpeed = 750;
+      thingy.controls.lookSpeed = 0.175;
+      //thingy.controls.lookVertical = true;
 
-        thingy.controls.rotateSpeed = 1.0;
-        thingy.controls.zoomSpeed = 1.2;
-        thingy.controls.panSpeed = 0.8;
+      //camera.update = function () {
+      //  thingy.controls.update(clock.getDelta());
+      //};
+    }
 
-        thingy.controls.noZoom = false;
-        thingy.controls.noPan = false;
-
-        thingy.controls.staticMoving = true;
-        //thingy.controls.dynamicDampingFactor = 0.3;
-
-        thingy.controls.keys = [ 65, 83, 68 ];
-
-        //thingy.controls.addEventListener( 'change', render );
-
-    
-
-    //renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
-    //renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
-    //renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
-
+    //thingy.controls.addEventListener( 'change', render );
+    renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
+    renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
+    renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
     //window.addEventListener('resize', onWindowResize.bind(thingy), false);
 
     window.addEventListener('error', onError.bind(thingy), false);
