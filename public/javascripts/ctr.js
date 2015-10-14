@@ -18,23 +18,9 @@ var tick = function() {
 
     this.forward_angle += inc;
 
-    //if (Math.abs(this.forward_angle) > 0.5) {
-    //  this.forward_angle -= inc;
-    //}
     if (this.speedUp) {
       this.forward_speed += ((100) * dt);
     } else {
-      /*
-      var backToZero = (((this.forward_speed) / 500.0) * (1.0) * dt) * this.wsa.windowHalfX;
-      if (this.leftVector.x > (backToZero)) {
-        //console.log("make it smaller", this.forward_angle, this.leftVector.x);
-        this.leftVector.x -= (backToZero);
-      } else if (this.leftVector.x < -backToZero) {
-        //console.log("make it bigger", this.forward_angle, this.leftVector.x);
-        this.leftVector.x += (backToZero);
-      }
-      */
-
       this.forward_speed -= ((200) * dt);
     }
     if (this.forward_speed < 0) {
@@ -43,7 +29,6 @@ var tick = function() {
     if (this.forward_speed > 500) {
       this.forward_speed = 500;
     }
-    //console.log(this.forward_angle, this.leftVector.x, this.forward_speed);
     this.st += dt;
   }
 
@@ -67,8 +52,10 @@ var tick = function() {
 
     var farForward = this.foward.clone().multiplyScalar(100.0 + (0.01 * this.forward_speed)); //how far in front
     var farBack = this.foward.clone().negate().multiplyScalar(500.0); //how far in back
+    var farFarBack = this.foward.clone().negate().multiplyScalar(520.0); //how far in back
 
     var reallyFarBack = this.car_one.position.clone().add(farBack);
+    var reallyFarFarBack = this.car_one.position.clone().add(farFarBack);
 
     var whereCarIsPointing = this.car_one.position.clone().add(drift);
     this.car_one.lookAt(whereCarIsPointing);
@@ -80,13 +67,16 @@ var tick = function() {
       var reallyFarOut = this.car_one.position.clone().add(farForward);
       this.camera.lookAt(reallyFarOut);
       this.camera.position.set(0 + reallyFarBack.x, cameraHeight, 0 + reallyFarBack.z);
-      //this.spotlight.position.set(this.camera.position);
+      this.spotlight.position.set(reallyFarFarBack.x, cameraHeight * 8, reallyFarFarBack.z);
     } else {
       var reallyFarOut = this.car_one.position.clone().add(farForward);
       this.camera.lookAt(reallyFarOut);
+      //this.spotlight.position.set(farFarBack);
+      //this.spotlight.position.set(farFarBack.x, cameraHeight, farFarBack.z);
+      this.spotlight.position.set(reallyFarFarBack.x, cameraHeight * 8, reallyFarFarBack.z);
     }
   }
-  //this.spotlight.updateMatrix();
+  //this.spotlight.updateMatrixWorld();
   this.camera.updateProjectionMatrix();
   this.skyBoxCamera.rotation.copy(this.camera.rotation);
 
@@ -423,26 +413,27 @@ function addGrassToScene(scene) {
   texture.repeat.y= 22
   //texture.anisotropy = renderer.getMaxAnisotropy()
   // build object3d
-  var ddddd = 3500;
-  var geometry  = new THREE.PlaneBufferGeometry(ddddd * 4, ddddd * 4); //new THREE.PlaneGeometry(ddddd * 2, ddddd * 2);
+  var ddddd = 3000;
+  var geometry  = new THREE.PlaneBufferGeometry(ddddd * 6, ddddd * 6, 33, 33); //new THREE.PlaneGeometry(ddddd * 2, ddddd * 2);
   var material  = new THREE.MeshLambertMaterial({
     map : texture,
     emissive: 'green',
-  })
+  });
+  //material  = new THREE.MeshLambertMaterial({ color: 0xff0000, wireframe: true, wireframeLinewidth: 4 });
   var object3d  = new THREE.Mesh(geometry, material)
   object3d.receiveShadow = true;
 
   object3d.rotateX(-Math.PI/2)
   //object3d.translateY(-45.0);
   object3d.position.y -= 45.0;
-  object3d.position.x += ddddd*4/3;
-  object3d.position.z += ddddd*4/3;
+  object3d.position.x += ddddd*6/3;
+  object3d.position.z += ddddd*6/3;
   scene.add(object3d)
   
   //////////////////////////////////////////////////////////////////////////////////
   //    comment               //
   //////////////////////////////////////////////////////////////////////////////////
-  var nTufts  = 1000;
+  var nTufts  = 800;
   var positions = new Array(nTufts)
   for(var i = 0; i < nTufts; i++){
     var position  = new THREE.Vector3()
@@ -653,7 +644,7 @@ var createCrossCsg = function(mat1, mat2) {
 
   var mesh1 = new THREE.Mesh(geometry, mat1);
   mesh1.castShadow = true;
-  mesh1.receiveShadow = true;
+  mesh1.receiveShadow = false;
   mesh1.position.set(0, 0, 0);
   mesh1.geometry.computeFaceNormals(); // highly recommended...
 
@@ -856,23 +847,27 @@ var main = function(body) {
     scene.add(pointLight);
 
 var spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.intensity = 0.5;
-spotLight.position.set( ppp.x + 150, 1000, ppp.z + 150 );
+//car_one.add(spotLight);
+//spotLight.position.set(0,0,1);
+//spotLight.target = car_one;
+
+spotLight.intensity = 0.33;
+//spotLight.position.set( ppp.x + 150, 1000, ppp.z + 150 );
 spotLight.target = car_one;
 
 spotLight.castShadow = true;
 
-spotLight.shadowDarkness = 1.0;
+spotLight.shadowDarkness = 0.123;
 //spotLight.shadowBias = -0.0002;
-spotLight.decay = 10.01;
+spotLight.decay = 2.0;
 
 
-spotLight.shadowMapWidth = 1024 * 2;
-spotLight.shadowMapHeight = 1024 * 2;
+spotLight.shadowMapWidth = 1024 * 1;
+spotLight.shadowMapHeight = 1024 * 1;
 
 spotLight.shadowCameraNear = 1;
-spotLight.shadowCameraFar = 100000;
-spotLight.shadowCameraFov = 91;
+spotLight.shadowCameraFar = 10000;
+spotLight.shadowCameraFov = 33;
 spotLight.shadowCameraVisible = false;
 
 scene.add( spotLight );
