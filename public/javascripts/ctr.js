@@ -48,7 +48,7 @@ var tick = function() {
   }
 
   if (this.car_one != null) {
-    this.car_one.position.set(this.car_one.position.x, (this.car_one.position.y) - (Math.sin(this.st * 0.0025) * 1.0), this.car_one.position.z);
+    this.car_one.position.set(this.car_one.position.x, (this.car_one.position.y) - (Math.sin(this.st * 0.005) * 0.1), this.car_one.position.z);
 
     var farForward = this.foward.clone().multiplyScalar(100.0 + (0.01 * this.forward_speed)); //how far in front
     var farBack = this.foward.clone().negate().multiplyScalar(500.0); //how far in back
@@ -289,16 +289,46 @@ var createRaceTrack = function(scene) {
       ctx.quadraticCurveTo( x, y, x, y + radius );
     }
 
+    function roundedRect2( ctx, x, y, width, height, radius ){
+      ctx.moveTo( x, y + (radius * (Math.random() * 0.0) ));
+      ctx.lineTo( x, y + (height + (Math.random() * 0.0)) - radius );
+      ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
+      ctx.lineTo( x + width - radius, y + height * (Math.random())) ;
+      ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
+      ctx.lineTo( x + width, y + radius );
+      ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
+      ctx.lineTo( x + radius, y );
+      ctx.quadraticCurveTo( x, y, x, y + radius );
+    }
+
 
   trackObject = new THREE.Object3D();
   trackObject.position.y = 0;
 
   var roundedRectShape = new THREE.Shape();
-  roundedRect(roundedRectShape, 0, 0, 2500, 2500, 320);
+  roundedRect(roundedRectShape, 0, 0, 2500, 2500, 1000);
+  //roundedRect2(roundedRectShape, 0, 0, 2500, 2500, 1000);
 
-  var tightness = 128;
-  var tightnessTwo = 128;
-  var extrudeQuality = (4 * 4);
+var starPoints = [];
+
+var starScale = 40.0;
+
+starPoints.push( new THREE.Vector2 (   0 * starScale,  50 * starScale) );
+starPoints.push( new THREE.Vector2 (  10 * starScale,  10 * starScale) );
+starPoints.push( new THREE.Vector2 (  40 * starScale,  10 * starScale) );
+starPoints.push( new THREE.Vector2 (  20 * starScale, -10 * starScale) );
+starPoints.push( new THREE.Vector2 (  30 * starScale, -50 * starScale) );
+starPoints.push( new THREE.Vector2 (   0 * starScale, -20 * starScale) );
+starPoints.push( new THREE.Vector2 ( -30 * starScale, -50 * starScale) );
+starPoints.push( new THREE.Vector2 ( -20 * starScale, -10 * starScale) );
+starPoints.push( new THREE.Vector2 ( -40 * starScale,  10 * starScale) );
+starPoints.push( new THREE.Vector2 ( -10 * starScale,  10 * starScale) );
+
+//roundedRectShape = new THREE.Shape( starPoints );
+
+  var tightness = 128 * 0.5;
+  var tightnessTwo = 128 * 4;
+  var extrudeQuality = (4 * 5);
   //var quality2 = 64;
 
   var foo = roundedRectShape.createSpacedPointsGeometry(tightness);
@@ -433,7 +463,7 @@ function addGrassToScene(scene) {
   //////////////////////////////////////////////////////////////////////////////////
   //    comment               //
   //////////////////////////////////////////////////////////////////////////////////
-  var nTufts  = 800;
+  var nTufts  = 700;
   var positions = new Array(nTufts)
   for(var i = 0; i < nTufts; i++){
     var position  = new THREE.Vector3()
@@ -607,7 +637,7 @@ var createDebugCsg = function(mat) {
 var createCrossCsg = function(mat1, mat2) {
   var crossWidth = 120;
   var downLength = 1;
-  var colHeight = 50;
+  var colHeight = 100;
 
   var cross = new THREE.BoxGeometry(crossWidth, 4, 4);
   var crossPos = new THREE.Matrix4().makeTranslation(-crossWidth / 2, 0, 0);
@@ -637,15 +667,15 @@ var createCrossCsg = function(mat1, mat2) {
   var geometry = new THREE.Geometry();
 
   geometry.merge(cross);
-  geometry.merge(down);
+  //geometry.merge(down);
   geometry.merge(col);
   geometry.merge(col2);
 
 
   var mesh1 = new THREE.Mesh(geometry, mat1);
   mesh1.castShadow = true;
-  mesh1.receiveShadow = false;
-  mesh1.position.set(0, 0, 0);
+  mesh1.receiveShadow = true;
+  mesh1.position.set(0, 10, 0);
   mesh1.geometry.computeFaceNormals(); // highly recommended...
 
   //var mesh2 = new THREE.Mesh(geometry, mat2);
@@ -837,7 +867,7 @@ var main = function(body) {
     car_one.children[0].castShadow = true;
     car_one.children[0].children[0].castShadow = true;
     var ppp = (raceTrack.specialSpineCurve.getPoint(0));
-    car_one.position.set(ppp.x + 150, ppp.y + 10.0, ppp.z + 150);
+    car_one.position.set(ppp.x + 150, ppp.y - 7.0, ppp.z + 150);
 
     var light = new THREE.AmbientLight( 0x404040 ); // soft white light
     scene.add( light );
@@ -857,7 +887,7 @@ spotLight.target = car_one;
 
 spotLight.castShadow = true;
 
-spotLight.shadowDarkness = 0.123;
+spotLight.shadowDarkness = 0.25;
 //spotLight.shadowBias = -0.0002;
 spotLight.decay = 2.0;
 
