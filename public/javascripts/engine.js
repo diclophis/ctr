@@ -97,6 +97,8 @@ var createCamera = function(wsa, lookFar, fov) {
 
 var createScene = function() {
   scne = new THREE.Scene();
+  scne.fog = new THREE.Fog(0x000000, 1.0, 3000.0);
+  //scne.fog = new THREE.Fog(0xD4D4D4, 1.0, 3000.0);
   return scne;
 };
 
@@ -107,13 +109,13 @@ var createContainer = function() {
 
 var createDirectionalLight = function() {
   dl = new THREE.DirectionalLight( 0xffffff );
-  dl.position.set(0.0, 1.0, 0.0);
+  dl.position.set(10000.0, 10000.0, 10000.0);
   return dl;
 };
 
 var createPointLight = function() {
-  pl = new THREE.PointLight(0xffffff, 1.0, 30.0);
-  pl.position.set(0, 10, 0);
+  pl = new THREE.PointLight(0xffffff, 2.0, 100.0);
+  pl.position.set(0, 0, 0);
   return pl;
 };
 

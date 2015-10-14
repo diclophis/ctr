@@ -4,7 +4,7 @@ var tick = function() {
     this.controls.update(this.clock.getDelta());
   }
 
-  var cameraHeight = 10;
+  var cameraHeight = 30;
 
   if (!this.paused) {
     requestAnimationFrame(tick.bind(this));
@@ -66,7 +66,7 @@ var tick = function() {
     this.car_one.position.set(this.car_one.position.x, (this.car_one.position.y) - (Math.sin(this.st * 0.0025) * 1.0), this.car_one.position.z);
 
     var farForward = this.foward.clone().multiplyScalar(100.0 + (0.01 * this.forward_speed)); //how far in front
-    var farBack = this.foward.clone().negate().multiplyScalar(475.0); //how far in back
+    var farBack = this.foward.clone().negate().multiplyScalar(500.0); //how far in back
 
     var reallyFarBack = this.car_one.position.clone().add(farBack);
 
@@ -80,12 +80,13 @@ var tick = function() {
       var reallyFarOut = this.car_one.position.clone().add(farForward);
       this.camera.lookAt(reallyFarOut);
       this.camera.position.set(0 + reallyFarBack.x, cameraHeight, 0 + reallyFarBack.z);
+      //this.spotlight.position.set(this.camera.position);
     } else {
       var reallyFarOut = this.car_one.position.clone().add(farForward);
       this.camera.lookAt(reallyFarOut);
     }
   }
-
+  //this.spotlight.updateMatrix();
   this.camera.updateProjectionMatrix();
   this.skyBoxCamera.rotation.copy(this.camera.rotation);
 
@@ -395,8 +396,8 @@ var createRaceTrack = function(scene) {
   //material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
   //var material2 = new THREE.MeshBasicMaterial( { wireframe: true } );
   var nomMat1 = new THREE.MeshNormalMaterial({wireframe: true});
-  var nomMat2 = new THREE.MeshBasicMaterial({color: 0xff0000});
-  var nomMat3 = new THREE.MeshDepthMaterial({wireframe: true, wireframeLinewidth: 4});
+  var nomMat2 = new THREE.MeshLambertMaterial({color: 0xff0000});
+  var nomMat3 = new THREE.MeshLambertMaterial({color: 0xffffff, wireframe: true, wireframeLinewidth: 4});
 
   var mesh2 = new THREE.Mesh(trackGeometry2, nomMat1);
   mesh2.position.set(mesh2.position.x, mesh2.position.y + 2.0, mesh2.position.z);
@@ -424,11 +425,13 @@ function addGrassToScene(scene) {
   // build object3d
   var ddddd = 3500;
   var geometry  = new THREE.PlaneBufferGeometry(ddddd * 4, ddddd * 4); //new THREE.PlaneGeometry(ddddd * 2, ddddd * 2);
-  var material  = new THREE.MeshPhongMaterial({
+  var material  = new THREE.MeshLambertMaterial({
     map : texture,
     emissive: 'green',
   })
   var object3d  = new THREE.Mesh(geometry, material)
+  object3d.receiveShadow = true;
+
   object3d.rotateX(-Math.PI/2)
   //object3d.translateY(-45.0);
   object3d.position.y -= 45.0;
@@ -439,7 +442,7 @@ function addGrassToScene(scene) {
   //////////////////////////////////////////////////////////////////////////////////
   //    comment               //
   //////////////////////////////////////////////////////////////////////////////////
-  var nTufts  = 2000;
+  var nTufts  = 1000;
   var positions = new Array(nTufts)
   for(var i = 0; i < nTufts; i++){
     var position  = new THREE.Vector3()
@@ -649,17 +652,23 @@ var createCrossCsg = function(mat1, mat2) {
 
 
   var mesh1 = new THREE.Mesh(geometry, mat1);
+  mesh1.castShadow = true;
+  mesh1.receiveShadow = true;
   mesh1.position.set(0, 0, 0);
   mesh1.geometry.computeFaceNormals(); // highly recommended...
 
-  var mesh2 = new THREE.Mesh(geometry, mat2);
-  mesh2.position.set(0, 0, 0);
-  mesh2.geometry.computeFaceNormals(); // highly recommended...
+  //var mesh2 = new THREE.Mesh(geometry, mat2);
+  //mesh2.castShadow = true;
+  //mesh2.receiveShadow = true;
+  //mesh2.position.set(0, 0, 0);
+  //mesh2.geometry.computeFaceNormals(); // highly recommended...
 
   terrainObject = new THREE.Object3D();
   terrainObject.add(mesh1);
-  terrainObject.add(mesh2);
+  //terrainObject.add(mesh2);
   terrainObject.scale.set(1, 1, 1);
+  terrainObject.receiveShadow = true;
+
 
   return terrainObject;
 };
@@ -682,6 +691,8 @@ var createAlongCsg = function(mat) {
   var union = along_bsp.union(col_bsp);
 
   var mesh = new THREE.Mesh(union.toGeometry(), mat); //new THREE.MeshNormalMaterial({wireframe: false}));
+  mesh.castShadow = true;
+
   mesh.position.set(0, 0, 0);
 
   mesh.geometry.computeFaceNormals(); // highly recommended...
@@ -807,23 +818,23 @@ var main = function(body) {
   var directionalLight = createDirectionalLight();
   scene.add(directionalLight);
 
-  var pointLight = createPointLight();
-  scene.add(pointLight);
-
   var raceTrack = createRaceTrack(scene);
   scene.add(raceTrack);
 
   var skyBoxCamera = createCamera(wsa, 1000);
   var skyBoxScene = createScene();
   var skyBoxMaterial = createTextureCubeMaterial();
+  //skyBoxMaterial = new THREE.MeshLambertMaterial({color: 0x00ff00});
   var skyBox = createSkyBox(skyBoxMaterial);
-  skyBoxScene.add(skyBox);
+  //skyBoxScene.add(skyBox);
 
-  var renderer = new THREE.WebGLRenderer({
-  });
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
 
   renderer.setSize(wsa.x, wsa.y);
   renderer.autoClear = false;
+  renderer.shadowMapEnabled = true;
+  renderer.shadowMapType = THREE.PCFSoftShadowMap;
+
   container.appendChild(renderer.domElement);
 
   var loader = new THREE.ColladaLoader();
@@ -831,8 +842,41 @@ var main = function(body) {
   loader.load("drone.dae", function(geometry) {
 
     var car_one = createCarFromGeometry(geometry);
+    car_one.castShadow = true;
+    car_one.children[0].castShadow = true;
+    car_one.children[0].children[0].castShadow = true;
     var ppp = (raceTrack.specialSpineCurve.getPoint(0));
     car_one.position.set(ppp.x + 150, ppp.y + 10.0, ppp.z + 150);
+
+    var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+    scene.add( light );
+
+    var pointLight = createPointLight();
+    pointLight.position.set(ppp.x + 150, ppp.y + 1000.0, ppp.z + 150);
+    scene.add(pointLight);
+
+var spotLight = new THREE.SpotLight( 0xffffff );
+spotLight.intensity = 0.5;
+spotLight.position.set( ppp.x + 150, 1000, ppp.z + 150 );
+spotLight.target = car_one;
+
+spotLight.castShadow = true;
+
+spotLight.shadowDarkness = 1.0;
+//spotLight.shadowBias = -0.0002;
+spotLight.decay = 10.01;
+
+
+spotLight.shadowMapWidth = 1024 * 2;
+spotLight.shadowMapHeight = 1024 * 2;
+
+spotLight.shadowCameraNear = 1;
+spotLight.shadowCameraFar = 100000;
+spotLight.shadowCameraFov = 91;
+spotLight.shadowCameraVisible = false;
+
+scene.add( spotLight );
+
 
     var tangent = (raceTrack.specialSpineCurve.getTangent(0));
     tangent.y = 0.0;
@@ -865,6 +909,7 @@ var main = function(body) {
       dirty: true,
       container: container,
       clock: new THREE.Clock(),
+      spotlight: spotLight,
     };
 
     if (false) {
