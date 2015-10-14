@@ -391,10 +391,119 @@ var createRaceTrack = function(scene) {
   var nomMat = new THREE.MeshNormalMaterial({wireframe: true});
   var mesh2 = new THREE.Mesh(trackGeometry2, nomMat);
   mesh2.position.set(mesh2.position.x, mesh2.position.y + 2.0, mesh2.position.z);
-  trackObject.add(mesh2);
+  //trackObject.add(mesh2);
 
   mesh.position.set(mesh.position.x, mesh2.position.y + 2.0, mesh.position.z);
-  trackObject.add(mesh);
+  //trackObject.add(mesh);
+
+/*
+  var positions   = []
+  positions.push(new THREE.Vector3(0,0,0));
+  positions.push(new THREE.Vector3(0,0,0));
+  var mesh    = new THREEx.createGrassTufts(positions)
+  trackObject.add(mesh)
+*/
+
+function addGrassToScene(scene) {
+  var textureUrl  = 'images/grasslight-small.jpg'
+  var texture = THREE.ImageUtils.loadTexture(textureUrl);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.x= 10
+  texture.repeat.y= 10
+  //texture.anisotropy = renderer.getMaxAnisotropy()
+  // build object3d
+  var geometry  = new THREE.PlaneGeometry(20, 20)
+  var material  = new THREE.MeshPhongMaterial({
+    map : texture,
+    emissive: 'green',
+  })
+  var object3d  = new THREE.Mesh(geometry, material)
+  object3d.rotateX(-Math.PI/2)
+  scene.add(object3d)
+  
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //    comment               //
+  //////////////////////////////////////////////////////////////////////////////////
+  var nTufts  = 100;
+  var positions = new Array(nTufts)
+  for(var i = 0; i < nTufts; i++){
+    var position  = new THREE.Vector3()
+    position.x  = (Math.random()-0.5)*20
+    position.z  = (Math.random()-0.5)*20
+    positions[i]  = position
+  }
+  var mesh  = THREEx.createGrassTufts(positions)
+  scene.add(mesh)
+  // load the texture
+  var textureUrl    = THREEx.createGrassTufts.baseUrl+'images/grass01.png'
+  var material    = mesh.material
+  material.map    = THREE.ImageUtils.loadTexture(textureUrl)
+  material.alphaTest  = 0.7
+  //////////////////////////////////////////////////////////////////////////////////
+  //    comment               //
+  //////////////////////////////////////////////////////////////////////////////////
+  
+  
+  //var nTufts  = 5000
+  var positions = new Array(nTufts)
+  for(var i = 0; i < nTufts; i++){
+    var position  = new THREE.Vector3()
+    position.x  = (Math.random()-0.5)*20
+    position.z  = (Math.random()-0.5)*20
+    positions[i]  = position
+  }
+  var mesh  = THREEx.createGrassTufts(positions)
+  scene.add(mesh)
+  // load the texture
+  var textureUrl    = THREEx.createGrassTufts.baseUrl+'images/grass02.png'
+  var material    = mesh.material
+  material.map    = THREE.ImageUtils.loadTexture(textureUrl)
+  material.alphaTest  = 0.7
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //    comment               //
+  //////////////////////////////////////////////////////////////////////////////////
+  //var nTufts  = 100
+  var positions = new Array(nTufts)
+  for(var i = 0; i < nTufts; i++){
+    var position  = new THREE.Vector3()
+    position.x  = (Math.random()-0.5)*20
+    position.z  = (Math.random()-0.5)*20
+    positions[i]  = position
+  }
+  var mesh  = THREEx.createGrassTufts(positions)
+  scene.add(mesh)
+  // load the texture
+  var material    = mesh.material
+  var textureUrl    = THREEx.createGrassTufts.baseUrl+'images/flowers01.png'
+  material.map    = THREE.ImageUtils.loadTexture(textureUrl)
+  material.emissive.set(0x888888)
+  material.alphaTest  = 0.7
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //    comment               //
+  //////////////////////////////////////////////////////////////////////////////////
+  //var nTufts  = 100
+  var positions = new Array(nTufts)
+  for(var i = 0; i < nTufts; i++){
+    var position  = new THREE.Vector3()
+    position.x  = (Math.random()-0.5)*20
+    position.z  = (Math.random()-0.5)*20
+    positions[i]  = position
+  }
+  var mesh  = THREEx.createGrassTufts(positions)
+  scene.add(mesh)
+  // load the texture
+  var material    = mesh.material
+  var textureUrl    = THREEx.createGrassTufts.baseUrl+'images/flowers02.png'
+  material.map    = THREE.ImageUtils.loadTexture(textureUrl)
+  material.emissive.set(0x888888)
+  material.alphaTest  = 0.7
+};
+
+  addGrassToScene(trackObject);
 
  
   // do supports/bottom trusses
@@ -462,13 +571,9 @@ var createDebugCsg = function(mat) {
   var sphere = new THREE.SphereGeometry(3, 16, 16);
   var sphere_bsp = new ThreeBSP( sphere, {offset: {x: 1, y:2, z: 1}} );
 
-  //console.time('operation');
   var union = cube_bsp.subtract( sphere_bsp );
-  //console.timeEnd('operation');
 
-  //console.time('mesh');
   var mesh = new THREE.Mesh(union.toGeometry(), mat);
-  //console.timeEnd('mesh');
 
   mesh.geometry.computeFaceNormals(); // highly recommended...
 
@@ -684,15 +789,6 @@ var main = function(body) {
   var skyBox = createSkyBox(skyBoxMaterial);
   skyBoxScene.add(skyBox);
 
-  //var terrain = createTerrain();
-  //scene.add(terrain);
-
-  //var renderer = new THREE.WebGLRenderer({
-  //  precision: "lowp",
-  //  alpha: false,
-  //  maxLights: 2,
-  //  stencil: false
-  //});
   var renderer = new THREE.WebGLRenderer({
   });
 
@@ -706,23 +802,11 @@ var main = function(body) {
 
     var car_one = createCarFromGeometry(geometry);
     var ppp = (raceTrack.specialSpineCurve.getPoint(0));
-    //debugger;
-    //console.log(ppp);
-    //car_one.position.set(31, 1.9, 97);
     car_one.position.set(ppp.x, ppp.y, ppp.z);
 
     var tangent = (raceTrack.specialSpineCurve.getTangent(0));
-    //debugger;
-    //console.log(tangent);
-    //var u = new THREE.Euler(tangent);
-    //var ux = (new THREE.Matrix4()).makeRotionFromEuler(u);
-    //csg.setRotationFromEuler(u);
-    //debugger;
     tangent.y = 0.0;
-    //var roy = ((new THREE.Vector3(0, 0, -1)).angleTo(tangent));
     var roy = Math.atan2(tangent.x, tangent.z);
-    //tangent.dot(tangent));
-    //car_one.rotateY(roy);
     scene.add(car_one);
 
     var thingy = {
@@ -763,18 +847,12 @@ var main = function(body) {
       thingy.controls.staticMoving = true;
       //thingy.controls.dynamicDampingFactor = 0.3;
       thingy.controls.keys = [ 65, 83, 68 ];
-    } else {
+    } else if (true) {
       thingy.controls = new THREE.FirstPersonControls(camera, container);
       thingy.controls.movementSpeed = 750;
       thingy.controls.lookSpeed = 0.175;
-      //thingy.controls.lookVertical = true;
-
-      //camera.update = function () {
-      //  thingy.controls.update(clock.getDelta());
-      //};
     }
 
-    //thingy.controls.addEventListener( 'change', render );
     renderer.domElement.addEventListener('pointerdown', onPointerDown.bind(thingy), false);
     renderer.domElement.addEventListener('pointermove', onPointerMove.bind(thingy), false);
     renderer.domElement.addEventListener('pointerup', onPointerUp.bind(thingy), false);
