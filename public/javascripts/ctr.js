@@ -386,7 +386,7 @@ var createRaceTrack = function(scene) {
   //material = new THREE.MeshLambertMaterial({ wireframe: false, map: THREE.ImageUtils.loadTexture("track.png") });
   //var material2 = new THREE.MeshBasicMaterial( { wireframe: true } );
   var nomMat1 = new THREE.MeshNormalMaterial({wireframe: true});
-  var nomMat2 = new THREE.MeshLambertMaterial({color: 0xff0000});
+  var nomMat2 = new THREE.MeshLambertMaterial({color: 0x5522ff});
   var nomMat3 = new THREE.MeshLambertMaterial({color: 0xffffff, wireframe: true, wireframeLinewidth: 4});
 
   var mesh2 = new THREE.Mesh(trackGeometry2, nomMat1);
