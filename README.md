@@ -1,6 +1,9 @@
 # ctr
 
+![ctr](screenshot.png)
+
 Prototype 3d Drone Racing Game
+
 
 # research
 
