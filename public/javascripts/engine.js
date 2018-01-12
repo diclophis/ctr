@@ -8,42 +8,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
 var onPointerDown = function(e) {
   this.speedUp = true;
-  this.pointers = e.getPointerList();
-  for(var i = 0; i<this.pointers.length; i++){
-    var pointer = this.pointers[i]; 
+  //this.pointers = e.getPointerList();
+  //console.log(this.pointers.length);
+  //for(var i = 0; i<this.pointers.length; i++){
+    var pointer = e; //this.pointers[i]; 
     if((this.leftPointerID < 0)) // && (pointer.x<this.wsa.windowHalfX))
     {
-      this.leftPointerID = pointer.identifier; 
+      this.leftPointerID = pointer.pointerId;
       this.leftPointerStartPos.set(pointer.x, pointer.y);  
       this.leftPointerPos.copy(this.leftPointerStartPos); 
       //this.leftVector.set(0,0); 
-      continue;     
+      //continue;     
     } else {
     } 
-  }
+  //}
 }
 
 var onPointerMove = function(e) {
-  this.pointers = e.getPointerList();
-  for (var i = 0; i<this.pointers.length; i++){
-    var pointer = this.pointers[i]; 
-    if (this.leftPointerID == pointer.identifier) {
+  //this.pointers = e.getPointerList();
+  //console.log(this.pointers.length);
+  //for (var i = 0; i<this.pointers.length; i++){
+    var pointer = e; //this.pointers[i]; 
+    if (this.leftPointerID == pointer.pointerId) {
       this.leftPointerPos.set(pointer.x, pointer.y); 
       this.leftVector.copy(this.leftPointerPos); 
       this.leftVector.sub(this.leftPointerStartPos);  
-      break;    
+      //break;    
     }   
-  }
+  //}
 } 
 
 var onPointerUp = function(e) { 
-  this.pointers = e.getPointerList(); 
-  if (this.pointers.length == 0) {
+  //this.pointers = e.getPointerList(); 
+  //console.log(this.pointers.length);
+  //if (this.pointers.length == 0) {
     this.leftPointerID = -1; 
     //if (e.pointerType == PointerTypes.pointer) {
     //}
     //this.leftVector.set(0,0); 
-  }
+  //}
   //if (this.resetTimer > this.resetTimeout) {
     this.speedUp = false;
   //}
